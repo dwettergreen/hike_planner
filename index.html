@@ -1076,10 +1076,6 @@ function showTab(t){
 // ════════════════════════════════════════════════════
 // CONTROLS
 // ════════════════════════════════════════════════════
-// ══════════════════════════════════════════════════════════════════
-// SHARE URL  (encodes settings + overrides into query string)
-// ══════════════════════════════════════════════════════════════════
-
 
 // ══════════════════════════════════════════════════════════════════
 // EXPORT PANEL
@@ -1790,7 +1786,7 @@ async function loadData(trailPath) {
   const trailLatLngs = TRAIL_COORDS.map(([lon,lat]) => [lat,lon]);
   _trailLine = L.polyline(trailLatLngs, {color:'#e07020', weight:2.5, opacity:0.7}).addTo(map);
 
-  // Start marker at Bridge of Gods — first point of trail.geojson
+  // Start marker at first point of trail.geojson
   const startLatLon = [TRAIL_COORDS[0][1], TRAIL_COORDS[0][0]];
   const startIcon = L.divIcon({className:'',
     html:`<div style="
