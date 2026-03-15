@@ -555,6 +555,8 @@ function showSnap(latlng){
 // ════════════════════════════════════════════════════
 
 function buildPlan(){
+  // Guard: don't run before data is loaded
+  if(!ALL_STOPS.length) return null;
   const {avg} = getPace();
   const sd       = getStartDate();
   const startDoy = Math.floor((sd - new Date(sd.getFullYear(), 0, 0)) / 86400000);
@@ -738,6 +740,8 @@ function renderList(){
   const {min,max} = getPace();
 
   plan.forEach((camp,idx)=>{
+    // Skip malformed entries (safety net — should not occur in normal operation)
+    if(!camp || camp.mile == null) return;
     const isTerm=!!camp.isTerminus;
     // Use trailDist for daily distance if available, else fall back to mile diff
     const SCALE = (END_TRAIL_DIST-START_TRAIL_DIST)/(END_MILE-START_MILE);
@@ -770,7 +774,7 @@ function renderList(){
       <div class="nnum" style="color:${col};border-color:${col}55;background:${col}18">${isTerm?'🏁':idx+1}</div>
       <div class="nbody">
         <div class="nname">${camp.name}</div>
-        <div class="nmeta">${fmtDate(sd,idx)} · Mi ${camp.mile.toFixed(1)}</div>
+        <div class="nmeta">${fmtDate(sd,idx)} · Mi ${(camp.mile ?? 0).toFixed(1)}</div>
         <div class="nrow">
           <div class="nelev" style="color:${col}">${camp.elev?camp.elev.toLocaleString()+' ft':'Terminus'}</div>
           <div class="nmi">${mi.toFixed(1)} mi today</div>
@@ -1524,7 +1528,7 @@ async function loadData() {
   // Split into camps vs resupply
   RESUPPLY  = allSites.filter(c => c.source === 'resupply');
   CAMPS     = allSites.filter(c => c.source !== 'resupply');
-  ALL_STOPS = [...allSites].sort((a,b) => a.mile - b.mile);
+  ALL_STOPS = [...allSites].sort((a,b) => (a.mile ?? 0) - (b.mile ?? 0));
 
   // Build resupply-as-camp entries (add isResupply flag)
   ALL_STOPS = ALL_STOPS.map(c => c.source === 'resupply'
@@ -1613,7 +1617,7 @@ async function loadData() {
     L.circleMarker([c.lat,c.lon], {
       radius:3, color:'#e07020', weight:1.5,
       fillColor:'#ffffff', fillOpacity:0.9, opacity:0.7
-    }).bindTooltip(c.name+' (Mi '+c.mile.toFixed(1)+')',
+    }).bindTooltip(c.name+' (Mi '+(c.mile ?? 0).toFixed(1)+')',
       {className:'tip-tooltip',direction:'top',offset:[0,-4]}).addTo(bgDotLayer);
   });
   RESUPPLY.forEach(r => {
