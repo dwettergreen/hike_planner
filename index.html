@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PCT Washington Planner</title>
+  <title>Interactive Camp Planner</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700&family=Source+Code+Pro:wght@400;600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -189,16 +189,16 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
 
 <div id="loading">
   <div class="spin"></div>
-  <h2>PCT Washington Planner</h2>
+  <h2>Interactive Camp Planner</h2>
   <p>Loading trail data…</p>
 </div>
 
 <div id="app">
 
 <header>
-  <div class="logo">PCT</div>
+  <div class="logo">HIKE</div>
   <div class="sep"></div>
-  <div class="htitle">Washington — <span>Interactive Camp Planner</span></div>
+  <div class="htitle">Long Trail — <span>Interactive Camp Planner</span></div>
   <div class="sep"></div>
   <div class="hstat"><div class="hstat-v" id="h-days">—</div><div class="hstat-l">Days</div></div>
   <div class="hstat"><div class="hstat-v" id="h-nights">—</div><div class="hstat-l">Nights</div></div>
@@ -253,7 +253,7 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
     <div class="mpill" id="edit-hint">📍 Click trail to add campsite here</div>
     <div class="mpill" id="layer-sw">
       <div style="font-family:'Bitter',serif;font-weight:700;color:var(--text);font-size:11px;margin-bottom:5px">Basemap</div>
-      <label><input type="radio" name="lyr" value="topo" checked onchange="switchLayer('topo')"> OpenTopoMap (PCT visible)</label>
+      <label><input type="radio" name="lyr" value="topo" checked onchange="switchLayer('topo')"> OpenTopoMap</label>
       <label><input type="radio" name="lyr" value="usgs" onchange="switchLayer('usgs')"> USGS Topo</label>
       <label><input type="radio" name="lyr" value="osm" onchange="switchLayer('osm')"> OpenStreetMap</label>
     </div>
@@ -264,7 +264,7 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
       <div class="lr"><div class="ld" style="background:#5dba7f"></div> 2,000–3,500 ft</div>
       <div class="lr"><div class="ld" style="background:#5b9bd5"></div> &lt; 2,000 ft</div>
       <div style="margin-top:5px;padding-top:5px;border-top:1px solid var(--border)">
-      <div class="lr"><div style="width:22px;height:3px;background:#e8832a;border-radius:2px;flex-shrink:0;margin-top:1px"></div> PCT trail (GPS)</div>
+      <div class="lr"><div style="width:22px;height:3px;background:#e8832a;border-radius:2px;flex-shrink:0;margin-top:1px"></div> Long Trail (GPS)</div>
       
       <div class="lr"><div style="width:10px;height:10px;border-radius:50%;background:#fff;border:1.5px solid #e8832a;flex-shrink:0"></div> All campsites</div>
       <div class="lr"><div style="width:12px;height:12px;background:#1d4ed8;border:1.5px solid #93c5fd;border-radius:2px;flex-shrink:0"></div> Resupply stop</div>
@@ -287,12 +287,15 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
 
 // ════════════════════════════════════════════════════
 // CONSTANTS
+// START_MILE / END_MILE are `let` so loadData() can override them
+// from trail.geojson properties.startMile / properties.endMile.
+// All other values are fixed per-trail configuration.
 // ════════════════════════════════════════════════════
-const START_MILE       = 2147.3;
-const END_MILE         = 2653.1;
-const START_TRAIL_DIST = 0.0;    // trailDist of Bridge of Gods (before first camp)
-const END_TRAIL_DIST   = 505.38; // trailDist of Northern Terminus
-const BASELINE_MELT_DOY = 152;
+let   START_MILE       = 0;       // overridden by trail.geojson properties.startMile if present
+let   END_MILE         = 272;     // overridden by trail.geojson properties.endMile if present
+const START_TRAIL_DIST = 0.0;     // trailDist of Williamstown, MA (southern terminus)
+const END_TRAIL_DIST   = 249.099; // trailDist of Canadian border terminus (full-res GPS arc-length)
+const BASELINE_MELT_DOY = 148;    // Vermont avg snowmelt ~May 28 (DOY 148)
 
 // ════════════════════════════════════════════════════
 // DATA — loaded async from data/ folder
@@ -302,7 +305,7 @@ let RESUPPLY     = [];
 let ALL_STOPS    = [];
 let TRAIL_COORDS = [];
 
-const TERMINUS = { name:'Northern Terminus', lat:49.000000, lon:-120.802223, elev:4247, mile:END_MILE, isTerminus:true };
+const TERMINUS = { name:'Northern Terminus', lat:44.9999, lon:-72.5110, elev:2560, mile:END_MILE, isTerminus:true };
 
 // ════════════════════════════════════════════════════
 // STATE
@@ -391,15 +394,16 @@ function elevColor(e){
   return '#5b9bd5';
 }
 
-// ── Date-aware mosquito model (Cascades snowmelt phenology) ──────────────────
+// ── Date-aware mosquito model (Vermont/Green Mountains phenology) ────────────
 // Bands: [max_elev_ft, peak_doy, sigma_days]
-// Base mosquito peaks relative to Jun 1 (DOY 152) normal snowmelt:
-// Each band's peak = baseline_peak + (meltDoy - 152)
+// Vermont has a humid continental climate — bugs peak late June at low elev,
+// mid-July at higher elevations. Wider sigma (longer bug season than Cascades).
+// Base peaks relative to May 28 (DOY 148) normal Vermont snowmelt.
 const MOSQ_BASE = [
-  [3000,  155, 22],   // valleys  <3k ft
-  [4500,  175, 20],   // montane  3-4.5k ft
-  [5500,  192, 17],   // subalpine 4.5-5.5k ft
-  [99999, 207, 14],   // alpine   5.5k+ ft
+  [1500,  168, 26],   // valleys/lowlands  <1.5k ft  (peak ~Jun 17)
+  [2500,  178, 24],   // montane           1.5-2.5k ft (peak ~Jun 27)
+  [3500,  188, 22],   // upper montane     2.5-3.5k ft (peak ~Jul 7)
+  [99999, 198, 18],   // ridge/alpine      3.5k+ ft    (peak ~Jul 17)
 ];
 function getMeltDoy(){
   const el = document.getElementById('melt-date');
@@ -451,7 +455,7 @@ function getPace(){
 }
 function getStartDate(){
   const v = document.getElementById('start-date').value;
-  return new Date((v||'2026-07-01')+'T00:00:00');
+  return new Date((v||'2026-06-25')+'T00:00:00');
 }
 function fmtDate(startDate, i){
   const d = new Date(startDate); d.setDate(d.getDate()+i);
@@ -1031,7 +1035,7 @@ function showTab(t){
 function planToCSV(){
   const sd = getStartDate();
   // Columns: PCT Mile | (blank) | (blank) | Miles Today | (blank) | Campsite | Elevation | Date | Notes
-  const rows = ['"PCT Mile","","","Miles Today","","Campsite","Elevation (ft)","Date","Notes"'];
+  const rows = ['"Mile","","","Miles Today","","Campsite","Elevation (ft)","Date","Notes"'];
   plan.forEach((camp,idx)=>{
     const isTerm = !!camp.isTerminus;
     const date = fmtDate(sd, idx);
@@ -1070,7 +1074,7 @@ function renderExport(){
     <div class="ss">
       <div class="st">Download as CSV</div>
       <p style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.5">
-        Opens in Excel or Google Sheets. Columns: PCT Mile, Miles Today,
+        Opens in Excel or Google Sheets. Columns: Mile, Miles Today,
         Campsite, Elevation, Date, Notes (type / water / mosquito / wind).
       </p>
       <button class="ebtn ebtn-g" onclick="downloadCSV()">⬇ Download CSV</button>
@@ -1094,7 +1098,7 @@ function downloadCSV(){
   const blob = new Blob([csv], {type:'text/csv'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'PCT_WA_Itinerary_' + sd + '.csv';
+  a.download = 'Hike_Itinerary_' + sd + '.csv';
   a.click();
   URL.revokeObjectURL(a.href);
 }
@@ -1216,7 +1220,7 @@ function editorShowForm(c, isNew){
       </div>
       <div class="erow"><label class="elbl">Name</label>
         <input class="einp" id="ef-name" value="${c.name||''}"></div>
-      <div class="erow"><label class="elbl">PCT Mile</label>
+      <div class="erow"><label class="elbl">Mile</label>
         <input class="einp" id="ef-mile" type="number" step="0.01" value="${c.mile||''}"></div>
       <div class="erow"><label class="elbl">Latitude</label>
         <input class="einp" id="ef-lat" type="number" step="0.000001" value="${c.lat||''}"></div>
@@ -1260,7 +1264,7 @@ function editorSave(){
   const lon  = parseFloat(document.getElementById('ef-lon').value);
   const elev = parseInt(document.getElementById('ef-elev').value)||null;
   if(!name){ alert('Name is required'); return; }
-  if(isNaN(mile)){ alert('PCT Mile is required'); return; }
+  if(isNaN(mile)){ alert('Mile is required'); return; }
   if(isNaN(lat)||isNaN(lon)){ alert('Lat/lon required'); return; }
 
   const existing = ALL_STOPS[editorSel];
@@ -1498,7 +1502,16 @@ async function loadData() {
     );
   }
 
-  // Draw the PCT trail polyline
+  // Read START_MILE / END_MILE from trail.geojson properties if provided.
+  // This makes the tool self-configuring — add startMile/endMile to any
+  // trail.geojson and the constants update automatically at load time.
+  // Falls back to the hardcoded let values above if properties are absent
+  // (backwards compatible with trail files that don't have these fields).
+  const trailProps = feat.properties || {};
+  if(trailProps.startMile != null) START_MILE = trailProps.startMile;
+  if(trailProps.endMile   != null) END_MILE   = trailProps.endMile;
+
+  // Draw the trail polyline
   const trailLatLngs = TRAIL_COORDS.map(([lon,lat]) => [lat,lon]);
   L.polyline(trailLatLngs, {color:'#e07020', weight:2.5, opacity:0.7}).addTo(map);
 
@@ -1513,7 +1526,7 @@ async function loadData() {
       color:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.45);">0</div>`,
     iconSize:[20,20], iconAnchor:[10,10]});
   L.marker(startLatLon, {icon:startIcon, interactive:true})
-    .bindTooltip('Bridge of Gods — Start (Mi 2147.3)',
+    .bindTooltip('Williamstown, MA — Start (Mi 0)',
       {className:'tip-tooltip', direction:'top', offset:[0,-14]})
     .addTo(map);
 
