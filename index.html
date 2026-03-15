@@ -25,7 +25,7 @@
 html,body{height:100%;overflow:hidden;font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text);}
 
 /* ── LAYOUT ── */
-#app{display:grid;grid-template-rows:50px 1fr 160px;height:100vh;}
+#app{display:grid;grid-template-rows:50px 1fr;height:100vh;}
 
 /* ── HEADER ── */
 header{
@@ -131,14 +131,9 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
 /* Snap pulse */
 .snap-pulse{position:absolute;border-radius:50%;border:2px solid var(--snap);animation:snap-out .55s ease-out forwards;pointer-events:none;z-index:2000;}
 
-/* ── ELEVATION CHART ── */
-#chart-row{background:#f0f2f8;border-top:1px solid var(--border);display:flex;align-items:stretch;overflow:hidden;}
-#chart-label{writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);font-size:10px;color:var(--text3);padding:0 6px;text-transform:uppercase;letter-spacing:1px;flex-shrink:0;display:flex;align-items:center;}
-#elev-chart{flex:1;overflow-x:auto;overflow-y:hidden;cursor:default;}
-#elev-chart::-webkit-scrollbar{height:5px;}
-#elev-chart::-webkit-scrollbar-track{background:#f0f2f8;}
-#elev-chart::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
-#elev-canvas{display:block;}
+/* ── ELEVATION CHART (inside Summary tab) ── */
+#elev-chart-wrap{width:100%;margin-bottom:4px;overflow:hidden;}
+#elev-canvas{display:block;width:100%;}
 
   /* Loading overlay */
   #loading{position:fixed;inset:0;background:#f4f6fa;display:flex;flex-direction:column;
@@ -271,13 +266,6 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
     </div>
     </div>
     <div id="warnbar"></div>
-  </div>
-</div>
-
-<div id="chart-row">
-  <div id="chart-label">Elevation (ft)</div>
-  <div id="elev-chart">
-    <canvas id="elev-canvas"></canvas>
   </div>
 </div>
 
@@ -792,91 +780,120 @@ function renderList(){
 }
 
 // ════════════════════════════════════════════════════
-// RENDER ELEVATION CHART
+// RENDER ELEVATION CHART  (line graph, lives in Summary tab)
 // ════════════════════════════════════════════════════
 function renderChart(){
-  const camps = plan.filter(c=>!c.isTerminus && c.elev);
-  if(!camps.length) return;
-
-  const container = document.getElementById('elev-chart');
   const canvas = document.getElementById('elev-canvas');
-  const h = container.clientHeight || 160;
-  const BAR_W = 18, GAP = 5, PAD_L=8, PAD_R=8, PAD_T=14, PAD_B=24;
-  const w = PAD_L + camps.length*(BAR_W+GAP) + PAD_R;
+  if(!canvas) return;
+  const camps = plan.filter(c => !c.isTerminus && c.elev);
+  if(!camps.length){ canvas.style.display='none'; return; }
+  canvas.style.display = 'block';
 
-  canvas.width = w;
-  canvas.height = h;
+  const PAD_L=28, PAD_R=10, PAD_T=12, PAD_B=20;
+  const W = canvas.parentElement ? canvas.parentElement.clientWidth || 260 : 260;
+  const H = 110;
+  canvas.width  = W;
+  canvas.height = H;
   const ctx = canvas.getContext('2d');
-  ctx.clearRect(0,0,w,h);
+  ctx.clearRect(0, 0, W, H);
 
-  const elevs = camps.map(c=>c.elev);
-  const maxE = Math.max(...elevs);
-  const minE = 0;
-  const chartH = h - PAD_T - PAD_B;
+  const elevs  = camps.map(c => c.elev);
+  const maxE   = Math.max(...elevs);
+  const minE   = Math.min(...elevs);
+  const rangeE = maxE - minE || 1;
+  const chartW = W - PAD_L - PAD_R;
+  const chartH = H - PAD_T - PAD_B;
 
-  // Background grid lines
-  [2000,3500,5000,7000].forEach(e=>{
-    if(e>maxE*1.05) return;
-    const y = PAD_T + chartH - (e/maxE)*chartH;
-    ctx.strokeStyle='rgba(255,255,255,0.06)';
-    ctx.lineWidth=1;
-    ctx.setLineDash([3,4]);
-    ctx.beginPath(); ctx.moveTo(PAD_L,y); ctx.lineTo(w-PAD_R,y); ctx.stroke();
+  // x/y helpers
+  const xOf = i  => PAD_L + (i / (camps.length - 1 || 1)) * chartW;
+  const yOf = el => PAD_T + chartH - ((el - minE) / rangeE) * chartH;
+
+  // Background
+  ctx.fillStyle = '#1a2235';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid lines at nice elevation intervals
+  const gridStep = rangeE > 3000 ? 1000 : rangeE > 1000 ? 500 : 200;
+  const gridStart = Math.ceil(minE / gridStep) * gridStep;
+  for(let e = gridStart; e <= maxE; e += gridStep){
+    const y = yOf(e);
+    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 4]);
+    ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(W - PAD_R, y); ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle='rgba(255,255,255,0.2)';
-    ctx.font='8px Source Code Pro,monospace';
-    ctx.textAlign='left';
-    ctx.fillText((e/1000).toFixed(0)+'k',1,y+3);
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.font = '8px Source Code Pro,monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText((e / 1000).toFixed(1) + 'k', PAD_L - 3, y + 3);
+  }
+
+  // Filled area under the line
+  ctx.beginPath();
+  ctx.moveTo(xOf(0), yOf(camps[0].elev));
+  camps.forEach((c, i) => ctx.lineTo(xOf(i), yOf(c.elev)));
+  ctx.lineTo(xOf(camps.length - 1), H - PAD_B);
+  ctx.lineTo(xOf(0), H - PAD_B);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0, PAD_T, 0, H - PAD_B);
+  grad.addColorStop(0, 'rgba(93,186,127,0.35)');
+  grad.addColorStop(1, 'rgba(93,186,127,0.04)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.moveTo(xOf(0), yOf(camps[0].elev));
+  camps.forEach((c, i) => ctx.lineTo(xOf(i), yOf(c.elev)));
+  ctx.strokeStyle = '#5dba7f';
+  ctx.lineWidth = 1.5;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  // Dots — colour-coded by elevation, active highlighted gold
+  camps.forEach((c, i) => {
+    const x = xOf(i), y = yOf(c.elev);
+    const isActive = plan.indexOf(c) === activeIdx;
+    ctx.beginPath();
+    ctx.arc(x, y, isActive ? 4 : 2.5, 0, Math.PI * 2);
+    ctx.fillStyle   = isActive ? '#ffd700' : elevColor(c.elev);
+    ctx.strokeStyle = isActive ? '#ffd700' : 'rgba(255,255,255,0.4)';
+    ctx.lineWidth   = isActive ? 1.5 : 0.8;
+    ctx.fill();
+    ctx.stroke();
   });
 
-  // Active night indicator
-  const sd = getStartDate();
-
-  camps.forEach((camp,i)=>{
-    const x = PAD_L + i*(BAR_W+GAP);
-    const barH = (camp.elev/maxE)*chartH;
-    const y = PAD_T + chartH - barH;
-    const col = elevColor(camp.elev);
-    const isActive = plan.indexOf(camp)===activeIdx;
-
-    // Bar
-    ctx.fillStyle = isActive ? '#ffd700' : col;
-    ctx.globalAlpha = isActive ? 1 : 0.82;
-    ctx.fillRect(x, y, BAR_W, barH);
-    ctx.globalAlpha=1;
-
-    // Active outline
-    if(isActive){
-      ctx.strokeStyle='#ffd700';
-      ctx.lineWidth=1.5;
-      ctx.strokeRect(x-0.5,y-0.5,BAR_W+1,barH+1);
-    }
-
-    // Day number label
-    ctx.fillStyle = isActive?'#ffd700':'rgba(255,255,255,0.45)';
-    ctx.font=`${isActive?'bold ':''}8px Source Code Pro,monospace`;
-    ctx.textAlign='center';
-    ctx.fillText(camp.day||i+1, x+BAR_W/2, h-PAD_B+10);
+  // Day-number labels along the bottom
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.font = '7px Source Code Pro,monospace';
+  ctx.textAlign = 'center';
+  camps.forEach((c, i) => {
+    // Only label every Nth camp to avoid crowding
+    const step = camps.length > 20 ? 3 : camps.length > 10 ? 2 : 1;
+    if(i % step === 0) ctx.fillText(i + 1, xOf(i), H - PAD_B + 11);
   });
 
-  // Assign day numbers for click detection
-  canvas._camps = camps;
-  canvas._params = {BAR_W,GAP,PAD_L,PAD_T,PAD_B,chartH,maxE,h};
+  // Store for click detection
+  canvas._camps  = camps;
+  canvas._xOf    = xOf;
+  canvas._nCamps = camps.length;
 }
 
-// Click on chart to select night
-document.getElementById('elev-canvas').addEventListener('click', e=>{
-  const canvas = e.target;
-  const {BAR_W,GAP,PAD_L} = canvas._params||{};
-  if(!canvas._camps) return;
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const i = Math.floor((x-PAD_L)/(BAR_W+GAP));
-  if(i>=0 && i<canvas._camps.length){
-    const campObj = canvas._camps[i];
-    const idx = plan.indexOf(campObj);
-    if(idx>=0) setActive(idx);
-  }
+
+// Click on chart to select night — uses closest x position to handle line graph
+document.addEventListener('click', e => {
+  const canvas = document.getElementById('elev-canvas');
+  if(e.target !== canvas || !canvas._camps) return;
+  const rect  = canvas.getBoundingClientRect();
+  const clickX = (e.clientX - rect.left) * (canvas.width / rect.width);
+  // Find camp with closest x
+  let bestI = 0, bestDist = Infinity;
+  canvas._camps.forEach((c, i) => {
+    const d = Math.abs(canvas._xOf(i) - clickX);
+    if(d < bestDist){ bestDist = d; bestI = i; }
+  });
+  const idx = plan.indexOf(canvas._camps[bestI]);
+  if(idx >= 0) setActive(idx);
 });
 
 // ════════════════════════════════════════════════════
@@ -895,6 +912,13 @@ function renderSummary(){
     </div>`;
 
   document.getElementById('sum-panel').innerHTML=`
+    <div class="ss">
+      <div class="st">Elevation Profile</div>
+      <div id="elev-chart-wrap" style="background:#1a2235;border-radius:4px;overflow:hidden;cursor:pointer;">
+        <canvas id="elev-canvas" style="display:block;width:100%;"></canvas>
+      </div>
+      <div style="font-size:9px;color:var(--text3);margin-top:3px;text-align:center">Click a point to select that night</div>
+    </div>
     <div class="ss">
       <div class="st">Trip Stats</div>
       <div class="sg">
@@ -938,6 +962,8 @@ function renderSummary(){
       ${seg('LOW 0.15–0.4',   camps.filter((_,i)=>{const p=mosquitoAt(camps[i].elev,arrivalDate(plan.indexOf(camps[i])));return p>=0.15&&p<0.4;}).length,    '#b8c43a')}
       ${seg('MINIMAL < 0.15', camps.filter((_,i)=>{const p=mosquitoAt(camps[i].elev,arrivalDate(plan.indexOf(camps[i])));return p<0.15;}).length,             '#5dba7f')}
     </div>`;
+  // Chart canvas is now in the DOM — draw it
+  renderChart();
 }
 
 // ════════════════════════════════════════════════════
@@ -1400,9 +1426,9 @@ function editorStartNew(){
 function renderAll(){
   renderMap();
   renderList();
-  renderChart();
   renderHeader();
   renderWarnings();
+  if(document.getElementById('sum-panel').style.display==='block') renderSummary();
   if(document.getElementById('exp-panel').style.display==='block') renderExport();
 }
 
