@@ -43,6 +43,17 @@ header{
 .spacer{flex:1;}
 .hint{font-size:11px;color:#4a6080;background:#e2e6ef;border:1px solid #cdd4e0;border-radius:var(--r);padding:4px 10px;white-space:nowrap;}
 .hint b{color:var(--amber);}
+/* ── TRAIL + PLAN SELECTORS ── */
+.trail-sel-wrap{display:flex;align-items:center;gap:6px;}
+.trail-sel-label{font-size:10px;color:#6878a0;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
+.trail-sel{font-family:'Source Sans 3',sans-serif;font-size:12px;font-weight:600;color:#1a2235;
+  background:#f0f2f8;border:1px solid #cdd4e0;border-radius:var(--r);
+  padding:4px 8px;cursor:pointer;outline:none;max-width:160px;}
+.trail-sel:focus{border-color:var(--green);}
+.plan-sel{font-family:'Source Sans 3',sans-serif;font-size:11px;color:#4a6080;
+  background:#f0f2f8;border:1px solid #cdd4e0;border-radius:var(--r);
+  padding:3px 7px;cursor:pointer;outline:none;max-width:160px;display:none;}
+.plan-sel:focus{border-color:var(--blue);}
 
 /* ── MIDDLE ROW: sidebar + map ── */
 #middle{display:grid;grid-template-columns:300px 1fr;overflow:hidden;}
@@ -200,6 +211,16 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
   <div class="hstat"><div class="hstat-v" id="h-avg">—</div><div class="hstat-l">Avg mi/day</div></div>
   <div class="hstat"><div class="hstat-v" id="h-elev">—</div><div class="hstat-l">Avg elev</div></div>
   <div class="spacer"></div>
+  <div class="trail-sel-wrap">
+    <span class="trail-sel-label">Trail</span>
+    <select class="trail-sel" id="trail-select" onchange="onTrailSelect(this.value)">
+      <option value="">Loading…</option>
+    </select>
+    <select class="plan-sel" id="plan-select" onchange="onPlanSelect(this.value)">
+      <option value="">Default plan</option>
+    </select>
+  </div>
+  <div class="sep"></div>
   <div class="hint"><b>Drag</b> any numbered marker to snap to nearest campsite &nbsp;·&nbsp; <b>Click</b> sidebar row to fly to camp</div>
 </header>
 
@@ -1113,10 +1134,10 @@ function renderExport(){
     <div class="ss">
       <div class="st">Save plan as JSON</div>
       <p style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.5">
-        Downloads <code style="background:var(--bg3);padding:1px 4px;border-radius:3px">plan.json</code>
-        — place it in the <code style="background:var(--bg3);padding:1px 4px;border-radius:3px">data/</code>
-        folder to restore this plan automatically on next load.
-        Saves your pace settings and any manually dragged campsites.
+        Downloads a <code style="background:var(--bg3);padding:1px 4px;border-radius:3px">plan.json</code>
+        — place it in <code style="background:var(--bg3);padding:1px 4px;border-radius:3px">trails/${CURRENT_TRAIL_ID}/plans/</code>
+        and add an entry to that folder's <code style="background:var(--bg3);padding:1px 4px;border-radius:3px">index.json</code>
+        to restore automatically on next load.
       </p>
       <button class="ebtn ebtn-b" onclick="saveAsJSON()">💾 Save plan.json</button>
     </div>
@@ -1162,7 +1183,10 @@ function saveAsJSON(){
   const blob = new Blob([JSON.stringify(saved, null, 2)], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'plan.json';
+  // Use trail id in filename so plans don't overwrite each other
+  const trailSlug = CURRENT_TRAIL_ID || 'plan';
+  const sd = document.getElementById('start-date').value.replace(/-/g,'').substring(0,8);
+  a.download = trailSlug + '-plan-' + sd + '.json';
   a.click();
   URL.revokeObjectURL(a.href);
 }
@@ -1462,17 +1486,188 @@ function rebuildAndRender(){
 
 
 // ════════════════════════════════════════════════════
+// TRAIL REGISTRY + SELECTOR
+// ════════════════════════════════════════════════════
+
+let REGISTRY         = [];   // loaded from registry.json
+let CURRENT_TRAIL_ID = '';   // currently loaded trail id
+let CURRENT_TRAIL_PATH = ''; // e.g. "trails/long-trail"
+
+// Map layers that must be torn down on trail switch
+let _bgDotLayer   = null;
+let _trailLine    = null;
+let _startMarker  = null;
+
+function teardownTrail(){
+  // Remove all map layers added by loadData
+  if(_bgDotLayer)  { map.removeLayer(_bgDotLayer);  _bgDotLayer  = null; }
+  if(_trailLine)   { map.removeLayer(_trailLine);   _trailLine   = null; }
+  if(_startMarker) { map.removeLayer(_startMarker); _startMarker = null; }
+  // Remove all plan markers
+  Object.values(markers).forEach(m => map.removeLayer(m));
+  for(const k in markers) delete markers[k];
+  routeLine.setLatLngs([]);
+  // Clear editor dot layer
+  if(editorDotLayer){ map.removeLayer(editorDotLayer); editorDotLayer = null; }
+  // Reset data arrays
+  CAMPS=[]; RESUPPLY=[]; ALL_STOPS=[]; TRAIL_COORDS=[]; plan=[];
+  // Reset UI
+  document.getElementById('list-panel').innerHTML = '';
+  document.getElementById('sum-panel').innerHTML  = '';
+}
+
+async function loadTrail(trailId){
+  if(!trailId) return;
+  const entry = REGISTRY.find(r => r.id === trailId);
+  if(!entry){ console.error('Unknown trail id:', trailId); return; }
+
+  // Show loading overlay
+  const loading = document.getElementById('loading');
+  loading.innerHTML = `<div class="spin"></div><h2>Loading ${entry.label}…</h2><p>Fetching trail data…</p>`;
+  loading.style.display = 'flex';
+
+  teardownTrail();
+
+  CURRENT_TRAIL_ID   = trailId;
+  CURRENT_TRAIL_PATH = entry.path;
+
+  // Update URL hash for bookmarking / sharing
+  history.replaceState(null, '', '#trail=' + trailId);
+
+  try {
+    await loadData(entry.path);
+    loading.style.display = 'none';
+
+    // Reset controls to config defaults
+    syncLabels();
+    rebuildAndRender();
+
+    // Load plan for this trail
+    await loadPlanFile(entry.path + '/plans/index.json', entry.path);
+
+    // Populate plan selector
+    await populatePlanSelector(entry.path);
+
+  } catch(err) {
+    loading.innerHTML =
+      `<h2 style="color:#b82020">Failed to load ${entry.label}</h2>
+       <p>${err.message}</p>
+       <p style="margin-top:8px;font-size:12px;color:#6878a0">
+         Run a local web server:<br>
+         <code style="background:#eaecf4;padding:2px 6px;border-radius:3px">python3 -m http.server 8000</code>
+       </p>`;
+  }
+}
+
+async function populatePlanSelector(trailPath){
+  const sel = document.getElementById('plan-select');
+  sel.innerHTML = '<option value="">Default plan</option>';
+  try {
+    const r = await fetch(trailPath + '/plans/index.json');
+    if(!r.ok) return;
+    const plans = await r.json();
+    if(!Array.isArray(plans) || !plans.length){ sel.style.display='none'; return; }
+    plans.forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.file;
+      opt.textContent = p.label || p.file;
+      sel.appendChild(opt);
+    });
+    sel.style.display = 'block';
+  } catch(e) { sel.style.display = 'none'; }
+}
+
+async function onTrailSelect(trailId){
+  if(!trailId || trailId === CURRENT_TRAIL_ID) return;
+  await loadTrail(trailId);
+}
+
+async function onPlanSelect(planFile){
+  if(!planFile) return;
+  try {
+    const r = await fetch(CURRENT_TRAIL_PATH + '/plans/' + planFile);
+    if(!r.ok) return;
+    const saved = await r.json();
+    applyPlanRestore(saved);
+  } catch(e) { console.warn('Could not load plan:', planFile, e); }
+}
+
+async function loadPlanFile(indexPath, trailPath){
+  // Try the trail's default plan.json first
+  try {
+    const r = await fetch(trailPath + '/plans/plan.json');
+    if(r.ok){ applyPlanRestore(await r.json()); return; }
+  } catch(e) { /* no default plan — fine */ }
+  // Fall back to legacy data/plan.json (backwards compat)
+  try {
+    const r = await fetch('data/plan.json');
+    if(r.ok){ applyPlanRestore(await r.json()); }
+  } catch(e) { /* no saved plan — fine */ }
+}
+
+function applyPlanRestore(saved){
+  if(!saved) return;
+  const s = saved.settings;
+  if(s && s.avgPace){
+    document.getElementById('avg-pace').value   = s.avgPace;
+    document.getElementById('flex-pace').value  = s.flexPace  || DEFAULT_FLEX_PACE;
+    document.getElementById('start-date').value = s.startDate || DEFAULT_START_DATE;
+    document.getElementById('melt-date').value  = s.meltDate  || DEFAULT_MELT_DATE;
+    syncLabels();
+    rebuildAndRender();
+  }
+  const nightList = saved.nights ||
+    (saved.overrides && saved.overrides.map(ov => ({name:ov.name, mile:ov.mile, trailDist:null})));
+  const SCALE_R = (END_TRAIL_DIST - START_TRAIL_DIST) / (END_MILE - START_MILE);
+  const planNights = plan.filter(c => !c.isTerminus).length;
+  if(nightList && nightList.length && plan.length){
+    let any = false;
+    const sameCount = nightList.length === planNights;
+    nightList.forEach((night, ni) => {
+      const refTD = night.trailDist != null
+        ? night.trailDist
+        : (night.mile - START_MILE) * SCALE_R;
+      const camp = ALL_STOPS.reduce((best, c) => {
+        const tdC = c.trailDist != null ? c.trailDist : (c.mile - START_MILE) * SCALE_R;
+        const tdB = best.trailDist != null ? best.trailDist : (best.mile - START_MILE) * SCALE_R;
+        return Math.abs(tdC - refTD) < Math.abs(tdB - refTD) ? c : best;
+      }, ALL_STOPS[0]);
+      if(!camp) return;
+      const campTD = camp.trailDist != null ? camp.trailDist : (camp.mile - START_MILE) * SCALE_R;
+      if(Math.abs(campTD - refTD) > 2.0) return;
+      if(sameCount){
+        plan[ni] = {...camp, isTerminus:false};
+        any = true;
+      } else {
+        let bestNight = -1, bestDist = Infinity;
+        plan.forEach((c, i) => {
+          if(c.isTerminus) return;
+          const td = c.trailDist != null ? c.trailDist : (c.mile - START_MILE) * SCALE_R;
+          const d = Math.abs(td - refTD);
+          if(d < bestDist){ bestDist = d; bestNight = i; }
+        });
+        if(bestNight >= 0 && bestDist < 40){ plan[bestNight] = {...camp, isTerminus:false}; any = true; }
+      }
+    });
+    if(any) renderAll();
+  }
+}
+
+// ════════════════════════════════════════════════════
 // BOOTSTRAP — fetch data files then init
 // ════════════════════════════════════════════════════
-async function loadData() {
+async function loadData(trailPath) {
+  // trailPath: e.g. "trails/long-trail" or "data" (legacy fallback)
+  const base = trailPath || 'data';
+
   const [campsiteResp, trailResp, configResp] = await Promise.all([
-    fetch('data/campsites.json'),
-    fetch('data/trail.geojson'),
-    fetch('data/config.json')
+    fetch(base + '/campsites.json'),
+    fetch(base + '/trail.geojson'),
+    fetch(base + '/config.json')
   ]);
 
-  if(!campsiteResp.ok) throw new Error('Could not load data/campsites.json');
-  if(!trailResp.ok)    throw new Error('Could not load data/trail.geojson');
+  if(!campsiteResp.ok) throw new Error('Could not load ' + base + '/campsites.json');
+  if(!trailResp.ok)    throw new Error('Could not load ' + base + '/trail.geojson');
 
   // ── Apply config.json ───────────────────────────────────────────────────────
   // config.json is optional — if missing, all let defaults above stay in effect.
@@ -1591,9 +1786,9 @@ async function loadData() {
   if(trailProps.startMile != null) START_MILE = trailProps.startMile;
   if(trailProps.endMile   != null) END_MILE   = trailProps.endMile;
 
-  // Draw the trail polyline
+  // Draw the trail polyline — store reference for teardown on trail switch
   const trailLatLngs = TRAIL_COORDS.map(([lon,lat]) => [lat,lon]);
-  L.polyline(trailLatLngs, {color:'#e07020', weight:2.5, opacity:0.7}).addTo(map);
+  _trailLine = L.polyline(trailLatLngs, {color:'#e07020', weight:2.5, opacity:0.7}).addTo(map);
 
   // Start marker at Bridge of Gods — first point of trail.geojson
   const startLatLon = [TRAIL_COORDS[0][1], TRAIL_COORDS[0][0]];
@@ -1605,27 +1800,27 @@ async function loadData() {
       font-family:'Source Code Pro',monospace;font-size:10px;font-weight:700;
       color:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.45);">0</div>`,
     iconSize:[20,20], iconAnchor:[10,10]});
-  L.marker(startLatLon, {icon:startIcon, interactive:true})
+  _startMarker = L.marker(startLatLon, {icon:startIcon, interactive:true})
     .bindTooltip(START_MARKER_LABEL,
       {className:'tip-tooltip', direction:'top', offset:[0,-14]})
     .addTo(map);
 
-  // Static background dot layer (all campsites for reference)
-  const bgDotLayer = L.layerGroup().addTo(map);
+  // Static background dot layer — store reference for teardown
+  _bgDotLayer = L.layerGroup().addTo(map);
   CAMPS.forEach(c => {
     if(!c.lat || !c.lon) return;
     L.circleMarker([c.lat,c.lon], {
       radius:3, color:'#e07020', weight:1.5,
       fillColor:'#ffffff', fillOpacity:0.9, opacity:0.7
     }).bindTooltip(c.name+' (Mi '+(c.mile ?? 0).toFixed(1)+')',
-      {className:'tip-tooltip',direction:'top',offset:[0,-4]}).addTo(bgDotLayer);
+      {className:'tip-tooltip',direction:'top',offset:[0,-4]}).addTo(_bgDotLayer);
   });
   RESUPPLY.forEach(r => {
     const icon = L.divIcon({className:'',
       html:`<div style="width:14px;height:14px;background:#1d4ed8;border:1.5px solid #93c5fd;border-radius:2px"></div>`,
       iconSize:[14,14],iconAnchor:[7,7]});
     L.marker([r.lat,r.lon],{icon})
-      .bindTooltip(r.name,{className:'tip-tooltip',direction:'top',offset:[0,-4]}).addTo(bgDotLayer);
+      .bindTooltip(r.name,{className:'tip-tooltip',direction:'top',offset:[0,-4]}).addTo(_bgDotLayer);
   });
 
   // Pre-build cumulative trail distance array for editor use
@@ -1647,77 +1842,80 @@ async function loadData() {
 }
 
 async function init() {
+  // ── Step 1: Load registry.json ───────────────────────────────────────────────
+  // Registry lists all available trails. If missing, fall back to legacy
+  // data/ folder (backwards compatible with old single-trail repos).
+  let useLegacy = false;
   try {
-    await loadData();
-    document.getElementById('loading').style.display = 'none';
+    const regResp = await fetch('registry.json');
+    if(regResp.ok){
+      REGISTRY = await regResp.json();
+    } else {
+      useLegacy = true;
+    }
+  } catch(e) { useLegacy = true; }
 
+  // ── Step 2: Populate trail selector ─────────────────────────────────────────
+  const trailSel = document.getElementById('trail-select');
+  if(useLegacy || !REGISTRY.length){
+    // Legacy mode — hide selector, load from data/ directly
+    trailSel.style.display = 'none';
+    trailSel.parentElement.style.display = 'none';
+    try {
+      await loadData('data');
+      document.getElementById('loading').style.display = 'none';
+      syncLabels();
+      rebuildAndRender();
+      await loadPlanFile('data/plans/index.json', 'data');
+    } catch(err) {
+      document.getElementById('loading').innerHTML =
+        `<h2 style="color:#b82020">Failed to load data</h2>
+         <p>${err.message}</p>
+         <p style="margin-top:8px;font-size:12px;color:#6878a0">
+           Run a local web server:<br>
+           <code style="background:#eaecf4;padding:2px 6px;border-radius:3px">python3 -m http.server 8000</code><br>
+           then open <a href="http://localhost:8000">localhost:8000</a>
+         </p>`;
+    }
+    return;
+  }
+
+  // Populate dropdown from registry
+  trailSel.innerHTML = '';
+  REGISTRY.forEach(entry => {
+    const opt = document.createElement('option');
+    opt.value = entry.id;
+    opt.textContent = entry.label;
+    trailSel.appendChild(opt);
+  });
+
+  // ── Step 3: Determine which trail to load (URL hash or first in registry) ───
+  let initialTrail = REGISTRY[0].id;
+  const hash = window.location.hash; // e.g. "#trail=long-trail"
+  if(hash){
+    const m = hash.match(/[#&]trail=([^&]+)/);
+    if(m){
+      const hashId = decodeURIComponent(m[1]);
+      if(REGISTRY.find(r => r.id === hashId)) initialTrail = hashId;
+    }
+  }
+  trailSel.value = initialTrail;
+
+  // ── Step 4: Load the trail ───────────────────────────────────────────────────
+  CURRENT_TRAIL_ID = initialTrail;
+  const entry = REGISTRY.find(r => r.id === initialTrail);
+  CURRENT_TRAIL_PATH = entry.path;
+
+  try {
+    await loadData(entry.path);
+    document.getElementById('loading').style.display = 'none';
     syncLabels();
     rebuildAndRender();
-
- 
-
-    // Try loading last saved plan
-    try {
-      const planResp = await fetch('data/plan.json');
-      if(planResp.ok) {
-        const saved = await planResp.json();
-        // Restore settings if present
-        const s = saved && saved.settings;
-        if(s && s.avgPace) {
-          document.getElementById('avg-pace').value   = s.avgPace;
-          document.getElementById('flex-pace').value  = s.flexPace  || DEFAULT_FLEX_PACE;
-          document.getElementById('start-date').value = s.startDate || DEFAULT_START_DATE;
-          document.getElementById('melt-date').value  = s.meltDate  || DEFAULT_MELT_DATE;
-          syncLabels();
-          rebuildAndRender();
-        }
-        // Restore saved nights into the current plan
-        const nightList = saved.nights ||
-          (saved.overrides && saved.overrides.map(ov => ({name:ov.name, mile:ov.mile, trailDist:null})));
-        const SCALE_R = (END_TRAIL_DIST - START_TRAIL_DIST) / (END_MILE - START_MILE);
-        const planNights = plan.filter(c => !c.isTerminus).length;
-        if(nightList && nightList.length && plan.length) {
-          let any = false;
-          const sameCount = nightList.length === planNights;
-          nightList.forEach((night, ni) => {
-            // Find the camp in ALL_STOPS matching this saved night
-            const refTD = night.trailDist != null
-              ? night.trailDist
-              : (night.mile - START_MILE) * SCALE_R;
-            const camp = ALL_STOPS.reduce((best, c) => {
-              const tdC = c.trailDist != null ? c.trailDist : (c.mile - START_MILE) * SCALE_R;
-              const tdB = best.trailDist != null ? best.trailDist : (best.mile - START_MILE) * SCALE_R;
-              return Math.abs(tdC - refTD) < Math.abs(tdB - refTD) ? c : best;
-            }, ALL_STOPS[0]);
-            const campTD = camp.trailDist != null ? camp.trailDist : (camp.mile - START_MILE) * SCALE_R;
-            if(Math.abs(campTD - refTD) > 2.0) return; // camp not in dataset — skip
-            if(sameCount) {
-              // Same night count: pace unchanged — restore by position (index = index)
-              plan[ni] = {...camp, isTerminus:false};
-              any = true;
-            } else {
-              // Different night count: pace changed — match by proximity
-              let bestNight = -1, bestDist = Infinity;
-              plan.forEach((c, i) => {
-                if(c.isTerminus) return;
-                const td = c.trailDist != null ? c.trailDist : (c.mile - START_MILE) * SCALE_R;
-                const d = Math.abs(td - refTD);
-                if(d < bestDist) { bestDist = d; bestNight = i; }
-              });
-              if(bestNight >= 0 && bestDist < 40) {
-                plan[bestNight] = {...camp, isTerminus:false};
-                any = true;
-              }
-            }
-          });
-          if(any) renderAll();
-        }
-      }
-    } catch(e) { /* no saved plan — fine */ }
-
+    await loadPlanFile(entry.path + '/plans/index.json', entry.path);
+    await populatePlanSelector(entry.path);
   } catch(err) {
     document.getElementById('loading').innerHTML =
-      `<h2 style="color:#b82020">Failed to load data</h2>
+      `<h2 style="color:#b82020">Failed to load ${entry.label}</h2>
        <p>${err.message}</p>
        <p style="margin-top:8px;font-size:12px;color:#6878a0">
          Run a local web server:<br>

@@ -1,0 +1,24 @@
+{
+  "trailName":        "PCT Washington",
+  "trailAbbrev":      "PCT",
+  "startMarkerLabel": "Bridge of Gods — Start (Mi 2147.3)",
+  "defaultStartDate": "2026-07-01",
+  "defaultMeltDate":  "2026-06-01",
+  "defaultAvgPace":   13,
+  "defaultFlexPace":  3,
+  "endTrailDist":     505.38,
+  "baselineMeltDoy":  152,
+  "terminus": {
+    "name": "Northern Terminus",
+    "lat":  49.000000,
+    "lon":  -120.802223,
+    "elev": 4247,
+    "mile": 2653.1
+  },
+  "mosqBands": [
+    [3000,  155, 22],
+    [4500,  175, 20],
+    [5500,  192, 17],
+    [99999, 207, 14]
+  ]
+}

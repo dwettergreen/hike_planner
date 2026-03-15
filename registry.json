@@ -1,0 +1,12 @@
+[
+  {
+    "id":    "long-trail",
+    "label": "Long Trail (VT)",
+    "path":  "trails/long-trail"
+  },
+  {
+    "id":    "pct-wa",
+    "label": "PCT Washington",
+    "path":  "trails/pct-wa"
+  }
+]

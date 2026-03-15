@@ -1,0 +1,24 @@
+{
+  "trailName":        "Long Trail",
+  "trailAbbrev":      "LT",
+  "startMarkerLabel": "Williamstown, MA — Start (Mi 0)",
+  "defaultStartDate": "2026-06-25",
+  "defaultMeltDate":  "2026-05-28",
+  "defaultAvgPace":   12,
+  "defaultFlexPace":  2,
+  "endTrailDist":     397.046,
+  "baselineMeltDoy":  148,
+  "terminus": {
+    "name": "Northern Terminus",
+    "lat":  44.9999,
+    "lon":  -72.5110,
+    "elev": 2560,
+    "mile": 397.046
+  },
+  "mosqBands": [
+    [1500,  168, 26],
+    [2500,  178, 24],
+    [3500,  188, 22],
+    [99999, 198, 18]
+  ]
+}
