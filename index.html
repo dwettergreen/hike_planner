@@ -191,9 +191,9 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
 <div id="app">
 
 <header>
-  <div class="logo">HIKE</div>
+  <div class="logo" id="h-abbrev">HIKE</div>
   <div class="sep"></div>
-  <div class="htitle">Long Trail — <span>Interactive Camp Planner</span></div>
+  <div class="htitle"><span id="h-trailname">Trail</span> — <span>Interactive Camp Planner</span></div>
   <div class="sep"></div>
   <div class="hstat"><div class="hstat-v" id="h-days">—</div><div class="hstat-l">Days</div></div>
   <div class="hstat"><div class="hstat-v" id="h-nights">—</div><div class="hstat-l">Nights</div></div>
@@ -214,7 +214,7 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
     <div class="controls">
       <div class="crow">
         <div class="clbl">Start date</div>
-        <input type="date" id="start-date" value="2026-07-01" onchange="rebuildAndRender()">
+        <input type="date" id="start-date" onchange="rebuildAndRender()">
       </div>
       <div class="crow">
         <div class="clbl">Avg mi/day</div>
@@ -228,7 +228,7 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
       </div>
       <div class="crow">
         <div class="clbl">Snowmelt date</div>
-        <input type="date" id="melt-date" value="2026-06-01" onchange="rebuildAndRender()">
+        <input type="date" id="melt-date" onchange="rebuildAndRender()">
       </div>
       <div class="crow" style="margin-bottom:0">
         <div class="clbl" style="font-size:10px;color:var(--text3)">Range</div>
@@ -259,7 +259,7 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
       <div class="lr"><div class="ld" style="background:#5dba7f"></div> 2,000–3,500 ft</div>
       <div class="lr"><div class="ld" style="background:#5b9bd5"></div> &lt; 2,000 ft</div>
       <div style="margin-top:5px;padding-top:5px;border-top:1px solid var(--border)">
-      <div class="lr"><div style="width:22px;height:3px;background:#e8832a;border-radius:2px;flex-shrink:0;margin-top:1px"></div> Long Trail (GPS)</div>
+      <div class="lr"><div style="width:22px;height:3px;background:#e8832a;border-radius:2px;flex-shrink:0;margin-top:1px"></div> <span id="legend-trail-label">Trail</span> (GPS)</div>
       
       <div class="lr"><div style="width:10px;height:10px;border-radius:50%;background:#fff;border:1.5px solid #e8832a;flex-shrink:0"></div> All campsites</div>
       <div class="lr"><div style="width:12px;height:12px;background:#1d4ed8;border:1.5px solid #93c5fd;border-radius:2px;flex-shrink:0"></div> Resupply stop</div>
@@ -275,15 +275,29 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
 
 // ════════════════════════════════════════════════════
 // CONSTANTS
-// START_MILE / END_MILE are `let` so loadData() can override them
-// from trail.geojson properties.startMile / properties.endMile.
-// All other values are fixed per-trail configuration.
+// All trail-specific values are declared as `let` so
+// loadData() can override them from data/config.json.
+// The values below are safe fallback defaults only —
+// they should never be used if config.json loads correctly.
+// START_MILE / END_MILE are also overridden by
+// trail.geojson properties.startMile / properties.endMile.
 // ════════════════════════════════════════════════════
-let   START_MILE       = 0;       // overridden by trail.geojson properties.startMile if present
-let   END_MILE         = 272;     // overridden by trail.geojson properties.endMile if present
-const START_TRAIL_DIST = 0.0;     // trailDist of Williamstown, MA (southern terminus)
-const END_TRAIL_DIST   = 249.099; // trailDist of Canadian border terminus (full-res GPS arc-length)
-const BASELINE_MELT_DOY = 148;    // Vermont avg snowmelt ~May 28 (DOY 148)
+let START_MILE        = 0;
+let END_MILE          = 100;
+let START_TRAIL_DIST  = 0.0;
+let END_TRAIL_DIST    = 100.0;
+let BASELINE_MELT_DOY = 152;
+let TERMINUS          = { name:'Terminus', lat:0, lon:0, elev:0, mile:100, isTerminus:true };
+let MOSQ_BASE         = [[99999, 175, 20]];
+
+// Trail identity — populated from config.json
+let TRAIL_NAME         = 'Trail';
+let TRAIL_ABBREV       = 'HIKE';
+let START_MARKER_LABEL = 'Start';
+let DEFAULT_START_DATE = '2026-06-25';
+let DEFAULT_MELT_DATE  = '2026-05-28';
+let DEFAULT_AVG_PACE   = 13;
+let DEFAULT_FLEX_PACE  = 3;
 
 // ════════════════════════════════════════════════════
 // DATA — loaded async from data/ folder
@@ -292,8 +306,6 @@ let CAMPS        = [];
 let RESUPPLY     = [];
 let ALL_STOPS    = [];
 let TRAIL_COORDS = [];
-
-const TERMINUS = { name:'Northern Terminus', lat:44.9999, lon:-72.5110, elev:2560, mile:END_MILE, isTerminus:true };
 
 // ════════════════════════════════════════════════════
 // STATE
@@ -382,17 +394,11 @@ function elevColor(e){
   return '#5b9bd5';
 }
 
-// ── Date-aware mosquito model (Vermont/Green Mountains phenology) ────────────
-// Bands: [max_elev_ft, peak_doy, sigma_days]
-// Vermont has a humid continental climate — bugs peak late June at low elev,
-// mid-July at higher elevations. Wider sigma (longer bug season than Cascades).
-// Base peaks relative to May 28 (DOY 148) normal Vermont snowmelt.
-const MOSQ_BASE = [
-  [1500,  168, 26],   // valleys/lowlands  <1.5k ft  (peak ~Jun 17)
-  [2500,  178, 24],   // montane           1.5-2.5k ft (peak ~Jun 27)
-  [3500,  188, 22],   // upper montane     2.5-3.5k ft (peak ~Jul 7)
-  [99999, 198, 18],   // ridge/alpine      3.5k+ ft    (peak ~Jul 17)
-];
+// ── Mosquito model — bands populated from config.json at load time ───────────
+// Format: [max_elev_ft, peak_doy, sigma_days]
+// MOSQ_BANDS is a live alias used by the DP; reassigned when config loads.
+let MOSQ_BANDS = MOSQ_BASE;
+
 function getMeltDoy(){
   const el = document.getElementById('melt-date');
   if(!el) return BASELINE_MELT_DOY;
@@ -400,9 +406,6 @@ function getMeltDoy(){
   if(isNaN(d)) return BASELINE_MELT_DOY;
   return Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
 }
-
-// Keep MOSQ_BANDS as a computed alias for DP access
-let MOSQ_BANDS = MOSQ_BASE;
 
 function mosquitoAt(elev, date){
   const e   = elev || 3000;
@@ -443,7 +446,7 @@ function getPace(){
 }
 function getStartDate(){
   const v = document.getElementById('start-date').value;
-  return new Date((v||'2026-06-25')+'T00:00:00');
+  return new Date((v || DEFAULT_START_DATE) + 'T00:00:00');
 }
 function fmtDate(startDate, i){
   const d = new Date(startDate); d.setDate(d.getDate()+i);
@@ -1458,13 +1461,62 @@ function rebuildAndRender(){
 // BOOTSTRAP — fetch data files then init
 // ════════════════════════════════════════════════════
 async function loadData() {
-  const [campsiteResp, trailResp] = await Promise.all([
+  const [campsiteResp, trailResp, configResp] = await Promise.all([
     fetch('data/campsites.json'),
-    fetch('data/trail.geojson')
+    fetch('data/trail.geojson'),
+    fetch('data/config.json')
   ]);
 
   if(!campsiteResp.ok) throw new Error('Could not load data/campsites.json');
   if(!trailResp.ok)    throw new Error('Could not load data/trail.geojson');
+
+  // ── Apply config.json ───────────────────────────────────────────────────────
+  // config.json is optional — if missing, all let defaults above stay in effect.
+  // This makes the engine backwards-compatible with repos that don't have one yet.
+  if(configResp.ok){
+    const cfg = await configResp.json();
+
+    // Trail identity
+    if(cfg.trailName)       TRAIL_NAME         = cfg.trailName;
+    if(cfg.trailAbbrev)     TRAIL_ABBREV       = cfg.trailAbbrev;
+    if(cfg.startMarkerLabel) START_MARKER_LABEL = cfg.startMarkerLabel;
+
+    // Trail geometry constants
+    if(cfg.endTrailDist    != null) END_TRAIL_DIST    = cfg.endTrailDist;
+    if(cfg.baselineMeltDoy != null) BASELINE_MELT_DOY = cfg.baselineMeltDoy;
+
+    // Terminus
+    if(cfg.terminus){
+      TERMINUS = { ...cfg.terminus, mile: cfg.terminus.mile ?? END_MILE, isTerminus: true };
+    }
+
+    // Mosquito model
+    if(Array.isArray(cfg.mosqBands) && cfg.mosqBands.length){
+      MOSQ_BASE  = cfg.mosqBands;
+      MOSQ_BANDS = MOSQ_BASE;
+    }
+
+    // Defaults for controls (applied to DOM below, after config is loaded)
+    if(cfg.defaultStartDate) DEFAULT_START_DATE = cfg.defaultStartDate;
+    if(cfg.defaultMeltDate)  DEFAULT_MELT_DATE  = cfg.defaultMeltDate;
+    if(cfg.defaultAvgPace  != null) DEFAULT_AVG_PACE  = cfg.defaultAvgPace;
+    if(cfg.defaultFlexPace != null) DEFAULT_FLEX_PACE = cfg.defaultFlexPace;
+  } else {
+    console.warn('data/config.json not found — using built-in defaults.');
+  }
+
+  // ── Apply config defaults to DOM controls ───────────────────────────────────
+  // Only set if the user hasn't already changed them (i.e. value matches old default)
+  document.getElementById('avg-pace').value   = DEFAULT_AVG_PACE;
+  document.getElementById('flex-pace').value  = DEFAULT_FLEX_PACE;
+  document.getElementById('start-date').value = DEFAULT_START_DATE;
+  document.getElementById('melt-date').value  = DEFAULT_MELT_DATE;
+
+  // ── Apply trail identity to header and legend ────────────────────────────────
+  document.getElementById('h-abbrev').textContent    = TRAIL_ABBREV;
+  document.getElementById('h-trailname').textContent = TRAIL_NAME;
+  const legendLbl = document.getElementById('legend-trail-label');
+  if(legendLbl) legendLbl.textContent = TRAIL_NAME;
 
   const allSites = await campsiteResp.json();
   const trailGeo = await trailResp.json();
@@ -1550,7 +1602,7 @@ async function loadData() {
       color:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.45);">0</div>`,
     iconSize:[20,20], iconAnchor:[10,10]});
   L.marker(startLatLon, {icon:startIcon, interactive:true})
-    .bindTooltip('Williamstown, MA — Start (Mi 0)',
+    .bindTooltip(START_MARKER_LABEL,
       {className:'tip-tooltip', direction:'top', offset:[0,-14]})
     .addTo(map);
 
@@ -1609,9 +1661,9 @@ async function init() {
         const s = saved && saved.settings;
         if(s && s.avgPace) {
           document.getElementById('avg-pace').value   = s.avgPace;
-          document.getElementById('flex-pace').value  = s.flexPace || 3;
-          document.getElementById('start-date').value = s.startDate || '2026-07-01';
-          document.getElementById('melt-date').value  = s.meltDate  || '2026-06-01';
+          document.getElementById('flex-pace').value  = s.flexPace  || DEFAULT_FLEX_PACE;
+          document.getElementById('start-date').value = s.startDate || DEFAULT_START_DATE;
+          document.getElementById('melt-date').value  = s.meltDate  || DEFAULT_MELT_DATE;
           syncLabels();
           rebuildAndRender();
         }
