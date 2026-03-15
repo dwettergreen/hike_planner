@@ -1,0 +1,1641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PCT Washington Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700&family=Source+Code+Pro:wght@400;600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <style>
+
+
+:root {
+  --bg:#f5f6f8; --bg2:#ffffff; --bg3:#edf0f5;
+  --border:#253045; --border2:#1e2d44;
+  --text:#1a2235; --text2:#2d4060; --text3:#4a6080;
+  --green:#5dba7f; --green-dim:#3d7a55; --green-bg:#0f2018;
+  --amber:#d4a84b; --red:#e06060; --red-bg:#1e0f0f;
+  --blue:#5b9bd5; --blue-bg:#0d1829;
+  --snap:#ffd700;
+  --r:6px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text);}
+
+/* ── LAYOUT ── */
+#app{display:grid;grid-template-rows:50px 1fr 160px;height:100vh;}
+
+/* ── HEADER ── */
+header{
+  background:#f0f2f8;
+  border-bottom:1px solid #cdd4e0;
+  display:flex;align-items:center;padding:0 14px;gap:12px;z-index:200;
+}
+.logo{font-family:'Bitter',serif;font-size:12px;font-weight:700;color:var(--green);letter-spacing:3px;text-transform:uppercase;}
+.sep{width:1px;height:26px;background:#cdd4e0;flex-shrink:0;}
+.htitle{font-family:'Bitter',serif;font-size:14px;color:#1a2235;font-weight:600;}
+.htitle span{color:var(--green);}
+.hstat{display:flex;flex-direction:column;align-items:center;min-width:50px;}
+.hstat-v{font-family:'Source Code Pro',monospace;font-size:14px;font-weight:600;color:var(--green);line-height:1;}
+.hstat-l{font-size:9px;color:#4a6080;text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+.spacer{flex:1;}
+.hint{font-size:11px;color:#4a6080;background:#e2e6ef;border:1px solid #cdd4e0;border-radius:var(--r);padding:4px 10px;white-space:nowrap;}
+.hint b{color:var(--amber);}
+
+/* ── MIDDLE ROW: sidebar + map ── */
+#middle{display:grid;grid-template-columns:300px 1fr;overflow:hidden;}
+
+/* ── SIDEBAR ── */
+#sidebar{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.stabs{display:flex;gap:4px;padding:8px 10px 0;flex-shrink:0;}
+.stab{flex:1;text-align:center;padding:5px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);color:var(--text3);background:transparent;transition:all .15s;text-transform:uppercase;letter-spacing:.5px;}
+.stab.on{background:#1a3a6a;border-color:#2a5298;color:#fff;}
+
+.controls{padding:8px 10px;border-bottom:1px solid #cdd4e0;flex-shrink:0;}
+.crow{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
+.clbl{font-size:11px;color:var(--text3);width:68px;flex-shrink:0;}
+input[type=range]{flex:1;accent-color:var(--green);cursor:pointer;}
+input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a2235;border-radius:4px;padding:3px 6px;font-size:11px;font-family:inherit;}
+.cval{font-family:'Source Code Pro',monospace;font-size:11px;color:var(--green);width:38px;text-align:right;flex-shrink:0;}
+.btn{flex:1;padding:5px 6px;border-radius:4px;border:1px solid var(--border);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.4px;font-family:inherit;}
+
+#list-panel{overflow-y:auto;flex:1;}
+#list-panel::-webkit-scrollbar{width:4px;}
+#list-panel::-webkit-scrollbar-track{background:var(--bg2);}
+#list-panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+#sum-panel{overflow-y:auto;flex:1;padding:10px;display:none;background:#ffffff;}
+#exp-panel{overflow-y:auto;flex:1;padding:10px;display:none;background:#ffffff;}
+#sum-panel::-webkit-scrollbar{width:4px;}
+#sum-panel::-webkit-scrollbar-track{background:var(--bg2);}
+#sum-panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+.ncard{padding:7px 10px;border-bottom:1px solid var(--border2);cursor:pointer;transition:background .1s;display:flex;align-items:flex-start;gap:7px;}
+.ncard:hover{background:var(--bg3);}
+.ncard.active{background:#e8f5ee;border-left:3px solid var(--green);padding-left:7px;}
+.ncard.warn{border-left:3px solid var(--red);padding-left:7px;}
+.nnum{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Source Code Pro',monospace;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px;border:1.5px solid;}
+.nbody{flex:1;min-width:0;}
+.nname{font-size:12px;font-weight:600;color:#1a2235;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.nmeta{font-size:10px;color:var(--text3);margin-top:1px;}
+.nrow{display:flex;gap:6px;margin-top:2px;align-items:center;flex-wrap:wrap;}
+.nelev{font-family:'Source Code Pro',monospace;font-size:11px;font-weight:600;}
+.nmi{font-size:10px;color:var(--text3);}
+.badge{font-size:9px;padding:1px 4px;border-radius:3px;font-weight:600;text-transform:uppercase;}
+.ebtn{display:inline-block;padding:6px 12px;border-radius:4px;border:1px solid;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;margin-right:4px;}
+.ebtn-g{background:var(--green-bg);color:var(--green);border-color:var(--green-dim);}
+.ebtn-g:hover{background:var(--green);color:#fff;}
+.ebtn-b{background:var(--blue-bg);color:var(--blue);border-color:#7aaae0;}
+.ebtn-b:hover{background:var(--blue);color:#fff;}
+
+/* Summary */
+.ss{margin-bottom:12px;}
+.st{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);margin-bottom:5px;font-weight:600;}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.sc{background:#edf0f5;border:1px solid #c0cce0;border-radius:4px;padding:5px 7px;}
+.sv{font-family:'Source Code Pro',monospace;font-size:15px;font-weight:600;color:var(--green);}
+.sl{font-size:9px;color:var(--text3);margin-top:1px;}
+.sbar-wrap{margin-bottom:5px;}
+.sbar-top{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:2px;}
+.sbar{height:7px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.sbar-fill{height:100%;border-radius:3px;transition:width .4s;}
+
+/* ── MAP ── */
+#map-wrap{position:relative;overflow:hidden;}
+#map{height:100%;}
+.mpill{position:absolute;z-index:900;background:#f0f2f8;border:1px solid #cdd4e0;border-radius:5px;backdrop-filter:blur(4px);font-size:11px;color:#2d4060;padding:6px 10px;}
+#layer-sw{top:10px;right:10px;}
+#layer-sw label{display:flex;align-items:center;gap:5px;cursor:pointer;margin-bottom:3px;color:#1a2235;font-size:11px;}
+#layer-sw label:last-child{margin-bottom:0;}
+#map-legend{bottom:8px;left:10px;}
+.ltitle{font-family:'Bitter',serif;font-weight:700;color:#1a2235;font-size:12px;margin-bottom:5px;}
+.lr{display:flex;align-items:center;gap:5px;margin-bottom:3px;font-size:11px;color:#2d4060;}
+.ld{width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(0,0,0,.1);flex-shrink:0;}
+#map-legend{bottom:8px;left:10px;}
+#warnbar{position:absolute;bottom:0;left:0;right:0;z-index:800;background:#b82020;border-top:1px solid #800;padding:5px 14px;font-size:11px;color:#fff;display:none;}
+
+/* Popups */
+.leaflet-popup-content-wrapper{background:#ffffff!important;border:1px solid #3a4a60!important;border-radius:8px!important;box-shadow:0 4px 16px rgba(0,0,0,.25)!important;}
+.leaflet-popup-tip{background:#ffffff!important;}
+.leaflet-popup-content{margin:11px 14px!important;color:#1a2235!important;font-family:'Source Sans 3',sans-serif!important;}
+.leaflet-popup-close-button{color:var(--text3)!important;font-size:18px!important;top:5px!important;right:7px!important;}
+.pnight{font-size:10px;color:var(--green);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px;font-weight:600;}
+.pname{font-family:'Bitter',serif;font-size:14px;font-weight:700;margin-bottom:7px;}
+.pgrid{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:12px;}
+.pk{color:var(--text3);}
+.pv{font-weight:600;}
+.pbadges{display:flex;gap:4px;flex-wrap:wrap;margin-top:7px;}
+.tip-tooltip{background:var(--bg)!important;border:1px solid var(--green)!important;color:var(--green)!important;font-family:'Source Code Pro',monospace!important;font-size:11px!important;}
+
+/* Snap pulse */
+.snap-pulse{position:absolute;border-radius:50%;border:2px solid var(--snap);animation:snap-out .55s ease-out forwards;pointer-events:none;z-index:2000;}
+
+/* ── ELEVATION CHART ── */
+#chart-row{background:#f0f2f8;border-top:1px solid var(--border);display:flex;align-items:stretch;overflow:hidden;}
+#chart-label{writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);font-size:10px;color:var(--text3);padding:0 6px;text-transform:uppercase;letter-spacing:1px;flex-shrink:0;display:flex;align-items:center;}
+#elev-chart{flex:1;overflow-x:auto;overflow-y:hidden;cursor:default;}
+#elev-chart::-webkit-scrollbar{height:5px;}
+#elev-chart::-webkit-scrollbar-track{background:#f0f2f8;}
+#elev-chart::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+#elev-canvas{display:block;}
+
+  /* Loading overlay */
+  #loading{position:fixed;inset:0;background:#f4f6fa;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;z-index:9999;font-family:'Source Sans 3',sans-serif;}
+  #loading h2{font-family:'Bitter',serif;color:#1a2235;margin-bottom:8px;}
+  #loading p{color:#6878a0;font-size:13px;}
+  .spin{width:36px;height:36px;border:3px solid #cdd4e0;border-top-color:#2a7d4f;
+    border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── EDITOR TAB ── */
+#edit-panel{overflow-y:auto;flex:1;padding:0;display:none;background:#fff;}
+.edit-toolbar{padding:8px 10px;border-bottom:1px solid var(--border);display:flex;gap:5px;flex-wrap:wrap;flex-shrink:0;}
+.edit-toolbar .ebtn{padding:4px 8px;font-size:10px;}
+.eform{padding:10px;}
+.eform-hdr{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+  color:var(--text3);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;}
+.erow{display:grid;grid-template-columns:90px 1fr;align-items:center;gap:5px;margin-bottom:7px;}
+.elbl{font-size:11px;color:var(--text3);}
+.einp{padding:4px 7px;border:1px solid var(--border);border-radius:4px;
+  font-size:11px;font-family:inherit;background:var(--bg);color:var(--text);width:100%;}
+.einp:focus{outline:none;border-color:var(--blue);}
+.einp[readonly]{background:var(--bg3);color:var(--text3);}
+.echk{display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;}
+.eform-btns{display:flex;gap:5px;margin-top:10px;flex-wrap:wrap;}
+.elist{overflow-y:auto;}
+.ecamp-row{padding:6px 10px;border-bottom:1px solid var(--border);cursor:pointer;
+  display:flex;align-items:center;gap:7px;transition:background .1s;font-size:11px;}
+.ecamp-row:hover{background:var(--bg3);}
+.ecamp-row.esel{background:var(--blue-bg);border-left:3px solid var(--blue);}
+.ecamp-row.enew{border-left:3px solid var(--green);}
+.ecamp-mile{font-family:'Source Code Pro',monospace;font-size:10px;color:var(--text3);width:44px;flex-shrink:0;}
+.ecamp-name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;}
+.ecamp-src{font-size:9px;padding:1px 4px;border-radius:3px;font-weight:600;flex-shrink:0;}
+.src-halfmile{background:#eaecf4;color:#4a5a78;}
+.src-resupply{background:var(--blue-bg);color:var(--blue);}
+.src-custom{background:var(--green-bg);color:var(--green);}
+.edit-search{padding:6px 10px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.edit-search input{width:100%;padding:4px 7px;border:1px solid var(--border);border-radius:4px;
+  font-size:11px;font-family:inherit;background:var(--bg3);color:var(--text);}
+.edit-search input:focus{outline:none;border-color:var(--blue);}
+.edit-count{font-size:10px;color:var(--text3);margin-top:3px;}
+#edit-hint{display:none;}
+
+</style>
+
+
+<div id="loading">
+  <div class="spin"></div>
+  <h2>PCT Washington Planner</h2>
+  <p>Loading trail data…</p>
+</div>
+
+<div id="app">
+
+<header>
+  <div class="logo">PCT</div>
+  <div class="sep"></div>
+  <div class="htitle">Washington — <span>Interactive Camp Planner</span></div>
+  <div class="sep"></div>
+  <div class="hstat"><div class="hstat-v" id="h-days">—</div><div class="hstat-l">Days</div></div>
+  <div class="hstat"><div class="hstat-v" id="h-nights">—</div><div class="hstat-l">Nights</div></div>
+  <div class="hstat"><div class="hstat-v" id="h-avg">—</div><div class="hstat-l">Avg mi/day</div></div>
+  <div class="hstat"><div class="hstat-v" id="h-elev">—</div><div class="hstat-l">Avg elev</div></div>
+  <div class="spacer"></div>
+  <div class="hint"><b>Drag</b> any numbered marker to snap to nearest campsite &nbsp;·&nbsp; <b>Click</b> sidebar row to fly to camp</div>
+</header>
+
+<div id="middle">
+  <div id="sidebar">
+    <div class="stabs">
+      <div class="stab on" id="tab-itin" onclick="showTab('itin')">Itinerary</div>
+      <div class="stab" id="tab-sum" onclick="showTab('sum')">Summary</div>
+      <div class="stab" id="tab-edit" onclick="showTab('edit')">Editor</div>
+      <div class="stab" id="tab-exp" onclick="showTab('exp')">Export</div>
+    </div>
+    <div class="controls">
+      <div class="crow">
+        <div class="clbl">Start date</div>
+        <input type="date" id="start-date" value="2026-07-01" onchange="rebuildAndRender()">
+      </div>
+      <div class="crow">
+        <div class="clbl">Avg mi/day</div>
+        <input type="range" id="avg-pace" min="8" max="22" step="0.1" value="13" oninput="syncLabels();rebuildAndRender()">
+        <div class="cval" id="avg-lbl">13.0</div>
+      </div>
+      <div class="crow">
+        <div class="clbl">Flex ± mi</div>
+        <input type="range" id="flex-pace" min="0.5" max="6" step="0.1" value="3" oninput="syncLabels();rebuildAndRender()">
+        <div class="cval" id="flex-lbl">±3.0</div>
+      </div>
+      <div class="crow">
+        <div class="clbl">Snowmelt date</div>
+        <input type="date" id="melt-date" value="2026-06-01" onchange="rebuildAndRender()">
+      </div>
+      <div class="crow" style="margin-bottom:0">
+        <div class="clbl" style="font-size:10px;color:var(--text3)">Range</div>
+        <div style="flex:1;font-size:11px;color:var(--green);font-family:'Source Code Pro',monospace" id="range-lbl">10.0 – 16.0 mi/day</div>
+      </div>
+      
+    </div>
+    <div id="list-panel"></div>
+    <div id="sum-panel"></div>
+    <div id="exp-panel"></div>
+    <div id="edit-panel"></div>
+  </div>
+
+  <div id="map-wrap">
+    <div id="map"></div>
+    <div class="mpill" id="drag-status">⬡ Dragging — drop to snap</div>
+    <div class="mpill" id="edit-hint">📍 Click trail to add campsite here</div>
+    <div class="mpill" id="layer-sw">
+      <div style="font-family:'Bitter',serif;font-weight:700;color:var(--text);font-size:11px;margin-bottom:5px">Basemap</div>
+      <label><input type="radio" name="lyr" value="topo" checked onchange="switchLayer('topo')"> OpenTopoMap (PCT visible)</label>
+      <label><input type="radio" name="lyr" value="usgs" onchange="switchLayer('usgs')"> USGS Topo</label>
+      <label><input type="radio" name="lyr" value="osm" onchange="switchLayer('osm')"> OpenStreetMap</label>
+    </div>
+    <div class="mpill" id="map-legend">
+      <div class="ltitle">Campsite Elevation</div>
+      <div class="lr"><div class="ld" style="background:#e06060"></div> 5,000+ ft</div>
+      <div class="lr"><div class="ld" style="background:#d4a84b"></div> 3,500–5,000 ft</div>
+      <div class="lr"><div class="ld" style="background:#5dba7f"></div> 2,000–3,500 ft</div>
+      <div class="lr"><div class="ld" style="background:#5b9bd5"></div> &lt; 2,000 ft</div>
+      <div style="margin-top:5px;padding-top:5px;border-top:1px solid var(--border)">
+      <div class="lr"><div style="width:22px;height:3px;background:#e8832a;border-radius:2px;flex-shrink:0;margin-top:1px"></div> PCT trail (GPS)</div>
+      
+      <div class="lr"><div style="width:10px;height:10px;border-radius:50%;background:#fff;border:1.5px solid #e8832a;flex-shrink:0"></div> All campsites</div>
+      <div class="lr"><div style="width:12px;height:12px;background:#1d4ed8;border:1.5px solid #93c5fd;border-radius:2px;flex-shrink:0"></div> Resupply stop</div>
+    </div>
+    </div>
+    <div id="warnbar"></div>
+  </div>
+</div>
+
+<div id="chart-row">
+  <div id="chart-label">Elevation (ft)</div>
+  <div id="elev-chart">
+    <canvas id="elev-canvas"></canvas>
+  </div>
+</div>
+
+</div><!-- #app -->
+
+<script>
+
+// ════════════════════════════════════════════════════
+// CONSTANTS
+// ════════════════════════════════════════════════════
+const START_MILE       = 2147.3;
+const END_MILE         = 2653.1;
+const START_TRAIL_DIST = 0.0;    // trailDist of Bridge of Gods (before first camp)
+const END_TRAIL_DIST   = 505.38; // trailDist of Northern Terminus
+const BASELINE_MELT_DOY = 152;
+
+// ════════════════════════════════════════════════════
+// DATA — loaded async from data/ folder
+// ════════════════════════════════════════════════════
+let CAMPS        = [];
+let RESUPPLY     = [];
+let ALL_STOPS    = [];
+let TRAIL_COORDS = [];
+
+const TERMINUS = { name:'Northern Terminus', lat:49.000000, lon:-120.802223, elev:4247, mile:END_MILE, isTerminus:true };
+
+// ════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════
+let plan = [];          // array of camp objects (last = terminus)
+let activeIdx = null;   // highlighted night index
+const markers = {};     // idx → L.marker
+
+// ── EDITOR STATE ──────────────────────────────────────────────
+let editorMode    = false;  // true when Editor tab is active
+let editorSel     = null;   // index into ALL_STOPS[] of selected camp
+let editorDirty   = false;  // unsaved changes in this session
+let editorDotLayer = null;  // L.LayerGroup for editor dots
+let editorTempMark = null;  // temp marker while editing
+
+// ════════════════════════════════════════════════════
+// MAP
+// ════════════════════════════════════════════════════
+const map = L.map('map', { zoomControl:false });
+L.control.zoom({ position:'bottomright' }).addTo(map);
+
+const tileLayers = {
+  topo: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom:17, attribution:'© OpenTopoMap' }),
+  usgs: L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}', { maxZoom:16, attribution:'© USGS' }),
+  osm:  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, attribution:'© OSM' })
+};
+tileLayers.topo.addTo(map);
+function switchLayer(v){ Object.values(tileLayers).forEach(l=>map.removeLayer(l)); tileLayers[v].addTo(map); }
+
+
+
+// ── Resupply locations: star markers ────────────────────────────────────────
+RESUPPLY.forEach(r => {
+  const icon = L.divIcon({
+    className: '',
+    html: '<div style="width:14px;height:14px;background:#1d4ed8;border:2px solid #93c5fd;border-radius:2px;box-shadow:0 1px 4px rgba(0,0,0,0.5)"></div>',
+    iconSize: [14, 14],
+    iconAnchor: [7, 7]
+  });
+  const amenBadges = r.amenities.map(a =>
+    `<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:#1e3a5f;color:#93c5fd;border:1px solid #2563eb;font-weight:600;text-transform:uppercase">${a}</span>`
+  ).join(' ');
+  L.marker([r.lat, r.lon], { icon })
+    .addTo(map)
+    .bindPopup(`
+      <div style="font-size:10px;color:#93c5fd;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-bottom:2px">&#9642; Resupply · Mi ${r.mile}</div>
+      <div style="font-family:'Bitter',serif;font-size:15px;font-weight:700;margin-bottom:7px">${r.name}</div>
+      <div style="font-size:12px;color:#8fa3bf;line-height:1.5;margin-bottom:7px">${r.desc}</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">${amenBadges}</div>
+    `, { maxWidth: 260 });
+});
+
+// Actual PCT trail from GPS data
+const trailLine = L.polyline(
+  TRAIL_COORDS.map(function(c){ return [c[1], c[0]]; }),
+  { color:'#e8832a', weight:3, opacity:0.85 }
+).addTo(map);
+
+// Thin gold dashed line connecting your planned campsites in order
+const routeLine = L.polyline([], { opacity:0, weight:0 }).addTo(map);
+
+
+// ── Campsites: white/orange ring, drawn after trail so visible ──
+CAMPS.forEach(c => {
+  L.circleMarker([c.lat, c.lon], {
+    radius: 4, fillColor: '#ffffff', color: '#e8832a', weight: 1.5, fillOpacity: 0.9
+  }).addTo(map)
+  .bindTooltip(
+    '<b>' + c.name + '</b><br>Mi ' + c.mile + ' · ' +
+    (c.elev ? c.elev.toLocaleString() + ' ft' : '—') +
+    (c.water ? ' · 💧' : '') +
+    (c.type === 'Established' ? ' · Established' : ''),
+    { className:'tip-tooltip', sticky:true, offset:[8,0] }
+  );
+});
+
+
+// ════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════
+function elevColor(e){
+  if(!e) return '#7a9cc7';
+  if(e>=5000) return '#e06060';
+  if(e>=3500) return '#d4a84b';
+  if(e>=2000) return '#5dba7f';
+  return '#5b9bd5';
+}
+
+// ── Date-aware mosquito model (Cascades snowmelt phenology) ──────────────────
+// Bands: [max_elev_ft, peak_doy, sigma_days]
+// Base mosquito peaks relative to Jun 1 (DOY 152) normal snowmelt:
+// Each band's peak = baseline_peak + (meltDoy - 152)
+const MOSQ_BASE = [
+  [3000,  155, 22],   // valleys  <3k ft
+  [4500,  175, 20],   // montane  3-4.5k ft
+  [5500,  192, 17],   // subalpine 4.5-5.5k ft
+  [99999, 207, 14],   // alpine   5.5k+ ft
+];
+function getMeltDoy(){
+  const el = document.getElementById('melt-date');
+  if(!el) return BASELINE_MELT_DOY;
+  const d = new Date(el.value);
+  if(isNaN(d)) return BASELINE_MELT_DOY;
+  return Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
+}
+
+// Keep MOSQ_BANDS as a computed alias for DP access
+let MOSQ_BANDS = MOSQ_BASE;
+
+function mosquitoAt(elev, date){
+  const e   = elev || 3000;
+  const doy = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 86400000);
+  const shift = getMeltDoy() - BASELINE_MELT_DOY;
+  for(const [maxE, peak, sigma] of MOSQ_BASE){
+    if(e <= maxE) return Math.exp(-0.5 * Math.pow((doy - (peak + shift)) / sigma, 2));
+  }
+  return 0;
+}
+function mosquitoColor(p){
+  if(p >= 0.7)  return '#e06060';
+  if(p >= 0.4)  return '#d4a84b';
+  if(p >= 0.15) return '#b8c43a';
+  return '#5dba7f';
+}
+function mosquitoLabel(p){
+  if(p >= 0.7)  return 'HIGH';
+  if(p >= 0.4)  return 'MEDIUM';
+  if(p >= 0.15) return 'LOW';
+  return 'MINIMAL';
+}
+function arrivalDate(nightIdx){
+  const sd  = getStartDate();
+  const avg = getPace().avg;
+  const camp = plan[nightIdx];
+  const SCALE = (END_TRAIL_DIST-START_TRAIL_DIST)/(END_MILE-START_MILE);
+  const td = camp ? (camp.trailDist != null ? camp.trailDist : (camp.mile-START_MILE)*SCALE)
+                  : END_TRAIL_DIST;
+  const d = new Date(sd);
+  d.setDate(d.getDate() + Math.round(td / avg));
+  return d;
+}
+function getPace(){
+  const avg  = +document.getElementById('avg-pace').value;
+  const flex = +document.getElementById('flex-pace').value;
+  return { avg, min: avg-flex, max: avg+flex };
+}
+function getStartDate(){
+  const v = document.getElementById('start-date').value;
+  return new Date((v||'2026-07-01')+'T00:00:00');
+}
+function fmtDate(startDate, i){
+  const d = new Date(startDate); d.setDate(d.getDate()+i);
+  return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+function syncLabels(){
+  const avg  = +document.getElementById('avg-pace').value;
+  const flex = +document.getElementById('flex-pace').value;
+  document.getElementById('avg-lbl').textContent  = avg.toFixed(1);
+  document.getElementById('flex-lbl').textContent = '±' + flex.toFixed(1);
+  document.getElementById('range-lbl').textContent = (avg-flex).toFixed(1) + ' – ' + (avg+flex).toFixed(1) + ' mi/day';
+}
+function snapNearest(latlng){
+  // First find the nearest trail point to get a trailDist reference
+  const refTD = trailDistFromLatLon(latlng.lat, latlng.lng);
+  // Then snap to the campsite with the closest trailDist
+  // (prefer trail-order proximity over raw lat/lon distance)
+  let best=null, bd=Infinity;
+  ALL_STOPS.forEach(c=>{
+    const d = Math.abs((c.trailDist != null ? c.trailDist : 0) - refTD);
+    if(d<bd){ bd=d; best=c; }
+  });
+  return best;
+}
+
+// Snap a latlng to the nearest point in TRAIL_COORDS
+function snapToTrail(latlng){
+  let bestI=0, bd=Infinity;
+  TRAIL_COORDS.forEach(([lon,lat],i)=>{
+    const d=(lat-latlng.lat)**2+(lon-latlng.lng)**2;
+    if(d<bd){ bd=d; bestI=i; }
+  });
+  return { lat: TRAIL_COORDS[bestI][1], lon: TRAIL_COORDS[bestI][0] };
+}
+
+// Compute cumulative arc-length along TRAIL_COORDS to the nearest point (in miles).
+// Called once at loadData to build a cumulative distance array, then used for new camps.
+let _trailCum = null;  // cumulative miles from trail start, one entry per TRAIL_COORDS point
+
+function buildTrailCum(){
+  const R = 3958.8;
+  _trailCum = [0];
+  for(let i=1; i<TRAIL_COORDS.length; i++){
+    const [lon1,lat1] = TRAIL_COORDS[i-1];
+    const [lon2,lat2] = TRAIL_COORDS[i];
+    const φ1=lat1*Math.PI/180, φ2=lat2*Math.PI/180;
+    const dφ=(lat2-lat1)*Math.PI/180, dλ=(lon2-lon1)*Math.PI/180;
+    const a=Math.sin(dφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(dλ/2)**2;
+    _trailCum.push(_trailCum[i-1] + R*2*Math.asin(Math.sqrt(a)));
+  }
+  // Rescale to match the 505.38mi reference used in campsites.json trailDist values.
+  // The rendering trail is simplified and measures shorter (~446mi); without rescaling,
+  // new camps would get trailDist values on a different scale than existing camps,
+  // breaking the monotonic sort required by the DP optimizer.
+  const rawTotal = _trailCum[_trailCum.length - 1];
+  if(rawTotal > 0){
+    const scale = END_TRAIL_DIST / rawTotal;
+    _trailCum = _trailCum.map(d => d * scale);
+  }
+}
+
+// Interpolate a Halfmile mile marker from a trailDist value,
+// using the two flanking campsites in ALL_STOPS as reference points.
+function interpolateMile(td){
+  // Sort a snapshot by trailDist
+  const sorted = ALL_STOPS
+    .filter(c => c.trailDist != null && c.mile != null)
+    .sort((a,b) => a.trailDist - b.trailDist);
+  if(!sorted.length) return START_MILE + td;
+  // Find flanking pair
+  let lo = sorted[0], hi = sorted[sorted.length-1];
+  for(let i=0; i<sorted.length-1; i++){
+    if(sorted[i].trailDist <= td && sorted[i+1].trailDist >= td){
+      lo = sorted[i]; hi = sorted[i+1]; break;
+    }
+  }
+  if(lo === hi || hi.trailDist === lo.trailDist) return lo.mile;
+  const t = (td - lo.trailDist) / (hi.trailDist - lo.trailDist);
+  return parseFloat((lo.mile + t * (hi.mile - lo.mile)).toFixed(2));
+}
+
+function trailDistFromLatLon(lat, lon){
+  if(!_trailCum || _trailCum.length < 2) buildTrailCum();
+  let bestI=0, bd=Infinity;
+  TRAIL_COORDS.forEach(([tlon,tlat],i)=>{
+    const d=(tlat-lat)**2+(tlon-lon)**2;
+    if(d<bd){ bd=d; bestI=i; }
+  });
+  return parseFloat(_trailCum[bestI].toFixed(3));
+}
+function showSnap(latlng){
+  const p = map.latLngToContainerPoint(latlng);
+  const el = document.createElement('div');
+  el.className='snap-pulse';
+  el.style.cssText=`left:${p.x-14}px;top:${p.y-14}px;width:28px;height:28px;`;
+  document.getElementById('map-wrap').appendChild(el);
+  setTimeout(()=>el.remove(),600);
+}
+
+// ════════════════════════════════════════════════════
+// DP OPTIMIZATION
+// Key fix: inner loop iterates j from i-1 DOWN to 0.
+// As j decreases, dist = miles[i]-miles[j] INCREASES.
+// → skip (continue) if dist < min  (too close, go further back)
+// → break if dist > max  (too far, all further j also too far)
+// ════════════════════════════════════════════════════
+
+function buildPlan(){
+  const {avg} = getPace();
+  const sd       = getStartDate();
+  const startDoy = Math.floor((sd - new Date(sd.getFullYear(), 0, 0)) / 86400000);
+
+  const TOTAL = END_TRAIL_DIST - START_TRAIL_DIST;  // geometry-derived total miles
+  const T     = Math.round(TOTAL / avg);             // target number of nights
+
+  // Use trailDist (geometry-derived) for the DP distance window.
+  // Falls back to (mile - START_MILE) scaled to geometry if trailDist missing.
+  const SCALE = TOTAL / (END_MILE - START_MILE);
+  function getTD(camp){
+    if(camp.trailDist != null) return camp.trailDist;
+    return (camp.mile - START_MILE) * SCALE;
+  }
+
+  // Sort a copy by trailDist so dists[] is strictly ascending.
+  // The DP inner loop uses "break when dist > max_d" which requires this.
+  const SORTED = [...ALL_STOPS].sort((a,b) => getTD(a) - getTD(b));
+  const N     = SORTED.length;
+  const dists = [START_TRAIL_DIST, ...SORTED.map(getTD), END_TRAIL_DIST];
+  const M     = dists.length;
+
+  // Score = elev × (1 + 2 × low-mosquito-bonus), date-aware
+  function score(i) {
+    if(i === 0 || i === M-1) return 0;
+    const camp = SORTED[i-1];
+    const elev = camp.elev || 3500;
+    const arrDoy = startDoy + dists[i] / avg;
+    let mp = 0;
+    const meltShift = getMeltDoy() - BASELINE_MELT_DOY;
+    for(const [maxE, peak, sigma] of MOSQ_BASE){
+      if(elev <= maxE){ mp = Math.exp(-0.5 * Math.pow((arrDoy - (peak + meltShift)) / sigma, 2)); break; }
+    }
+    return elev * (1 + 2.0 * (1 - mp));
+  }
+
+  // Run DP with a given [min_d, max_d] window (in trail-geometry miles)
+  function runDP(min_d, max_d) {
+    const NEG = -Infinity;
+    const dp   = new Float64Array(M).fill(NEG);
+    const prev = new Int32Array(M).fill(-1);
+    dp[0] = 0;
+    for(let i = 1; i < M; i++){
+      for(let j = i-1; j >= 0; j--){
+        const dist = dists[i] - dists[j];
+        if(dist < min_d) continue;
+        if(dist > max_d) break;
+        if(dp[j] === NEG) continue;
+        const s = dp[j] + score(i);
+        if(s > dp[i]){ dp[i] = s; prev[i] = j; }
+      }
+    }
+    if(dp[M-1] === NEG) return null;
+    const path = [];
+    let idx = M-1;
+    while(idx > 0){ path.push(idx); idx = prev[idx]; }
+    path.reverse();
+    return path;
+  }
+
+  // Try progressively wider tolerances until a valid path is found
+  const tolerances = [0.25, 0.35, 0.45, 0.55, 0.65, 0.80];
+  for(const tol of tolerances){
+    const min_d = Math.max(0.5, TOTAL / (T * (1 + tol)));
+    const max_d = TOTAL / (T * (1 - tol));
+    const path = runDP(min_d, max_d);
+    if(path){
+      return path.map(i => i === M-1 ? {...TERMINUS} : {...SORTED[i-1], isTerminus: false});
+    }
+  }
+  return null;
+}
+
+// ════════════════════════════════════════════════════
+// RENDER MAP
+// ════════════════════════════════════════════════════
+function renderMap(){
+  // Remove old plan markers
+  Object.values(markers).forEach(m=>map.removeLayer(m));
+  for(const k in markers) delete markers[k];
+
+  // Route
+  routeLine.setLatLngs(plan.map(c=>[c.lat,c.lon]));
+
+  const sd = getStartDate();
+
+  plan.forEach((camp,idx)=>{
+    const isTerm = !!camp.isTerminus;
+    const col = elevColor(camp.elev);
+    const prevMile = idx===0 ? START_MILE : plan[idx-1].mile;
+    const miToday = (camp.mile-prevMile).toFixed(1);
+    const dateStr = fmtDate(sd,idx);
+    const isActive = idx===activeIdx;
+
+    const icon = L.divIcon({
+      className:'',
+      html:`<div style="
+        width:${isTerm?22:20}px;height:${isTerm?22:20}px;border-radius:50%;
+        background:${col};
+        border:2px solid ${isActive?'#ffd700':'rgba(255,255,255,0.8)'};
+        display:flex;align-items:center;justify-content:center;
+        font-family:'Source Code Pro',monospace;font-size:9px;font-weight:700;
+        color:${camp.elev&&camp.elev>4500?'#fff':'#fff'};
+        box-shadow:0 2px 8px rgba(0,0,0,0.55);
+        cursor:${isTerm?'default':'grab'};
+        ${isActive?'box-shadow:0 0 0 3px #ffd700,0 2px 8px rgba(0,0,0,0.55);':''}
+      ">${isTerm ? plan.length : idx+1}</div>`,
+      iconSize:[isTerm?22:20,isTerm?22:20],
+      iconAnchor:[isTerm?11:10,isTerm?11:10]
+    });
+
+    const m = L.marker([camp.lat,camp.lon],{ icon, draggable:!isTerm, autoPan:true });
+
+    // Mosquito pressure for this night
+    const mp   = isTerm ? 0 : mosquitoAt(camp.elev, arrivalDate(idx));
+    const mpC  = mosquitoColor(mp);
+    const mpL  = mosquitoLabel(mp);
+    const mpPct = Math.round(mp * 100);
+
+    // Popup
+    const badges=[];
+    if(camp.isResupply) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">Resupply</span>`);
+    if(camp.water) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">💧 Water</span>`);
+    if(camp.outhouse) badges.push(`<span class="badge" style="background:#ede8f8;color:#6a30a0;border:1px solid #b090d8">🚽 Outhouse</span>`);
+    if(camp.type==='Established') badges.push(`<span class="badge" style="background:#d8f0e4;color:#1a6038;border:1px solid #70b890">Established</span>`);
+    if(!isTerm && camp.elev >= 6500) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">🌬️ High Wind</span>`);
+    else if(!isTerm && camp.elev >= 5800 && camp.elev < 6500) badges.push(`<span class="badge" style="background:#e6eef8;color:#2a5888;border:1px solid #a0c0e0">💨 Exposed</span>`);
+
+    m.bindPopup(`
+      <div class="pnight">Night ${idx+1} · ${dateStr}</div>
+      <div class="pname">${camp.name}</div>
+      <div class="pgrid">
+        <div class="pk">Mile</div><div class="pv">${camp.mile}</div>
+        <div class="pk">Elevation</div><div class="pv" style="color:${col}">${camp.elev?camp.elev.toLocaleString()+' ft':'—'}</div>
+        <div class="pk">Miles today</div><div class="pv">${miToday} mi</div>
+        <div class="pk">Lat / Lon</div><div class="pv">${camp.lat.toFixed(4)}, ${camp.lon.toFixed(4)}</div>
+      </div>
+      ${!isTerm ? `<div style="margin-top:8px">        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px">          <span style="color:var(--text3)">🦟 Mosquitoes</span>          <span style="color:${mpC};font-weight:700">${mpL} (${mpPct}%)</span>        </div>        <div style="height:5px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden">          <div style="width:${mpPct}%;height:100%;background:${mpC};border-radius:3px"></div>        </div>      </div>` : ''}
+      ${badges.length?`<div class="pbadges">${badges.join('')}</div>`:''}
+    `, { maxWidth:240 });
+
+    m.on('click', ()=>setActive(idx));
+
+    if(!isTerm){
+      m.on('dragstart', ()=>{
+        document.getElementById('drag-status').style.display='block';
+        m.closePopup();
+      });
+      m.on('drag', e=>{
+        // Live preview: update route to snapped position
+        const snapped = snapNearest(e.latlng);
+        if(snapped){
+          const pts = plan.map((c,i)=> i===idx ? [snapped.lat,snapped.lon] : [c.lat,c.lon]);
+          routeLine.setLatLngs(pts);
+        }
+      });
+      m.on('dragend', e=>{
+        document.getElementById('drag-status').style.display='none';
+        const snapped = snapNearest(e.target.getLatLng());
+        if(snapped){
+          plan[idx] = {...snapped, isTerminus:false};
+          showSnap([snapped.lat,snapped.lon]);
+          renderAll();
+          scrollToNight(idx);
+        }
+      });
+    }
+
+    m.addTo(map);
+    markers[idx] = m;
+  });
+}
+
+// ════════════════════════════════════════════════════
+// RENDER SIDEBAR
+// ════════════════════════════════════════════════════
+function renderList(){
+  const list = document.getElementById('list-panel');
+  list.innerHTML='';
+  const sd = getStartDate();
+  const {min,max} = getPace();
+
+  plan.forEach((camp,idx)=>{
+    const isTerm=!!camp.isTerminus;
+    // Use trailDist for daily distance if available, else fall back to mile diff
+    const SCALE = (END_TRAIL_DIST-START_TRAIL_DIST)/(END_MILE-START_MILE);
+    const prevTD = idx===0 ? START_TRAIL_DIST
+      : (plan[idx-1].trailDist != null ? plan[idx-1].trailDist : (plan[idx-1].mile-START_MILE)*SCALE);
+    const thisTD = camp.trailDist != null ? camp.trailDist : (camp.mile-START_MILE)*SCALE;
+    const mi = thisTD - prevTD;
+    const isWarn=!isTerm&&(mi<min-0.3||mi>max+0.3);
+    const col=elevColor(camp.elev);
+
+    const card=document.createElement('div');
+    card.className=`ncard${idx===activeIdx?' active':''}${isWarn?' warn':''}`;
+
+    const nightMp  = isTerm ? 0 : mosquitoAt(camp.elev, arrivalDate(idx));
+    const nightMpC = mosquitoColor(nightMp);
+    const nightMpL = mosquitoLabel(nightMp);
+    const badges=[];
+    if(!isTerm){
+      if(camp.type==='Established') badges.push(`<span class="badge" style="background:#d8f0e4;color:#1a6038;border:1px solid #70b890">Established</span>`);
+      if(camp.isResupply) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">Resupply</span>`);
+      if(camp.water) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">💧</span>`);
+      if(camp.outhouse) badges.push(`<span class="badge" style="background:#ede8f8;color:#6a30a0;border:1px solid #b090d8">🚽</span>`);
+      if(isWarn) badges.push(`<span class="badge" style="background:#fde8e8;color:#a01818;border:1px solid #e09090">⚠ ${mi.toFixed(1)}mi</span>`);
+      if(nightMp >= 0.4) badges.push(`<span class="badge" style="background:${nightMpC}20;color:${nightMpC};border:1px solid ${nightMpC}55">🦟 ${nightMpL}</span>`);
+      if(!isTerm && camp.elev >= 6500) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">🌬️ High Wind</span>`);
+      else if(!isTerm && camp.elev >= 5800 && camp.elev < 6500) badges.push(`<span class="badge" style="background:#e6eef8;color:#2a5888;border:1px solid #a0c0e0">💨 Exposed</span>`);
+    }
+
+    card.innerHTML=`
+      <div class="nnum" style="color:${col};border-color:${col}55;background:${col}18">${isTerm?'🏁':idx+1}</div>
+      <div class="nbody">
+        <div class="nname">${camp.name}</div>
+        <div class="nmeta">${fmtDate(sd,idx)} · Mi ${camp.mile.toFixed(1)}</div>
+        <div class="nrow">
+          <div class="nelev" style="color:${col}">${camp.elev?camp.elev.toLocaleString()+' ft':'Terminus'}</div>
+          <div class="nmi">${mi.toFixed(1)} mi today</div>
+          ${badges.join('')}
+        </div>
+      </div>`;
+    card.addEventListener('click',()=>setActive(idx));
+    list.appendChild(card);
+  });
+}
+
+// ════════════════════════════════════════════════════
+// RENDER ELEVATION CHART
+// ════════════════════════════════════════════════════
+function renderChart(){
+  const camps = plan.filter(c=>!c.isTerminus && c.elev);
+  if(!camps.length) return;
+
+  const container = document.getElementById('elev-chart');
+  const canvas = document.getElementById('elev-canvas');
+  const h = container.clientHeight || 160;
+  const BAR_W = 18, GAP = 5, PAD_L=8, PAD_R=8, PAD_T=14, PAD_B=24;
+  const w = PAD_L + camps.length*(BAR_W+GAP) + PAD_R;
+
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,w,h);
+
+  const elevs = camps.map(c=>c.elev);
+  const maxE = Math.max(...elevs);
+  const minE = 0;
+  const chartH = h - PAD_T - PAD_B;
+
+  // Background grid lines
+  [2000,3500,5000,7000].forEach(e=>{
+    if(e>maxE*1.05) return;
+    const y = PAD_T + chartH - (e/maxE)*chartH;
+    ctx.strokeStyle='rgba(255,255,255,0.06)';
+    ctx.lineWidth=1;
+    ctx.setLineDash([3,4]);
+    ctx.beginPath(); ctx.moveTo(PAD_L,y); ctx.lineTo(w-PAD_R,y); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='rgba(255,255,255,0.2)';
+    ctx.font='8px Source Code Pro,monospace';
+    ctx.textAlign='left';
+    ctx.fillText((e/1000).toFixed(0)+'k',1,y+3);
+  });
+
+  // Active night indicator
+  const sd = getStartDate();
+
+  camps.forEach((camp,i)=>{
+    const x = PAD_L + i*(BAR_W+GAP);
+    const barH = (camp.elev/maxE)*chartH;
+    const y = PAD_T + chartH - barH;
+    const col = elevColor(camp.elev);
+    const isActive = plan.indexOf(camp)===activeIdx;
+
+    // Bar
+    ctx.fillStyle = isActive ? '#ffd700' : col;
+    ctx.globalAlpha = isActive ? 1 : 0.82;
+    ctx.fillRect(x, y, BAR_W, barH);
+    ctx.globalAlpha=1;
+
+    // Active outline
+    if(isActive){
+      ctx.strokeStyle='#ffd700';
+      ctx.lineWidth=1.5;
+      ctx.strokeRect(x-0.5,y-0.5,BAR_W+1,barH+1);
+    }
+
+    // Day number label
+    ctx.fillStyle = isActive?'#ffd700':'rgba(255,255,255,0.45)';
+    ctx.font=`${isActive?'bold ':''}8px Source Code Pro,monospace`;
+    ctx.textAlign='center';
+    ctx.fillText(camp.day||i+1, x+BAR_W/2, h-PAD_B+10);
+  });
+
+  // Assign day numbers for click detection
+  canvas._camps = camps;
+  canvas._params = {BAR_W,GAP,PAD_L,PAD_T,PAD_B,chartH,maxE,h};
+}
+
+// Click on chart to select night
+document.getElementById('elev-canvas').addEventListener('click', e=>{
+  const canvas = e.target;
+  const {BAR_W,GAP,PAD_L} = canvas._params||{};
+  if(!canvas._camps) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const i = Math.floor((x-PAD_L)/(BAR_W+GAP));
+  if(i>=0 && i<canvas._camps.length){
+    const campObj = canvas._camps[i];
+    const idx = plan.indexOf(campObj);
+    if(idx>=0) setActive(idx);
+  }
+});
+
+// ════════════════════════════════════════════════════
+// RENDER SUMMARY
+// ════════════════════════════════════════════════════
+function renderSummary(){
+  const camps=plan.filter(c=>!c.isTerminus);
+  const elevs=camps.map(c=>c.elev||0);
+  const maxE=Math.max(...elevs),minE=Math.min(...elevs);
+  const avgE=Math.round(elevs.reduce((a,b)=>a+b)/elevs.length);
+  const dists=plan.map((c,i)=>i===0?c.mile-START_MILE:c.mile-plan[i-1].mile);
+  const seg=(label,count,color)=>`
+    <div class="sbar-wrap">
+      <div class="sbar-top"><span>${label}</span><span style="color:${color};font-weight:600">${count} night${count!==1?'s':''}</span></div>
+      <div class="sbar"><div class="sbar-fill" style="width:${(count/camps.length*100).toFixed(1)}%;background:${color}"></div></div>
+    </div>`;
+
+  document.getElementById('sum-panel').innerHTML=`
+    <div class="ss">
+      <div class="st">Trip Stats</div>
+      <div class="sg">
+        <div class="sc"><div class="sv">${plan.length}</div><div class="sl">Total days</div></div>
+        <div class="sc"><div class="sv">${camps.length}</div><div class="sl">Camp nights</div></div>
+        <div class="sc"><div class="sv">${Math.min(...dists).toFixed(1)}</div><div class="sl">Shortest day (mi)</div></div>
+        <div class="sc"><div class="sv">${Math.max(...dists).toFixed(1)}</div><div class="sl">Longest day (mi)</div></div>
+      </div>
+    </div>
+    <div class="ss">
+      <div class="st">Elevation</div>
+      <div class="sg">
+        <div class="sc"><div class="sv" style="color:#e06060">${maxE.toLocaleString()}</div><div class="sl">Highest camp (ft)</div></div>
+        <div class="sc"><div class="sv" style="color:#5b9bd5">${minE.toLocaleString()}</div><div class="sl">Lowest camp (ft)</div></div>
+        <div class="sc"><div class="sv">${avgE.toLocaleString()}</div><div class="sl">Avg elevation (ft)</div></div>
+        <div class="sc"><div class="sv" style="color:#e06060">${camps.filter(c=>c.elev>=5000).length}</div><div class="sl">Nights ≥ 5,000 ft</div></div>
+      </div>
+    </div>
+    <div class="ss">
+      <div class="st">Nights by Elevation Band</div>
+      ${seg('5,000+ ft (high & dry)',camps.filter(c=>c.elev>=5000).length,'#e06060')}
+      ${seg('3,500–5,000 ft',camps.filter(c=>c.elev>=3500&&c.elev<5000).length,'#d4a84b')}
+      ${seg('2,000–3,500 ft',camps.filter(c=>c.elev>=2000&&c.elev<3500).length,'#5dba7f')}
+      ${seg('< 2,000 ft (mosquito zone)',camps.filter(c=>c.elev<2000).length,'#5b9bd5')}
+    </div>
+    <div class="ss">
+      <div class="st">Amenities</div>
+      <div class="sg">
+        <div class="sc"><div class="sv" style="color:#5b9bd5">${camps.filter(c=>c.water).length}</div><div class="sl">Nights with water</div></div>
+        <div class="sc"><div class="sv" style="color:#5dba7f">${camps.filter(c=>c.type==='Established').length}</div><div class="sl">Established sites</div></div>
+      </div>
+    </div>
+    <div class="ss">
+      <div class="st">🦟 Mosquito Exposure</div>
+      <div class="sg">
+        <div class="sc"><div class="sv" style="color:#e06060">${camps.filter((_,i)=>{const p=mosquitoAt(camps[i].elev,arrivalDate(plan.indexOf(camps[i])));return p>=0.7;}).length}</div><div class="sl">HIGH nights</div></div>
+        <div class="sc"><div class="sv" style="color:#5dba7f">${camps.filter((_,i)=>{const p=mosquitoAt(camps[i].elev,arrivalDate(plan.indexOf(camps[i])));return p<0.15;}).length}</div><div class="sl">MINIMAL nights</div></div>
+      </div>
+      ${seg('HIGH ≥ 0.7',     camps.filter((_,i)=>{const p=mosquitoAt(camps[i].elev,arrivalDate(plan.indexOf(camps[i])));return p>=0.7;}).length,             '#e06060')}
+      ${seg('MEDIUM 0.4–0.7', camps.filter((_,i)=>{const p=mosquitoAt(camps[i].elev,arrivalDate(plan.indexOf(camps[i])));return p>=0.4&&p<0.7;}).length,     '#d4a84b')}
+      ${seg('LOW 0.15–0.4',   camps.filter((_,i)=>{const p=mosquitoAt(camps[i].elev,arrivalDate(plan.indexOf(camps[i])));return p>=0.15&&p<0.4;}).length,    '#b8c43a')}
+      ${seg('MINIMAL < 0.15', camps.filter((_,i)=>{const p=mosquitoAt(camps[i].elev,arrivalDate(plan.indexOf(camps[i])));return p<0.15;}).length,             '#5dba7f')}
+    </div>`;
+}
+
+// ════════════════════════════════════════════════════
+// RENDER HEADER + WARNINGS
+// ════════════════════════════════════════════════════
+function renderHeader(){
+  const camps=plan.filter(c=>!c.isTerminus);
+  const dists=plan.map((c,i)=>i===0?c.mile-START_MILE:c.mile-plan[i-1].mile);
+  const avg=dists.reduce((a,b)=>a+b)/dists.length;
+  const elevs=camps.map(c=>c.elev).filter(Boolean);
+  const avgE=elevs.length?Math.round(elevs.reduce((a,b)=>a+b)/elevs.length):0;
+  document.getElementById('h-days').textContent=plan.length;
+  document.getElementById('h-nights').textContent=camps.length;
+  document.getElementById('h-avg').textContent=avg.toFixed(1);
+  document.getElementById('h-elev').textContent=avgE.toLocaleString()+'ft';
+}
+
+function renderWarnings(){
+  const {min,max}=getPace();
+  const warns=[];
+  const SCALE_W = (END_TRAIL_DIST-START_TRAIL_DIST)/(END_MILE-START_MILE);
+  plan.forEach((camp,idx)=>{
+    if(camp.isTerminus) return;
+    const prevTD = idx===0 ? START_TRAIL_DIST
+      : (plan[idx-1].trailDist != null ? plan[idx-1].trailDist : (plan[idx-1].mile-START_MILE)*SCALE_W);
+    const thisTD = camp.trailDist != null ? camp.trailDist : (camp.mile-START_MILE)*SCALE_W;
+    const mi = thisTD - prevTD;
+    if(mi<min-0.3||mi>max+0.3) warns.push(`Night ${idx+1}: ${mi.toFixed(1)} mi`);
+  });
+  const bar=document.getElementById('warnbar');
+  bar.style.display=warns.length?'block':'none';
+  if(warns.length) bar.textContent='⚠ Days outside pace range: '+warns.join(' · ')+' — drag markers or rebuild';
+}
+
+// ════════════════════════════════════════════════════
+// ACTIVE NIGHT
+// ════════════════════════════════════════════════════
+function setActive(idx){
+  activeIdx=idx;
+  const camp=plan[idx];
+  if(camp) map.setView([camp.lat,camp.lon],Math.max(map.getZoom(),12));
+  // Update marker borders
+  plan.forEach((_,i)=>{
+    const m=markers[i];
+    if(!m) return;
+    const el=m.getElement();
+    if(!el) return;
+    const div=el.querySelector('div');
+    if(!div) return;
+    div.style.border=`2px solid ${i===idx?'#ffd700':'rgba(255,255,255,0.8)'}`;
+    div.style.boxShadow=i===idx?'0 0 0 3px #ffd700,0 2px 8px rgba(0,0,0,0.55)':'0 2px 8px rgba(0,0,0,0.55)';
+  });
+  // Sidebar highlight
+  document.querySelectorAll('.ncard').forEach((el,i)=>el.classList.toggle('active',i===idx));
+  scrollToNight(idx);
+  renderChart();
+}
+
+function scrollToNight(idx){
+  const cards=document.querySelectorAll('.ncard');
+  if(cards[idx]) cards[idx].scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+
+// ════════════════════════════════════════════════════
+// TAB SWITCHER
+// ════════════════════════════════════════════════════
+function showTab(t){
+  document.getElementById('tab-itin').classList.toggle('on',t==='itin');
+  document.getElementById('tab-sum').classList.toggle('on',t==='sum');
+  document.getElementById('tab-exp').classList.toggle('on',t==='exp');
+  document.getElementById('tab-edit').classList.toggle('on',t==='edit');
+  document.getElementById('list-panel').style.display=t==='itin'?'block':'none';
+  document.getElementById('sum-panel').style.display=t==='sum'?'block':'none';
+  document.getElementById('exp-panel').style.display=t==='exp'?'block':'none';
+  document.getElementById('edit-panel').style.display=t==='edit'?'flex':'none';
+  // Hide planner controls in editor mode, show in others
+  document.querySelector('.controls').style.display = t==='edit' ? 'none' : '';
+  if(t==='sum')  renderSummary();
+  if(t==='exp')  renderExport();
+  if(t==='edit') { editorMode=true;  renderEditor(); enterEditorMode(); }
+  else           { editorMode=false; exitEditorMode();  }
+}
+
+// ════════════════════════════════════════════════════
+// CONTROLS
+// ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════
+// SHARE URL  (encodes settings + overrides into query string)
+// ══════════════════════════════════════════════════════════════════
+
+
+// ══════════════════════════════════════════════════════════════════
+// EXPORT PANEL
+// ══════════════════════════════════════════════════════════════════
+function planToCSV(){
+  const sd = getStartDate();
+  // Columns: PCT Mile | (blank) | (blank) | Miles Today | (blank) | Campsite | Elevation | Date | Notes
+  const rows = ['"PCT Mile","","","Miles Today","","Campsite","Elevation (ft)","Date","Notes"'];
+  plan.forEach((camp,idx)=>{
+    const isTerm = !!camp.isTerminus;
+    const date = fmtDate(sd, idx);
+    const SCALE_C = (END_TRAIL_DIST-START_TRAIL_DIST)/(END_MILE-START_MILE);
+    const prevTD_C = idx===0 ? START_TRAIL_DIST
+      : (plan[idx-1].trailDist != null ? plan[idx-1].trailDist : (plan[idx-1].mile-START_MILE)*SCALE_C);
+    const thisTD_C = camp.trailDist != null ? camp.trailDist : (camp.mile-START_MILE)*SCALE_C;
+    const mi = (thisTD_C - prevTD_C).toFixed(1);
+    const mp = isTerm ? '' : mosquitoLabel(mosquitoAt(camp.elev, arrivalDate(idx)));
+    const mpVal = mp && mp !== 'MINIMAL' ? mp + ' mosquitoes' : '';
+    const wind = !isTerm && camp.elev >= 6500 ? 'High Wind'
+               : !isTerm && camp.elev >= 5800  ? 'Exposed' : '';
+    const water = !isTerm && camp.water ? 'Water' : '';
+    const type = camp.type && camp.type !== 'Undeveloped' ? camp.type : '';
+    const notes = [type, water, mpVal, wind].filter(Boolean).join(', ');
+    const elev = camp.elev ? camp.elev : '';
+    const q = v => `"${String(v).replace(/"/g,'""')}"`;
+    rows.push([
+      q(camp.mile.toFixed(2)),  // PCT Mile
+      q(''), q(''),              // blank, blank
+      q(mi),                     // Miles Today
+      q(''),                     // blank
+      q(camp.name),              // Campsite
+      q(elev),                   // Elevation
+      q(date),                   // Date
+      q(notes)                   // Notes
+    ].join(','));
+  });
+  return rows.join('\n');
+}
+
+
+function renderExport(){
+  const panel = document.getElementById('exp-panel');
+  panel.innerHTML = `
+    <div class="ss">
+      <div class="st">Download as CSV</div>
+      <p style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.5">
+        Opens in Excel or Google Sheets. Columns: PCT Mile, Miles Today,
+        Campsite, Elevation, Date, Notes (type / water / mosquito / wind).
+      </p>
+      <button class="ebtn ebtn-g" onclick="downloadCSV()">⬇ Download CSV</button>
+    </div>
+    <div class="ss">
+      <div class="st">Save plan as JSON</div>
+      <p style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.5">
+        Downloads <code style="background:var(--bg3);padding:1px 4px;border-radius:3px">plan.json</code>
+        — place it in the <code style="background:var(--bg3);padding:1px 4px;border-radius:3px">data/</code>
+        folder to restore this plan automatically on next load.
+        Saves your pace settings and any manually dragged campsites.
+      </p>
+      <button class="ebtn ebtn-b" onclick="saveAsJSON()">💾 Save plan.json</button>
+    </div>
+  `;
+}
+
+function downloadCSV(){
+  const csv = planToCSV();
+  const sd = document.getElementById('start-date').value.replace(/-/g,'');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'PCT_WA_Itinerary_' + sd + '.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function saveAsJSON(){
+  const settings = {
+    startDate: document.getElementById('start-date').value,
+    meltDate:  document.getElementById('melt-date').value,
+    avgPace:   document.getElementById('avg-pace').value,
+    flexPace:  document.getElementById('flex-pace').value
+  };
+  // Save the FULL plan as an array of {name, mile, trailDist} — one entry per night.
+  // This is more reliable than diffing against a fresh build, since the fresh
+  // build may differ due to rounding, new camps, or changed campsites.json.
+  const SCALE = (END_TRAIL_DIST - START_TRAIL_DIST) / (END_MILE - START_MILE);
+  const nights = plan
+    .filter(c => !c.isTerminus)
+    .map(c => ({
+      name:      c.name,
+      mile:      c.mile,
+      trailDist: c.trailDist != null ? c.trailDist : parseFloat(((c.mile - START_MILE) * SCALE).toFixed(3))
+    }));
+  const saved = {
+    version: 2,
+    saved: new Date().toISOString(),
+    settings,
+    nights,
+    totalMiles: (END_TRAIL_DIST - START_TRAIL_DIST).toFixed(1)
+  };
+  const blob = new Blob([JSON.stringify(saved, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'plan.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+
+
+// ══════════════════════════════════════════════════════════════════
+// EDITOR
+// ══════════════════════════════════════════════════════════════════
+
+function enterEditorMode(){
+  document.getElementById('edit-hint').style.display = 'block';
+  map.getContainer().style.cursor = 'crosshair';
+  renderEditorList();
+  rebuildEditorDots();
+}
+
+function exitEditorMode(){
+  document.getElementById('edit-hint').style.display = 'none';
+  map.getContainer().style.cursor = '';
+  // Remove any unsaved _new entries that were added during this editor session
+  const before = ALL_STOPS.length;
+  const newIdxs = ALL_STOPS.reduce((acc,c,i) => { if(c._new) acc.push(i); return acc; }, []);
+  for(let i = newIdxs.length-1; i >= 0; i--) ALL_STOPS.splice(newIdxs[i], 1);
+  if(ALL_STOPS.length !== before) rebuildEditorDots();
+  editorSel = null;
+  if(editorTempMark){ map.removeLayer(editorTempMark); editorTempMark=null; }
+}
+
+function rebuildEditorDots(){
+  editorDotLayer.clearLayers();
+  ALL_STOPS.forEach((c,i) => {
+    if(!c.lat || !c.lon) return;
+    const isNew = c.source==='custom';
+    const isRS  = c.source==='resupply';
+    const color = isRS ? '#1d4ed8' : isNew ? '#2a7d4f' : '#e07020';
+    const fill  = isRS ? '#93c5fd' : isNew ? '#86efac' : '#ffffff';
+    L.circleMarker([c.lat,c.lon],{
+      radius: isRS||isNew ? 5 : 4,
+      color, weight:2, fillColor:fill, fillOpacity:0.9, opacity:0.9
+    }).on('click', ev => {
+      L.DomEvent.stopPropagation(ev);
+      editorSelectByIndex(i);
+    }).addTo(editorDotLayer);
+  });
+}
+
+function editorSelectByIndex(i){
+  editorSel = i;
+  const c = ALL_STOPS[i];
+  editorShowForm(c, false);
+  renderEditorList();
+  if(c.lat && c.lon){
+    map.setView([c.lat,c.lon], Math.max(map.getZoom(),12));
+    if(editorTempMark) map.removeLayer(editorTempMark);
+    editorTempMark = L.marker([c.lat,c.lon]).addTo(map);
+  }
+}
+
+function editorStartNewAtTrailPoint(pt){
+  const td = trailDistFromLatLon(pt.lat, pt.lon);
+  const newCamp = {
+    name:'', mile: interpolateMile(td),
+    lat: parseFloat(pt.lat.toFixed(6)), lon: parseFloat(pt.lon.toFixed(6)),
+    elev:null, type:'Undeveloped', water:false, outhouse:false, source:'custom',
+    trailDist: trailDistFromLatLon(pt.lat, pt.lon),
+    _new:true
+  };
+  // Add temp to ALL_STOPS and select it
+  ALL_STOPS.push(newCamp);
+  editorSel = ALL_STOPS.length - 1;
+  editorShowForm(newCamp, true);
+  if(editorTempMark) map.removeLayer(editorTempMark);
+  editorTempMark = L.marker([pt.lat, pt.lon]).addTo(map);
+  renderEditorList();
+}
+
+function editorShowForm(c, isNew){
+  const panel = document.getElementById('edit-panel');
+  const srcLabel = c.source==='resupply' ? 'resupply' : c.source==='custom' ? 'custom' : 'halfmile';
+  panel.querySelector('#ef-panel').innerHTML = `
+    <div class="eform">
+      <div class="eform-hdr">
+        <span>${isNew ? 'New Campsite' : 'Edit: '+c.name}</span>
+        <span class="ecamp-src src-${srcLabel}">${srcLabel}</span>
+      </div>
+      <div class="erow"><label class="elbl">Name</label>
+        <input class="einp" id="ef-name" value="${c.name||''}"></div>
+      <div class="erow"><label class="elbl">PCT Mile</label>
+        <input class="einp" id="ef-mile" type="number" step="0.01" value="${c.mile||''}"></div>
+      <div class="erow"><label class="elbl">Latitude</label>
+        <input class="einp" id="ef-lat" type="number" step="0.000001" value="${c.lat||''}"></div>
+      <div class="erow"><label class="elbl">Longitude</label>
+        <input class="einp" id="ef-lon" type="number" step="0.000001" value="${c.lon||''}"></div>
+      <div class="erow"><label class="elbl">Elevation (ft)</label>
+        <input class="einp" id="ef-elev" type="number" step="1" value="${c.elev||''}"></div>
+      <div class="erow"><label class="elbl">Type</label>
+        <select class="einp" id="ef-type">
+          <option${c.type==='Undeveloped'?' selected':''}>Undeveloped</option>
+          <option${c.type==='Established'?' selected':''}>Established</option>
+          <option${c.type==='Resupply'?' selected':''}>Resupply</option>
+        </select></div>
+      <div class="erow"><label class="elbl">Notes</label>
+        <textarea class="einp" id="ef-desc" rows="2" style="resize:vertical">${c.desc||''}</textarea></div>
+      <div class="erow"><label class="elbl">Amenities</label>
+        <div style="display:flex;flex-direction:column;gap:3px">
+          <label class="echk"><input type="checkbox" id="ef-water"${c.water?' checked':''}> 💧 Water</label>
+          <label class="echk"><input type="checkbox" id="ef-outhouse"${c.outhouse?' checked':''}> 🚽 Outhouse</label>
+        </div></div>
+      <div class="eform-btns">
+        <button class="ebtn ebtn-g" onclick="editorSave()">💾 Save</button>
+        <button class="ebtn ebtn-b" onclick="editorSnapHint()">📍 Re-snap to trail</button>
+        ${!isNew && c.source !== 'resupply' ? '<button class="ebtn" style="background:var(--red-bg);color:var(--red);border-color:var(--red)" onclick="editorDelete()">🗑 Delete</button>' : ''}
+        <button class="ebtn" style="background:var(--bg3);color:var(--text3);border-color:var(--border)" onclick="editorCancel()">Cancel</button>
+      </div>
+    </div>`;
+}
+
+function editorSnapHint(){
+  document.getElementById('edit-hint').textContent = '📍 Click map to move this campsite';
+  // Temporarily override click to reposition
+  map._editRepos = true;
+}
+
+function editorSave(){
+  if(editorSel === null) return;
+  const name = document.getElementById('ef-name').value.trim();
+  const mile = parseFloat(document.getElementById('ef-mile').value);
+  const lat  = parseFloat(document.getElementById('ef-lat').value);
+  const lon  = parseFloat(document.getElementById('ef-lon').value);
+  const elev = parseInt(document.getElementById('ef-elev').value)||null;
+  if(!name){ alert('Name is required'); return; }
+  if(isNaN(mile)){ alert('PCT Mile is required'); return; }
+  if(isNaN(lat)||isNaN(lon)){ alert('Lat/lon required'); return; }
+
+  const existing = ALL_STOPS[editorSel];
+  const updated = {
+    ...existing,
+    name, mile, lat, lon, elev,
+    type:     document.getElementById('ef-type').value,
+    desc:     document.getElementById('ef-desc').value.trim()||undefined,
+    water:    document.getElementById('ef-water').checked,
+    outhouse: document.getElementById('ef-outhouse').checked,
+    source:   existing.source||'custom',
+    trailDist: trailDistFromLatLon(lat, lon),  // always recompute from geometry
+    // For custom camps, interpolate mile from trailDist unless user edited it
+    mile: (existing.source === 'custom' || existing._new)
+      ? interpolateMile(trailDistFromLatLon(lat, lon))
+      : mile
+  };
+  delete updated._new;
+  delete updated.desc; if(document.getElementById('ef-desc').value.trim())
+    updated.desc = document.getElementById('ef-desc').value.trim();
+
+  ALL_STOPS[editorSel] = updated;
+  // Keep CAMPS in sync (non-resupply)
+  if(updated.source !== 'resupply'){
+    const ci = CAMPS.findIndex(c => c === existing);
+    if(ci >= 0) CAMPS[ci] = updated;
+    else CAMPS.push(updated);
+  }
+  // Sort ALL_STOPS by mile
+  ALL_STOPS.sort((a,b)=>(a.mile||0)-(b.mile||0));
+  editorSel = ALL_STOPS.findIndex(c=>c.name===name && Math.abs((c.mile||0)-mile)<0.001);
+
+  editorDirty = true;
+  if(editorTempMark){ map.removeLayer(editorTempMark); editorTempMark=null; }
+  rebuildEditorDots();
+  renderEditorList();
+  document.getElementById('ef-panel').innerHTML =
+    `<div style="padding:12px;font-size:11px;color:var(--green)">✓ Saved "${name}" — click Download to make permanent</div>`;
+}
+
+function editorDelete(){
+  if(editorSel === null) return;
+  const c = ALL_STOPS[editorSel];
+  if(c.source === 'resupply'){ alert('Resupply stops cannot be deleted'); return; }
+  if(!confirm('Delete "' + c.name + '"? This cannot be undone until you reload.')) return;
+  ALL_STOPS.splice(editorSel, 1);
+  const ci = CAMPS.findIndex(x=>x===c||x.name===c.name);
+  if(ci>=0) CAMPS.splice(ci,1);
+  editorSel = null;
+  if(editorTempMark){ map.removeLayer(editorTempMark); editorTempMark=null; }
+  editorDirty = true;
+  rebuildEditorDots();
+  renderEditorList();
+  document.getElementById('ef-panel').innerHTML = '';
+}
+
+function editorCancel(){
+  // Remove unsaved _new entry if present
+  if(editorSel !== null && ALL_STOPS[editorSel] && ALL_STOPS[editorSel]._new){
+    ALL_STOPS.splice(editorSel,1);
+    rebuildEditorDots();
+  }
+  editorSel = null;
+  if(editorTempMark){ map.removeLayer(editorTempMark); editorTempMark=null; }
+  renderEditorList();
+  document.getElementById('ef-panel').innerHTML = '';
+  document.getElementById('edit-hint').textContent = '📍 Click trail to add campsite here';
+}
+
+function editorDownload(){
+  const clean = ALL_STOPS.filter(c=>!c._new).map(c=>{
+    const out={...c}; if(!out.desc) delete out.desc; return out;
+  });
+  const blob = new Blob([JSON.stringify(clean,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'campsites.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  editorDirty = false;
+}
+
+let _editorSearchTimer = null;
+function editorFilterList(q){
+  clearTimeout(_editorSearchTimer);
+  _editorSearchTimer = setTimeout(()=>renderEditorList(q), 150);
+}
+
+function renderEditorList(q=''){
+  const panel = document.getElementById('edit-panel');
+  const listEl = panel.querySelector('#ef-list');
+  if(!listEl) return;
+  q = q.toLowerCase();
+  const filtered = ALL_STOPS.filter(c=>
+    !q || c.name.toLowerCase().includes(q) || String(c.mile||'').includes(q));
+  listEl.innerHTML = '';
+  panel.querySelector('#ef-count').textContent =
+    `${filtered.length} of ${ALL_STOPS.length} campsites`;
+  filtered.forEach(c => {
+    const i = ALL_STOPS.indexOf(c);
+    const row = document.createElement('div');
+    const srcLabel = c.source==='resupply'?'resupply':c.source==='custom'?'custom':'halfmile';
+    row.className = `ecamp-row${i===editorSel?' esel':''}${c.source==='custom'?' enew':''}`;
+    row.innerHTML = `<div class="ecamp-mile">${(c.mile||0).toFixed(1)}</div>
+      <div class="ecamp-name">${c.name||'(unnamed)'}</div>
+      <div class="ecamp-src src-${srcLabel}">${srcLabel}</div>`;
+    row.onclick = () => editorSelectByIndex(i);
+    listEl.appendChild(row);
+  });
+}
+
+function renderEditor(){
+  const panel = document.getElementById('edit-panel');
+  panel.style.flexDirection = 'column';
+  panel.innerHTML = `
+    <div class="edit-toolbar">
+      <button class="ebtn ebtn-g" onclick="editorStartNew()">＋ New</button>
+      <button class="ebtn ebtn-b" style="margin-left:auto" onclick="editorDownload()">⬇ Download campsites.json</button>
+    </div>
+    <div class="edit-search">
+      <input placeholder="Search name or mile…" oninput="editorFilterList(this.value)">
+      <div class="edit-count" id="ef-count"></div>
+    </div>
+    <div class="elist" id="ef-list" style="flex:1;overflow-y:auto"></div>
+    <div id="ef-panel" style="border-top:1px solid var(--border);flex-shrink:0;max-height:55%;overflow-y:auto"></div>`;
+  renderEditorList();
+}
+
+function editorStartNew(){
+  document.getElementById('edit-hint').textContent = '📍 Click on the trail to place new campsite';
+}
+
+function renderAll(){
+  renderMap();
+  renderList();
+  renderChart();
+  renderHeader();
+  renderWarnings();
+  if(document.getElementById('exp-panel').style.display==='block') renderExport();
+}
+
+let _lastNoPathKey = null;
+function rebuildAndRender(){
+  const p = buildPlan();
+  if(!p){
+    const key = document.getElementById('avg-pace').value + '|' + document.getElementById('flex-pace').value;
+    if(key !== _lastNoPathKey){
+      _lastNoPathKey = key;
+      const bar = document.getElementById('warnbar');
+      bar.style.display = 'block';
+      bar.style.background = 'rgba(180,30,30,0.85)';
+      bar.textContent = '⚠ No valid path for ' + getPace().min.toFixed(1) + '–' + getPace().max.toFixed(1) + ' mi/day — widen the Flex range.';
+    }
+    return;
+  }
+  _lastNoPathKey = null;
+  plan = p;
+  activeIdx = null;
+  renderAll();
+  map.fitBounds(L.latLngBounds(plan.map(c=>[c.lat,c.lon])),{padding:[28,28]});
+}
+
+// ════════════════════════════════════════════════════
+
+
+// ════════════════════════════════════════════════════
+// BOOTSTRAP — fetch data files then init
+// ════════════════════════════════════════════════════
+async function loadData() {
+  const [campsiteResp, trailResp] = await Promise.all([
+    fetch('data/campsites.json'),
+    fetch('data/trail.geojson')
+  ]);
+
+  if(!campsiteResp.ok) throw new Error('Could not load data/campsites.json');
+  if(!trailResp.ok)    throw new Error('Could not load data/trail.geojson');
+
+  const allSites = await campsiteResp.json();
+  const trailGeo = await trailResp.json();
+
+  // Split into camps vs resupply
+  RESUPPLY  = allSites.filter(c => c.source === 'resupply');
+  CAMPS     = allSites.filter(c => c.source !== 'resupply');
+  ALL_STOPS = [...allSites].sort((a,b) => a.mile - b.mile);
+
+  // Build resupply-as-camp entries (add isResupply flag)
+  ALL_STOPS = ALL_STOPS.map(c => c.source === 'resupply'
+    ? {...c, isResupply:true, elev: c.elev || null}
+    : c);
+
+  // Trail coords from GeoJSON — with defensive MultiLineString handling.
+  // Expected format: a FeatureCollection with a single LineString feature.
+  // MultiLineString can appear when trail data is exported from OSM or QGIS
+  // as separate segments. We attempt to flatten and sort them into one chain
+  // (sorted by min-latitude so NOBO/SOBO direction is preserved).
+  // If the geometry type is unrecognised we throw immediately with a clear message.
+  const feat = trailGeo.features[0];
+  const geomType = feat.geometry.type;
+
+  if(geomType === 'LineString'){
+    // ✓ Happy path — use coordinates directly
+    TRAIL_COORDS = feat.geometry.coordinates; // [[lon,lat], ...]
+
+  } else if(geomType === 'MultiLineString'){
+    // ⚠ Flatten MultiLineString: sort segments by min-latitude (ascending = SOBO→NOBO),
+    // then chain them. Duplicate junction points at segment boundaries are removed.
+    console.warn('trail.geojson is a MultiLineString — flattening to single LineString.');
+    const segments = feat.geometry.coordinates; // [[[lon,lat],...], ...]
+    // Sort each segment so it runs south→north internally, then sort segments S→N
+    const oriented = segments.map(seg => {
+      const first = seg[0][1], last = seg[seg.length-1][1];
+      return first <= last ? seg : [...seg].reverse();
+    });
+    oriented.sort((a, b) => Math.min(...a.map(c=>c[1])) - Math.min(...b.map(c=>c[1])));
+    // Chain: drop first point of each segment if it duplicates the last of the previous
+    TRAIL_COORDS = oriented.reduce((chain, seg) => {
+      const last = chain[chain.length - 1];
+      const skipFirst = last && seg[0][0] === last[0] && seg[0][1] === last[1];
+      return chain.concat(skipFirst ? seg.slice(1) : seg);
+    }, []);
+    // Validation check: warn if the result looks suspiciously short
+    if(TRAIL_COORDS.length < 100){
+      throw new Error(
+        'trail.geojson MultiLineString flattening produced only ' + TRAIL_COORDS.length +
+        ' points — segments may not be contiguous. Check your trail data.'
+      );
+    }
+    console.log('MultiLineString flattened: ' + segments.length + ' segments → ' + TRAIL_COORDS.length + ' points.');
+
+  } else {
+    throw new Error(
+      'trail.geojson geometry type "' + geomType + '" is not supported. ' +
+      'Expected LineString or MultiLineString. ' +
+      'Re-export your trail data as a single LineString.'
+    );
+  }
+
+  // Draw the PCT trail polyline
+  const trailLatLngs = TRAIL_COORDS.map(([lon,lat]) => [lat,lon]);
+  L.polyline(trailLatLngs, {color:'#e07020', weight:2.5, opacity:0.7}).addTo(map);
+
+  // Start marker at Bridge of Gods — first point of trail.geojson
+  const startLatLon = [TRAIL_COORDS[0][1], TRAIL_COORDS[0][0]];
+  const startIcon = L.divIcon({className:'',
+    html:`<div style="
+      width:20px;height:20px;border-radius:50%;
+      background:#2a7d4f;border:2px solid rgba(255,255,255,0.85);
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Source Code Pro',monospace;font-size:10px;font-weight:700;
+      color:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.45);">0</div>`,
+    iconSize:[20,20], iconAnchor:[10,10]});
+  L.marker(startLatLon, {icon:startIcon, interactive:true})
+    .bindTooltip('Bridge of Gods — Start (Mi 2147.3)',
+      {className:'tip-tooltip', direction:'top', offset:[0,-14]})
+    .addTo(map);
+
+  // Static background dot layer (all campsites for reference)
+  const bgDotLayer = L.layerGroup().addTo(map);
+  CAMPS.forEach(c => {
+    if(!c.lat || !c.lon) return;
+    L.circleMarker([c.lat,c.lon], {
+      radius:3, color:'#e07020', weight:1.5,
+      fillColor:'#ffffff', fillOpacity:0.9, opacity:0.7
+    }).bindTooltip(c.name+' (Mi '+c.mile.toFixed(1)+')',
+      {className:'tip-tooltip',direction:'top',offset:[0,-4]}).addTo(bgDotLayer);
+  });
+  RESUPPLY.forEach(r => {
+    const icon = L.divIcon({className:'',
+      html:`<div style="width:14px;height:14px;background:#1d4ed8;border:1.5px solid #93c5fd;border-radius:2px"></div>`,
+      iconSize:[14,14],iconAnchor:[7,7]});
+    L.marker([r.lat,r.lon],{icon})
+      .bindTooltip(r.name,{className:'tip-tooltip',direction:'top',offset:[0,-4]}).addTo(bgDotLayer);
+  });
+
+  // Pre-build cumulative trail distance array for editor use
+  buildTrailCum();
+
+  // Editor dot layer (rebuilt when campsites change)
+  editorDotLayer = L.layerGroup().addTo(map);
+  editorDotLayer.setZIndex = () => {};  // kept hidden until editor mode
+
+  // Map click handler — used in editor mode for snapping to trail
+  map.on('click', e => {
+    if(!editorMode) return;
+    const snapped = snapToTrail(e.latlng);
+    editorStartNewAtTrailPoint(snapped);
+  });
+
+  // Fit map to trail camps
+  map.fitBounds(L.latLngBounds(CAMPS.filter(c=>c.lat).map(c=>[c.lat,c.lon])),{padding:[28,28]});
+}
+
+async function init() {
+  try {
+    await loadData();
+    document.getElementById('loading').style.display = 'none';
+
+    syncLabels();
+    rebuildAndRender();
+
+ 
+
+    // Try loading last saved plan
+    try {
+      const planResp = await fetch('data/plan.json');
+      if(planResp.ok) {
+        const saved = await planResp.json();
+        // Restore settings if present
+        const s = saved && saved.settings;
+        if(s && s.avgPace) {
+          document.getElementById('avg-pace').value   = s.avgPace;
+          document.getElementById('flex-pace').value  = s.flexPace || 3;
+          document.getElementById('start-date').value = s.startDate || '2026-07-01';
+          document.getElementById('melt-date').value  = s.meltDate  || '2026-06-01';
+          syncLabels();
+          rebuildAndRender();
+        }
+        // Restore saved nights into the current plan
+        const nightList = saved.nights ||
+          (saved.overrides && saved.overrides.map(ov => ({name:ov.name, mile:ov.mile, trailDist:null})));
+        const SCALE_R = (END_TRAIL_DIST - START_TRAIL_DIST) / (END_MILE - START_MILE);
+        const planNights = plan.filter(c => !c.isTerminus).length;
+        if(nightList && nightList.length && plan.length) {
+          let any = false;
+          const sameCount = nightList.length === planNights;
+          nightList.forEach((night, ni) => {
+            // Find the camp in ALL_STOPS matching this saved night
+            const refTD = night.trailDist != null
+              ? night.trailDist
+              : (night.mile - START_MILE) * SCALE_R;
+            const camp = ALL_STOPS.reduce((best, c) => {
+              const tdC = c.trailDist != null ? c.trailDist : (c.mile - START_MILE) * SCALE_R;
+              const tdB = best.trailDist != null ? best.trailDist : (best.mile - START_MILE) * SCALE_R;
+              return Math.abs(tdC - refTD) < Math.abs(tdB - refTD) ? c : best;
+            }, ALL_STOPS[0]);
+            const campTD = camp.trailDist != null ? camp.trailDist : (camp.mile - START_MILE) * SCALE_R;
+            if(Math.abs(campTD - refTD) > 2.0) return; // camp not in dataset — skip
+            if(sameCount) {
+              // Same night count: pace unchanged — restore by position (index = index)
+              plan[ni] = {...camp, isTerminus:false};
+              any = true;
+            } else {
+              // Different night count: pace changed — match by proximity
+              let bestNight = -1, bestDist = Infinity;
+              plan.forEach((c, i) => {
+                if(c.isTerminus) return;
+                const td = c.trailDist != null ? c.trailDist : (c.mile - START_MILE) * SCALE_R;
+                const d = Math.abs(td - refTD);
+                if(d < bestDist) { bestDist = d; bestNight = i; }
+              });
+              if(bestNight >= 0 && bestDist < 40) {
+                plan[bestNight] = {...camp, isTerminus:false};
+                any = true;
+              }
+            }
+          });
+          if(any) renderAll();
+        }
+      }
+    } catch(e) { /* no saved plan — fine */ }
+
+  } catch(err) {
+    document.getElementById('loading').innerHTML =
+      `<h2 style="color:#b82020">Failed to load data</h2>
+       <p>${err.message}</p>
+       <p style="margin-top:8px;font-size:12px;color:#6878a0">
+         Run a local web server:<br>
+         <code style="background:#eaecf4;padding:2px 6px;border-radius:3px">python3 -m http.server 8000</code><br>
+         then open <a href="http://localhost:8000">localhost:8000</a>
+       </p>`;
+  }
+}
+
+init();
+
+</script>
+</body>
+</html>
