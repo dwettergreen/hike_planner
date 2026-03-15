@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -809,21 +808,20 @@ function renderChart(){
   const xOf = i  => PAD_L + (i / (camps.length - 1 || 1)) * chartW;
   const yOf = el => PAD_T + chartH - ((el - minE) / rangeE) * chartH;
 
-  // Background
-  ctx.fillStyle = '#1a2235';
-  ctx.fillRect(0, 0, W, H);
+  // Background — transparent, let the wrapper supply the colour
+  ctx.clearRect(0, 0, W, H);
 
   // Grid lines at nice elevation intervals
   const gridStep = rangeE > 3000 ? 1000 : rangeE > 1000 ? 500 : 200;
   const gridStart = Math.ceil(minE / gridStep) * gridStep;
   for(let e = gridStart; e <= maxE; e += gridStep){
     const y = yOf(e);
-    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+    ctx.strokeStyle = 'rgba(0,0,0,0.08)';
     ctx.lineWidth = 1;
     ctx.setLineDash([3, 4]);
     ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(W - PAD_R, y); ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.fillStyle = '#6878a0';
     ctx.font = '8px Source Code Pro,monospace';
     ctx.textAlign = 'right';
     ctx.fillText((e / 1000).toFixed(1) + 'k', PAD_L - 3, y + 3);
@@ -837,8 +835,8 @@ function renderChart(){
   ctx.lineTo(xOf(0), H - PAD_B);
   ctx.closePath();
   const grad = ctx.createLinearGradient(0, PAD_T, 0, H - PAD_B);
-  grad.addColorStop(0, 'rgba(93,186,127,0.35)');
-  grad.addColorStop(1, 'rgba(93,186,127,0.04)');
+  grad.addColorStop(0, 'rgba(93,186,127,0.25)');
+  grad.addColorStop(1, 'rgba(93,186,127,0.02)');
   ctx.fillStyle = grad;
   ctx.fill();
 
@@ -846,7 +844,7 @@ function renderChart(){
   ctx.beginPath();
   ctx.moveTo(xOf(0), yOf(camps[0].elev));
   camps.forEach((c, i) => ctx.lineTo(xOf(i), yOf(c.elev)));
-  ctx.strokeStyle = '#5dba7f';
+  ctx.strokeStyle = '#3d9e62';
   ctx.lineWidth = 1.5;
   ctx.lineJoin = 'round';
   ctx.stroke();
@@ -857,19 +855,18 @@ function renderChart(){
     const isActive = plan.indexOf(c) === activeIdx;
     ctx.beginPath();
     ctx.arc(x, y, isActive ? 4 : 2.5, 0, Math.PI * 2);
-    ctx.fillStyle   = isActive ? '#ffd700' : elevColor(c.elev);
-    ctx.strokeStyle = isActive ? '#ffd700' : 'rgba(255,255,255,0.4)';
+    ctx.fillStyle   = isActive ? '#d4a84b' : elevColor(c.elev);
+    ctx.strokeStyle = isActive ? '#d4a84b' : 'rgba(0,0,0,0.2)';
     ctx.lineWidth   = isActive ? 1.5 : 0.8;
     ctx.fill();
     ctx.stroke();
   });
 
   // Day-number labels along the bottom
-  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.fillStyle = '#8090b0';
   ctx.font = '7px Source Code Pro,monospace';
   ctx.textAlign = 'center';
   camps.forEach((c, i) => {
-    // Only label every Nth camp to avoid crowding
     const step = camps.length > 20 ? 3 : camps.length > 10 ? 2 : 1;
     if(i % step === 0) ctx.fillText(i + 1, xOf(i), H - PAD_B + 11);
   });
@@ -914,13 +911,6 @@ function renderSummary(){
 
   document.getElementById('sum-panel').innerHTML=`
     <div class="ss">
-      <div class="st">Elevation Profile</div>
-      <div id="elev-chart-wrap" style="background:#1a2235;border-radius:4px;overflow:hidden;cursor:pointer;">
-        <canvas id="elev-canvas" style="display:block;width:100%;"></canvas>
-      </div>
-      <div style="font-size:9px;color:var(--text3);margin-top:3px;text-align:center">Click a point to select that night</div>
-    </div>
-    <div class="ss">
       <div class="st">Trip Stats</div>
       <div class="sg">
         <div class="sc"><div class="sv">${plan.length}</div><div class="sl">Total days</div></div>
@@ -937,6 +927,13 @@ function renderSummary(){
         <div class="sc"><div class="sv">${avgE.toLocaleString()}</div><div class="sl">Avg elevation (ft)</div></div>
         <div class="sc"><div class="sv" style="color:#e06060">${camps.filter(c=>c.elev>=5000).length}</div><div class="sl">Nights ≥ 5,000 ft</div></div>
       </div>
+    </div>
+    <div class="ss">
+      <div class="st">Elevation Profile</div>
+      <div id="elev-chart-wrap" style="background:var(--bg3);border:1px solid #cdd4e0;border-radius:4px;overflow:hidden;cursor:pointer;">
+        <canvas id="elev-canvas" style="display:block;width:100%;"></canvas>
+      </div>
+      <div style="font-size:9px;color:var(--text3);margin-top:3px;text-align:center">Click a point to select that night</div>
     </div>
     <div class="ss">
       <div class="st">Nights by Elevation Band</div>
