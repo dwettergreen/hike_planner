@@ -1,0 +1,198 @@
+{
+  "version": 2,
+  "saved": "2026-03-16T01:31:45.873Z",
+  "settings": {
+    "startDate": "2026-07-01",
+    "meltDate": "2026-07-05",
+    "avgPace": "12.8",
+    "flexPace": "3"
+  },
+  "nights": [
+    {
+      "name": "CS2157",
+      "mile": 2157.127,
+      "trailDist": 9.575
+    },
+    {
+      "name": "RockCreekBridge",
+      "mile": 2169.3,
+      "trailDist": 17.167
+    },
+    {
+      "name": "TroutCreek",
+      "mile": 2177.115,
+      "trailDist": 29.543
+    },
+    {
+      "name": "WACS2193",
+      "mile": 2193.549,
+      "trailDist": 46.018
+    },
+    {
+      "name": "BlueLakeCS",
+      "mile": 2205.645,
+      "trailDist": 58.101
+    },
+    {
+      "name": "SteamboatLakeCreek",
+      "mile": 2221.836,
+      "trailDist": 74.302
+    },
+    {
+      "name": "CS2235",
+      "mile": 2235.033,
+      "trailDist": 87.52
+    },
+    {
+      "name": "LavaSpring",
+      "mile": 2249.953,
+      "trailDist": 102.455
+    },
+    {
+      "name": "SheepLake",
+      "mile": 2273.45,
+      "trailDist": 125.961
+    },
+    {
+      "name": "CS2290",
+      "mile": 2290.14,
+      "trailDist": 142.663
+    },
+    {
+      "name": "BueschLake",
+      "mile": 2301.359,
+      "trailDist": 153.894
+    },
+    {
+      "name": "TwoLakesTR",
+      "mile": 2315.055,
+      "trailDist": 167.59
+    },
+    {
+      "name": "SheepLake4",
+      "mile": 2326.169,
+      "trailDist": 178.684
+    },
+    {
+      "name": "MartinsonGap",
+      "mile": 2337.479,
+      "trailDist": 190.021
+    },
+    {
+      "name": "RD2349",
+      "mile": 2349.143,
+      "trailDist": 201.691
+    },
+    {
+      "name": "CS2359",
+      "mile": 2359.915,
+      "trailDist": 212.474
+    },
+    {
+      "name": "CS2371",
+      "mile": 2371.249,
+      "trailDist": 223.791
+    },
+    {
+      "name": "MirrorLake2",
+      "mile": 2385.059,
+      "trailDist": 237.573
+    },
+    {
+      "name": "CS2397B",
+      "mile": 2397.979,
+      "trailDist": 250.514
+    },
+    {
+      "name": "CS2409",
+      "mile": 2409.714,
+      "trailDist": 262.253
+    },
+    {
+      "name": "CS24223",
+      "mile": 2423,
+      "trailDist": 277.234
+    },
+    {
+      "name": "CS2438",
+      "mile": 2438.298,
+      "trailDist": 290.727
+    },
+    {
+      "name": "CS2452",
+      "mile": 2452.638,
+      "trailDist": 305.023
+    },
+    {
+      "name": "CS2468",
+      "mile": 2468.664,
+      "trailDist": 321.076
+    },
+    {
+      "name": "CS2479",
+      "mile": 2479.078,
+      "trailDist": 331.481
+    },
+    {
+      "name": "CS2495",
+      "mile": 2495.112,
+      "trailDist": 347.513
+    },
+    {
+      "name": "CS2505",
+      "mile": 2505.896,
+      "trailDist": 358.284
+    },
+    {
+      "name": "FireCreek",
+      "mile": 2518.328,
+      "trailDist": 370.719
+    },
+    {
+      "name": "CS2529B",
+      "mile": 2529.842,
+      "trailDist": 382.193
+    },
+    {
+      "name": "CS2541B",
+      "mile": 2541.092,
+      "trailDist": 393.45
+    },
+    {
+      "name": "WACS2552",
+      "mile": 2552.877,
+      "trailDist": 405.192
+    },
+    {
+      "name": "SwampCamp",
+      "mile": 2564.255,
+      "trailDist": 416.578
+    },
+    {
+      "name": "NorthForkCamp",
+      "mile": 2580.185,
+      "trailDist": 432.539
+    },
+    {
+      "name": "CS2595",
+      "mile": 2595.44,
+      "trailDist": 447.824
+    },
+    {
+      "name": "CS2612",
+      "mile": 2612.627,
+      "trailDist": 465.003
+    },
+    {
+      "name": "CS2626",
+      "mile": 2626.076,
+      "trailDist": 478.436
+    },
+    {
+      "name": "CS2642",
+      "mile": 2642.056,
+      "trailDist": 494.372
+    }
+  ],
+  "totalMiles": "505.4"
+}
