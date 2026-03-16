@@ -229,7 +229,7 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
     <div class="stabs">
       <div class="stab on" id="tab-itin" onclick="showTab('itin')">Itinerary</div>
       <div class="stab" id="tab-sum" onclick="showTab('sum')">Summary</div>
-      <div class="stab" id="tab-edit" onclick="showTab('edit')">Editor</div>
+      <div class="stab" id="tab-edit" onclick="showTab('edit')">Edit</div>
       <div class="stab" id="tab-exp" onclick="showTab('exp')">Export</div>
     </div>
     <div class="controls">
@@ -1065,8 +1065,8 @@ function showTab(t){
   document.getElementById('sum-panel').style.display=t==='sum'?'block':'none';
   document.getElementById('exp-panel').style.display=t==='exp'?'block':'none';
   document.getElementById('edit-panel').style.display=t==='edit'?'flex':'none';
-  // Hide planner controls in editor mode, show in others
-  document.querySelector('.controls').style.display = t==='edit' ? 'none' : '';
+  // Hide planner controls in all non-itinerary tabs
+  document.querySelector('.controls').style.display = t==='itin' ? '' : 'none';
   if(t==='sum')  renderSummary();
   if(t==='exp')  renderExport();
   if(t==='edit') { editorMode=true;  renderEditor(); enterEditorMode(); }
