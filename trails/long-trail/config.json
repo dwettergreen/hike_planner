@@ -1,13 +1,13 @@
 {
-  "trailName":        "Long Trail",
-  "trailAbbrev":      "LT",
-  "startMarkerLabel": "Williamstown, MA — Start (Mi 0)",
-  "defaultStartDate": "2026-06-25",
-  "defaultMeltDate":  "2026-05-28",
-  "defaultAvgPace":   12,
-  "defaultFlexPace":  2,
-  "endTrailDist":     397.046,
-  "baselineMeltDoy":  148,
+  "trailName":         "Long Trail",
+  "trailAbbrev":       "LT",
+  "startMarkerLabel":  "Williamstown, MA — Start (Mi 0)",
+  "defaultStartDate":  "2026-06-25",
+  "defaultEmergeDate": "2026-05-28",
+  "defaultAvgPace":    12,
+  "defaultFlexPace":   2,
+  "endTrailDist":      397.046,
+  "bugEmergeDoy":      148,
   "terminus": {
     "name": "Northern Terminus",
     "lat":  44.9999,
@@ -15,10 +15,24 @@
     "elev": 2560,
     "mile": 397.046
   },
-  "mosqBands": [
-    [1500,  168, 26],
-    [2500,  178, 24],
-    [3500,  188, 22],
-    [99999, 198, 18]
+  "bugBands": [
+    {
+      "name":        "Black Flies",
+      "label":       "Black Flies",
+      "peakDoy":     161,
+      "sigma":       12,
+      "weight":      1.2,
+      "elevDecay":   0.0002,
+      "waterBonus":  0.1
+    },
+    {
+      "name":        "Mosquitoes",
+      "label":       "Mosquitoes",
+      "peakDoy":     196,
+      "sigma":       25,
+      "weight":      1.0,
+      "elevDecay":   0.0004,
+      "waterBonus":  0.3
+    }
   ]
 }

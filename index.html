@@ -250,8 +250,8 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
         <div class="cval" id="flex-lbl">±3.0</div>
       </div>
       <div class="crow">
-        <div class="clbl">Snowmelt date</div>
-        <input type="date" id="melt-date" onchange="rebuildAndRender()">
+        <div class="clbl">Emergence date</div>
+        <input type="date" id="emerge-date" onchange="rebuildAndRender()">
       </div>
       <div class="crow" style="margin-bottom:0">
         <div class="clbl" style="font-size:10px;color:var(--text3)">Range</div>
@@ -309,16 +309,16 @@ let START_MILE        = 0;
 let END_MILE          = 100;
 let START_TRAIL_DIST  = 0.0;
 let END_TRAIL_DIST    = 100.0;
-let BASELINE_MELT_DOY = 152;
+let BASELINE_EMERGE_DOY = 152;  // baseline bug emergence day-of-year (config: bugEmergeDoy)
 let TERMINUS          = { name:'Terminus', lat:0, lon:0, elev:0, mile:100, isTerminus:true };
-let MOSQ_BASE         = [[99999, 175, 20]];
+let BUG_BANDS         = [];     // populated from config.json bugBands
 
 // Trail identity — populated from config.json
 let TRAIL_NAME         = 'Trail';
 let TRAIL_ABBREV       = 'HIKE';
 let START_MARKER_LABEL = 'Start';
 let DEFAULT_START_DATE = '2026-06-25';
-let DEFAULT_MELT_DATE  = '2026-05-28';
+let DEFAULT_EMERGE_DATE = '2026-05-28';
 let DEFAULT_AVG_PACE   = 13;
 let DEFAULT_FLEX_PACE  = 3;
 
@@ -417,35 +417,79 @@ function elevColor(e){
   return '#5b9bd5';
 }
 
-// ── Mosquito model — bands populated from config.json at load time ───────────
-// Format: [max_elev_ft, peak_doy, sigma_days]
-// MOSQ_BANDS is a live alias used by the DP; reassigned when config loads.
-let MOSQ_BANDS = MOSQ_BASE;
+// ── Bug pressure model — bands populated from config.json bugBands at load time ─
+// Each band: { name, peakDoy, sigma, weight, elevDecay, waterBonus, color, label }
+// peakDoy is shifted by (emergeDoy - baselineEmergeDoy) at runtime.
 
-function getMeltDoy(){
-  const el = document.getElementById('melt-date');
-  if(!el) return BASELINE_MELT_DOY;
+function getEmergeDoy(){
+  const el = document.getElementById('emerge-date');
+  if(!el) return BASELINE_EMERGE_DOY;
   const d = new Date(el.value);
-  if(isNaN(d)) return BASELINE_MELT_DOY;
+  if(isNaN(d)) return BASELINE_EMERGE_DOY;
   return Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
 }
 
-function mosquitoAt(elev, date){
-  const e   = elev || 3000;
-  const doy = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 86400000);
-  const shift = getMeltDoy() - BASELINE_MELT_DOY;
-  for(const [maxE, peak, sigma] of MOSQ_BASE){
-    if(e <= maxE) return Math.exp(-0.5 * Math.pow((doy - (peak + shift)) / sigma, 2));
+// bugPressureAt() — returns 0–1 composite bug pressure for a camp on a given date.
+// Evaluates each band's Gaussian, applies elevation decay and water bonus,
+// then returns the MAX across all bands (worst pest wins).
+// Falls back to a generic single-band Gaussian if BUG_BANDS is empty.
+function bugPressureAt(camp, date){
+  const elev   = camp ? (camp.elev || 3000) : 3000;
+  const water  = camp ? !!camp.water : false;
+  const doy    = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 86400000);
+  const shift  = getEmergeDoy() - BASELINE_EMERGE_DOY;
+
+  if(!BUG_BANDS || !BUG_BANDS.length){
+    // Fallback: generic single Gaussian centred on DOY 175
+    return Math.exp(-0.5 * Math.pow((doy - (175 + shift)) / 20, 2));
   }
-  return 0;
+
+  let maxP = 0;
+  for(const b of BUG_BANDS){
+    const peak       = (b.peakDoy || 175) + shift;
+    const sigma      = b.sigma    || 20;
+    const weight     = b.weight   || 1.0;
+    const elevDecay  = b.elevDecay  || 0;
+    const waterBonus = b.waterBonus || 0;
+    const gauss      = Math.exp(-0.5 * Math.pow((doy - peak) / sigma, 2));
+    const elevFactor = Math.max(0, 1 - elevDecay * elev);
+    const waterMult  = 1 + waterBonus * (water ? 1 : 0);
+    const p          = Math.min(1, weight * gauss * elevFactor * waterMult);
+    if(p > maxP) maxP = p;
+  }
+  return maxP;
 }
-function mosquitoColor(p){
+
+// Dominant band name at a given camp/date — used for badge labels
+function bugDominantName(camp, date){
+  if(!BUG_BANDS || !BUG_BANDS.length) return 'Bugs';
+  const elev  = camp ? (camp.elev || 3000) : 3000;
+  const water = camp ? !!camp.water : false;
+  const doy   = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 86400000);
+  const shift = getEmergeDoy() - BASELINE_EMERGE_DOY;
+  let maxP = -1, name = BUG_BANDS[0].label || BUG_BANDS[0].name || 'Bugs';
+  for(const b of BUG_BANDS){
+    const peak      = (b.peakDoy || 175) + shift;
+    const sigma     = b.sigma    || 20;
+    const weight    = b.weight   || 1.0;
+    const elevDecay = b.elevDecay  || 0;
+    const waterBonus= b.waterBonus || 0;
+    const gauss     = Math.exp(-0.5 * Math.pow((doy - peak) / sigma, 2));
+    const elevFactor= Math.max(0, 1 - elevDecay * elev);
+    const waterMult = 1 + waterBonus * (water ? 1 : 0);
+    const p         = weight * gauss * elevFactor * waterMult;
+    if(p > maxP){ maxP = p; name = b.label || b.name || 'Bugs'; }
+  }
+  return name;
+}
+
+function bugColor(p){
   if(p >= 0.7)  return '#e06060';
   if(p >= 0.4)  return '#d4a84b';
   if(p >= 0.15) return '#b8c43a';
   return '#5dba7f';
 }
-function mosquitoLabel(p){
+function bugLabel(p){
   if(p >= 0.7)  return 'HIGH';
   if(p >= 0.4)  return 'MEDIUM';
   if(p >= 0.15) return 'LOW';
@@ -602,18 +646,15 @@ function buildPlan(){
   const dists = [START_TRAIL_DIST, ...SORTED.map(getTD), END_TRAIL_DIST];
   const M     = dists.length;
 
-  // Score = elev × (1 + 2 × low-mosquito-bonus), date-aware
+  // Score = elev × (1 + 2 × low-bug-bonus), date-aware
   function score(i) {
     if(i === 0 || i === M-1) return 0;
     const camp = SORTED[i-1];
     const elev = camp.elev || 3500;
-    const arrDoy = startDoy + dists[i] / avg;
-    let mp = 0;
-    const meltShift = getMeltDoy() - BASELINE_MELT_DOY;
-    for(const [maxE, peak, sigma] of MOSQ_BASE){
-      if(elev <= maxE){ mp = Math.exp(-0.5 * Math.pow((arrDoy - (peak + meltShift)) / sigma, 2)); break; }
-    }
-    return elev * (1 + 2.0 * (1 - mp));
+    const arrDate = new Date(sd);
+    arrDate.setDate(arrDate.getDate() + Math.round(dists[i] / avg));
+    const bp = bugPressureAt(camp, arrDate);
+    return elev * (1 + 2.0 * (1 - bp));
   }
 
   // Run DP with a given [min_d, max_d] window (in trail-geometry miles)
@@ -693,10 +734,10 @@ function renderMap(){
 
     const m = L.marker([camp.lat,camp.lon],{ icon, draggable:!isTerm, autoPan:true });
 
-    // Mosquito pressure for this night
-    const mp   = isTerm ? 0 : mosquitoAt(camp.elev, arrivalDate(idx));
-    const mpC  = mosquitoColor(mp);
-    const mpL  = mosquitoLabel(mp);
+    // Bug pressure for this night
+    const mp   = isTerm ? 0 : bugPressureAt(camp, arrivalDate(idx));
+    const mpC  = bugColor(mp);
+    const mpL  = bugLabel(mp);
     const mpPct = Math.round(mp * 100);
 
     // Popup
@@ -717,7 +758,7 @@ function renderMap(){
         <div class="pk">Miles today</div><div class="pv">${miToday} mi</div>
         <div class="pk">Lat / Lon</div><div class="pv">${camp.lat.toFixed(4)}, ${camp.lon.toFixed(4)}</div>
       </div>
-      ${!isTerm ? `<div style="margin-top:8px">        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px">          <span style="color:var(--text3)">🦟 Mosquitoes</span>          <span style="color:${mpC};font-weight:700">${mpL} (${mpPct}%)</span>        </div>        <div style="height:5px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden">          <div style="width:${mpPct}%;height:100%;background:${mpC};border-radius:3px"></div>        </div>      </div>` : ''}
+      ${!isTerm ? `<div style="margin-top:8px">        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px">          <span style="color:var(--text3)">🦟 Bugs</span>          <span style="color:${mpC};font-weight:700">${mpL} (${mpPct}%)</span>        </div>        <div style="height:5px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden">          <div style="width:${mpPct}%;height:100%;background:${mpC};border-radius:3px"></div>        </div>      </div>` : ''}
       ${badges.length?`<div class="pbadges">${badges.join('')}</div>`:''}
     `, { maxWidth:240 });
 
@@ -778,9 +819,9 @@ function renderList(){
     const card=document.createElement('div');
     card.className=`ncard${idx===activeIdx?' active':''}${isWarn?' warn':''}`;
 
-    const nightMp  = isTerm ? 0 : mosquitoAt(camp.elev, arrivalDate(idx));
-    const nightMpC = mosquitoColor(nightMp);
-    const nightMpL = mosquitoLabel(nightMp);
+    const nightMp  = isTerm ? 0 : bugPressureAt(camp, arrivalDate(idx));
+    const nightMpC = bugColor(nightMp);
+    const nightMpL = bugLabel(nightMp);
     const badges=[];
     if(!isTerm){
       if(camp.type==='Established') badges.push(`<span class="badge" style="background:#d8f0e4;color:#1a6038;border:1px solid #70b890">Established</span>`);
@@ -788,7 +829,7 @@ function renderList(){
       if(camp.water) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">💧</span>`);
       if(camp.outhouse) badges.push(`<span class="badge" style="background:#ede8f8;color:#6a30a0;border:1px solid #b090d8">🚽</span>`);
       if(isWarn) badges.push(`<span class="badge" style="background:#fde8e8;color:#a01818;border:1px solid #e09090">⚠ ${mi.toFixed(1)}mi</span>`);
-      if(nightMp >= 0.4) badges.push(`<span class="badge" style="background:${nightMpC}20;color:${nightMpC};border:1px solid ${nightMpC}55">🦟 ${nightMpL}</span>`);
+      if(nightMp >= 0.4) badges.push(`<span class="badge" style="background:${nightMpC}20;color:${nightMpC};border:1px solid ${nightMpC}55">🦟 ${bugDominantName(camp, arrivalDate(idx))} ${nightMpL}</span>`);
       if(!isTerm && camp.elev >= 6500) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">🌬️ High Wind</span>`);
       else if(!isTerm && camp.elev >= 5800 && camp.elev < 6500) badges.push(`<span class="badge" style="background:#e6eef8;color:#2a5888;border:1px solid #a0c0e0">💨 Exposed</span>`);
     }
@@ -970,7 +1011,7 @@ function renderSummary(){
       ${seg('5,000+ ft (high & dry)',camps.filter(c=>c.elev>=5000).length,'#e06060')}
       ${seg('3,500–5,000 ft',camps.filter(c=>c.elev>=3500&&c.elev<5000).length,'#d4a84b')}
       ${seg('2,000–3,500 ft',camps.filter(c=>c.elev>=2000&&c.elev<3500).length,'#5dba7f')}
-      ${seg('< 2,000 ft (mosquito zone)',camps.filter(c=>c.elev<2000).length,'#5b9bd5')}
+      ${seg('< 2,000 ft (bug zone)',camps.filter(c=>c.elev<2000).length,'#5b9bd5')}
     </div>
     <div class="ss">
       <div class="st">Amenities</div>
@@ -980,15 +1021,15 @@ function renderSummary(){
       </div>
     </div>
     <div class="ss">
-      <div class="st">🦟 Mosquito Exposure</div>
+      <div class="st">🦟 Bug Exposure</div>
       <div class="sg">
-        <div class="sc"><div class="sv" style="color:#e06060">${camps.filter((_,i)=>{const p=mosquitoAt(camps[i].elev,arrivalDate(plan.indexOf(camps[i])));return p>=0.7;}).length}</div><div class="sl">HIGH nights</div></div>
-        <div class="sc"><div class="sv" style="color:#5dba7f">${camps.filter((_,i)=>{const p=mosquitoAt(camps[i].elev,arrivalDate(plan.indexOf(camps[i])));return p<0.15;}).length}</div><div class="sl">MINIMAL nights</div></div>
+        <div class="sc"><div class="sv" style="color:#e06060">${camps.filter((_,i)=>{const p=bugPressureAt(camps[i],arrivalDate(plan.indexOf(camps[i])));return p>=0.7;}).length}</div><div class="sl">HIGH nights</div></div>
+        <div class="sc"><div class="sv" style="color:#5dba7f">${camps.filter((_,i)=>{const p=bugPressureAt(camps[i],arrivalDate(plan.indexOf(camps[i])));return p<0.15;}).length}</div><div class="sl">MINIMAL nights</div></div>
       </div>
-      ${seg('HIGH ≥ 0.7',     camps.filter((_,i)=>{const p=mosquitoAt(camps[i].elev,arrivalDate(plan.indexOf(camps[i])));return p>=0.7;}).length,             '#e06060')}
-      ${seg('MEDIUM 0.4–0.7', camps.filter((_,i)=>{const p=mosquitoAt(camps[i].elev,arrivalDate(plan.indexOf(camps[i])));return p>=0.4&&p<0.7;}).length,     '#d4a84b')}
-      ${seg('LOW 0.15–0.4',   camps.filter((_,i)=>{const p=mosquitoAt(camps[i].elev,arrivalDate(plan.indexOf(camps[i])));return p>=0.15&&p<0.4;}).length,    '#b8c43a')}
-      ${seg('MINIMAL < 0.15', camps.filter((_,i)=>{const p=mosquitoAt(camps[i].elev,arrivalDate(plan.indexOf(camps[i])));return p<0.15;}).length,             '#5dba7f')}
+      ${seg('HIGH ≥ 0.7',     camps.filter((_,i)=>{const p=bugPressureAt(camps[i],arrivalDate(plan.indexOf(camps[i])));return p>=0.7;}).length,             '#e06060')}
+      ${seg('MEDIUM 0.4–0.7', camps.filter((_,i)=>{const p=bugPressureAt(camps[i],arrivalDate(plan.indexOf(camps[i])));return p>=0.4&&p<0.7;}).length,     '#d4a84b')}
+      ${seg('LOW 0.15–0.4',   camps.filter((_,i)=>{const p=bugPressureAt(camps[i],arrivalDate(plan.indexOf(camps[i])));return p>=0.15&&p<0.4;}).length,    '#b8c43a')}
+      ${seg('MINIMAL < 0.15', camps.filter((_,i)=>{const p=bugPressureAt(camps[i],arrivalDate(plan.indexOf(camps[i])));return p<0.15;}).length,             '#5dba7f')}
     </div>`;
   // Chart canvas is now in the DOM — draw it
   renderChart();
@@ -1094,8 +1135,8 @@ function planToCSV(){
       : (plan[idx-1].trailDist != null ? plan[idx-1].trailDist : (plan[idx-1].mile-START_MILE)*SCALE_C);
     const thisTD_C = camp.trailDist != null ? camp.trailDist : (camp.mile-START_MILE)*SCALE_C;
     const mi = (thisTD_C - prevTD_C).toFixed(1);
-    const mp = isTerm ? '' : mosquitoLabel(mosquitoAt(camp.elev, arrivalDate(idx)));
-    const mpVal = mp && mp !== 'MINIMAL' ? mp + ' mosquitoes' : '';
+    const mp = isTerm ? '' : bugLabel(bugPressureAt(camp, arrivalDate(idx)));
+    const mpVal = mp && mp !== 'MINIMAL' ? mp + ' bugs' : '';
     const wind = !isTerm && camp.elev >= 6500 ? 'High Wind'
                : !isTerm && camp.elev >= 5800  ? 'Exposed' : '';
     const water = !isTerm && camp.water ? 'Water' : '';
@@ -1125,7 +1166,7 @@ function renderExport(){
       <div class="st">Download as CSV</div>
       <p style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.5">
         Opens in Excel or Google Sheets. Columns: Mile, Miles Today,
-        Campsite, Elevation, Date, Notes (type / water / mosquito / wind).
+        Campsite, Elevation, Date, Notes (type / water / bug pressure / wind).
       </p>
       <button class="ebtn ebtn-g" onclick="downloadCSV()">⬇ Download CSV</button>
     </div>
@@ -1156,10 +1197,10 @@ function downloadCSV(){
 
 function saveAsJSON(){
   const settings = {
-    startDate: document.getElementById('start-date').value,
-    meltDate:  document.getElementById('melt-date').value,
-    avgPace:   document.getElementById('avg-pace').value,
-    flexPace:  document.getElementById('flex-pace').value
+    startDate:  document.getElementById('start-date').value,
+    emergeDate: document.getElementById('emerge-date').value,
+    avgPace:    document.getElementById('avg-pace').value,
+    flexPace:   document.getElementById('flex-pace').value
   };
   // Save the FULL plan as an array of {name, mile, trailDist} — one entry per night.
   // This is more reliable than diffing against a fresh build, since the fresh
@@ -1628,10 +1669,11 @@ function applyPlanRestore(saved){
   if(!saved) return;
   const s = saved.settings;
   if(s && s.avgPace){
-    document.getElementById('avg-pace').value   = s.avgPace;
-    document.getElementById('flex-pace').value  = s.flexPace  || DEFAULT_FLEX_PACE;
-    document.getElementById('start-date').value = s.startDate || DEFAULT_START_DATE;
-    document.getElementById('melt-date').value  = s.meltDate  || DEFAULT_MELT_DATE;
+    document.getElementById('avg-pace').value    = s.avgPace;
+    document.getElementById('flex-pace').value   = s.flexPace   || DEFAULT_FLEX_PACE;
+    document.getElementById('start-date').value  = s.startDate  || DEFAULT_START_DATE;
+    // emergeDate is the v4 name; fall back to meltDate for v2/v3 saved plans
+    document.getElementById('emerge-date').value = s.emergeDate || s.meltDate || DEFAULT_EMERGE_DATE;
     syncLabels();
     rebuildAndRender();
   }
@@ -1700,23 +1742,22 @@ async function loadData(trailPath) {
     if(cfg.startMarkerLabel) START_MARKER_LABEL = cfg.startMarkerLabel;
 
     // Trail geometry constants
-    if(cfg.endTrailDist    != null) END_TRAIL_DIST    = cfg.endTrailDist;
-    if(cfg.baselineMeltDoy != null) BASELINE_MELT_DOY = cfg.baselineMeltDoy;
+    if(cfg.endTrailDist    != null) END_TRAIL_DIST      = cfg.endTrailDist;
+    if(cfg.bugEmergeDoy    != null) BASELINE_EMERGE_DOY = cfg.bugEmergeDoy;
 
     // Terminus
     if(cfg.terminus){
       TERMINUS = { ...cfg.terminus, mile: cfg.terminus.mile ?? END_MILE, isTerminus: true };
     }
 
-    // Mosquito model
-    if(Array.isArray(cfg.mosqBands) && cfg.mosqBands.length){
-      MOSQ_BASE  = cfg.mosqBands;
-      MOSQ_BANDS = MOSQ_BASE;
+    // Bug pressure model — new multi-band format (v4)
+    if(Array.isArray(cfg.bugBands) && cfg.bugBands.length){
+      BUG_BANDS = cfg.bugBands;
     }
 
-    // Defaults for controls (applied to DOM below, after config is loaded)
-    if(cfg.defaultStartDate) DEFAULT_START_DATE = cfg.defaultStartDate;
-    if(cfg.defaultMeltDate)  DEFAULT_MELT_DATE  = cfg.defaultMeltDate;
+    // Defaults for controls
+    if(cfg.defaultStartDate)  DEFAULT_START_DATE  = cfg.defaultStartDate;
+    if(cfg.defaultEmergeDate) DEFAULT_EMERGE_DATE = cfg.defaultEmergeDate;
     if(cfg.defaultAvgPace  != null) DEFAULT_AVG_PACE  = cfg.defaultAvgPace;
     if(cfg.defaultFlexPace != null) DEFAULT_FLEX_PACE = cfg.defaultFlexPace;
   } else {
@@ -1725,10 +1766,10 @@ async function loadData(trailPath) {
 
   // ── Apply config defaults to DOM controls ───────────────────────────────────
   // Only set if the user hasn't already changed them (i.e. value matches old default)
-  document.getElementById('avg-pace').value   = DEFAULT_AVG_PACE;
-  document.getElementById('flex-pace').value  = DEFAULT_FLEX_PACE;
-  document.getElementById('start-date').value = DEFAULT_START_DATE;
-  document.getElementById('melt-date').value  = DEFAULT_MELT_DATE;
+  document.getElementById('avg-pace').value    = DEFAULT_AVG_PACE;
+  document.getElementById('flex-pace').value   = DEFAULT_FLEX_PACE;
+  document.getElementById('start-date').value  = DEFAULT_START_DATE;
+  document.getElementById('emerge-date').value = DEFAULT_EMERGE_DATE;
 
   // ── Apply trail identity to header and legend ────────────────────────────────
   document.getElementById('h-abbrev').textContent    = TRAIL_ABBREV;

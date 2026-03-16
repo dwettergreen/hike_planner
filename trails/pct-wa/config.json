@@ -1,13 +1,13 @@
 {
-  "trailName":        "PCT Washington",
-  "trailAbbrev":      "PCT",
-  "startMarkerLabel": "Bridge of Gods — Start (Mi 2147.3)",
-  "defaultStartDate": "2026-07-01",
-  "defaultMeltDate":  "2026-06-01",
-  "defaultAvgPace":   13,
-  "defaultFlexPace":  3,
-  "endTrailDist":     505.38,
-  "baselineMeltDoy":  152,
+  "trailName":         "PCT Washington",
+  "trailAbbrev":       "PCT",
+  "startMarkerLabel":  "Bridge of Gods — Start (Mi 2147.3)",
+  "defaultStartDate":  "2026-07-01",
+  "defaultEmergeDate": "2026-06-01",
+  "defaultAvgPace":    13,
+  "defaultFlexPace":   3,
+  "endTrailDist":      505.38,
+  "bugEmergeDoy":      152,
   "terminus": {
     "name": "Northern Terminus",
     "lat":  49.000000,
@@ -15,10 +15,15 @@
     "elev": 4247,
     "mile": 2653.1
   },
-  "mosqBands": [
-    [3000,  155, 22],
-    [4500,  175, 20],
-    [5500,  192, 17],
-    [99999, 207, 14]
+  "bugBands": [
+    {
+      "name":        "Mosquitoes",
+      "label":       "Mosquitoes",
+      "peakDoy":     175,
+      "sigma":       20,
+      "weight":      2.0,
+      "elevDecay":   0.0006,
+      "waterBonus":  0.25
+    }
   ]
 }
