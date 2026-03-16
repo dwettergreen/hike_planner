@@ -446,15 +446,17 @@ function bugPressureAt(camp, date){
 
   let maxP = 0;
   for(const b of BUG_BANDS){
-    const peak       = (b.peakDoy || 175) + shift;
-    const sigma      = b.sigma    || 20;
-    const weight     = b.weight   || 1.0;
-    const elevDecay  = b.elevDecay  || 0;
-    const waterBonus = b.waterBonus || 0;
-    const gauss      = Math.exp(-0.5 * Math.pow((doy - peak) / sigma, 2));
-    const elevFactor = Math.max(0, 1 - elevDecay * elev);
-    const waterMult  = 1 + waterBonus * (water ? 1 : 0);
-    const p          = Math.min(1, weight * gauss * elevFactor * waterMult);
+    const peak        = (b.peakDoy || 175) + shift;
+    const sigma       = b.sigma      || 20;
+    const weight      = b.weight     || 1.0;
+    const elevDecay   = b.elevDecay  || 0;
+    const waterBonus  = b.waterBonus || 0;
+    const gauss       = Math.exp(-0.5 * Math.pow((doy - peak) / sigma, 2));
+    // Exponential elevation decay: pressure × e^(-elevDecay × elev)
+    // elevDecay=0.0003 → 74% at 1000ft, 55% at 2000ft, 22% at 5000ft
+    const elevFactor  = Math.exp(-elevDecay * elev);
+    const waterMult   = 1 + waterBonus * (water ? 1 : 0);
+    const p           = Math.min(1, weight * gauss * elevFactor * waterMult);
     if(p > maxP) maxP = p;
   }
   return maxP;
@@ -474,9 +476,9 @@ function bugDominantName(camp, date){
     const weight    = b.weight   || 1.0;
     const elevDecay = b.elevDecay  || 0;
     const waterBonus= b.waterBonus || 0;
-    const gauss     = Math.exp(-0.5 * Math.pow((doy - peak) / sigma, 2));
-    const elevFactor= Math.max(0, 1 - elevDecay * elev);
-    const waterMult = 1 + waterBonus * (water ? 1 : 0);
+    const gauss      = Math.exp(-0.5 * Math.pow((doy - peak) / sigma, 2));
+    const elevFactor = Math.exp(-elevDecay * elev);
+    const waterMult  = 1 + waterBonus * (water ? 1 : 0);
     const p         = weight * gauss * elevFactor * waterMult;
     if(p > maxP){ maxP = p; name = b.label || b.name || 'Bugs'; }
   }

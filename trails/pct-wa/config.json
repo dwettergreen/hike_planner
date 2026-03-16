@@ -17,13 +17,13 @@
   },
   "bugBands": [
     {
-      "name":        "Mosquitoes",
-      "label":       "Mosquitoes",
-      "peakDoy":     175,
-      "sigma":       20,
-      "weight":      2.0,
-      "elevDecay":   0.0006,
-      "waterBonus":  0.25
+      "name":       "Mosquitoes",
+      "label":      "Mosquitoes",
+      "peakDoy":    175,
+      "sigma":      20,
+      "weight":     2.5,
+      "elevDecay":  0.0003,
+      "waterBonus": 0.25
     }
   ]
 }
