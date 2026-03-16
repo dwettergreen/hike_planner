@@ -181,6 +181,8 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
 .ecamp-name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;}
 .ecamp-src{font-size:9px;padding:1px 4px;border-radius:3px;font-weight:600;flex-shrink:0;}
 .src-halfmile{background:#eaecf4;color:#4a5a78;}
+.src-trailfinder{background:#eaecf4;color:#4a5a78;}
+.src-manual{background:#f0ede4;color:#7a5a20;}
 .src-resupply{background:var(--blue-bg);color:var(--blue);}
 .src-custom{background:var(--green-bg);color:var(--green);}
 .edit-search{padding:6px 10px;border-bottom:1px solid var(--border);flex-shrink:0;}
@@ -1130,12 +1132,13 @@ function renderExport(){
     <div class="ss">
       <div class="st">Save plan as JSON</div>
       <p style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.5">
-        Downloads a <code style="background:var(--bg3);padding:1px 4px;border-radius:3px">plan.json</code>
-        — place it in <code style="background:var(--bg3);padding:1px 4px;border-radius:3px">trails/${CURRENT_TRAIL_ID}/plans/</code>
-        and add an entry to that folder's <code style="background:var(--bg3);padding:1px 4px;border-radius:3px">index.json</code>
-        to restore automatically on next load.
+        Downloads a plan file named <code style="background:var(--bg3);padding:1px 4px;border-radius:3px">{trail}-plan-{date}-{mpd}.json</code>.
+        Place it in <code style="background:var(--bg3);padding:1px 4px;border-radius:3px">trails/${CURRENT_TRAIL_ID}/plans/</code>
+        and add an entry to <code style="background:var(--bg3);padding:1px 4px;border-radius:3px">index.json</code> to restore on next load.
       </p>
       <button class="ebtn ebtn-b" onclick="saveAsJSON()">💾 Save plan.json</button>
+      <div id="plan-save-hint" style="display:none;margin-top:8px;font-size:11px;color:var(--text3);
+        background:var(--bg3);border-radius:4px;padding:6px 8px;line-height:1.8;word-break:break-all"></div>
     </div>
   `;
 }
@@ -1179,10 +1182,28 @@ function saveAsJSON(){
   const blob = new Blob([JSON.stringify(saved, null, 2)], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  // Use trail id in filename so plans don't overwrite each other
+  // Filename: {trail-id}-plan-{YYYYMMDD}-{mpd}.json  e.g. long-trail-plan-20260625-12.0.json
   const trailSlug = CURRENT_TRAIL_ID || 'plan';
-  const sd = document.getElementById('start-date').value.replace(/-/g,'').substring(0,8);
-  a.download = trailSlug + '-plan-' + sd + '.json';
+  const sd  = document.getElementById('start-date').value.replace(/-/g,'');
+  const mpd = (+document.getElementById('avg-pace').value).toFixed(1);
+  const filename = `${trailSlug}-plan-${sd}-${mpd}.json`;
+  a.download = filename;
+
+  // Show suggested index.json label in the export panel
+  const dateVal = document.getElementById('start-date').value; // YYYY-MM-DD
+  const d = new Date(dateVal + 'T00:00:00');
+  const mon = d.toLocaleDateString('en-US',{month:'short'});
+  const day = String(d.getDate()).padStart(2,'0');
+  const yr  = String(d.getFullYear()).substring(2);
+  const suggestedLabel = `${mon} ${day} '${yr} · ${mpd} mpd`;
+  const hint = document.getElementById('plan-save-hint');
+  if(hint){
+    hint.innerHTML =
+      `<b>Filename:</b> <code>${filename}</code><br>` +
+      `<b>Suggested label:</b> <code>${suggestedLabel}</code>`;
+    hint.style.display = 'block';
+  }
+
   a.click();
   URL.revokeObjectURL(a.href);
 }
@@ -1262,7 +1283,8 @@ function editorStartNewAtTrailPoint(pt){
 
 function editorShowForm(c, isNew){
   const panel = document.getElementById('edit-panel');
-  const srcLabel = c.source==='resupply' ? 'resupply' : c.source==='custom' ? 'custom' : 'halfmile';
+  const srcLabel = ['resupply','custom','halfmile','trailfinder','manual'].includes(c.source)
+    ? c.source : 'halfmile';
   panel.querySelector('#ef-panel').innerHTML = `
     <div class="eform">
       <div class="eform-hdr">
@@ -1417,7 +1439,8 @@ function renderEditorList(q=''){
   filtered.forEach(c => {
     const i = ALL_STOPS.indexOf(c);
     const row = document.createElement('div');
-    const srcLabel = c.source==='resupply'?'resupply':c.source==='custom'?'custom':'halfmile';
+    const srcLabel = ['resupply','custom','halfmile','trailfinder','manual'].includes(c.source)
+      ? c.source : 'halfmile';
     row.className = `ecamp-row${i===editorSel?' esel':''}${c.source==='custom'?' enew':''}`;
     row.innerHTML = `<div class="ecamp-mile">${(c.mile||0).toFixed(1)}</div>
       <div class="ecamp-name">${c.name||'(unnamed)'}</div>
