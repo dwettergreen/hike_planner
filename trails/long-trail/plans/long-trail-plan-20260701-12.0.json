@@ -1,0 +1,168 @@
+{
+  "version": 2,
+  "saved": "2026-03-16T03:51:49.131Z",
+  "settings": {
+    "startDate": "2026-07-01",
+    "emergeDate": "2026-05-28",
+    "avgPace": "12",
+    "flexPace": "2"
+  },
+  "nights": [
+    {
+      "name": "Congdon Shelter",
+      "mile": 15.027,
+      "trailDist": 15.027
+    },
+    {
+      "name": "Melville Nauheim Shelter",
+      "mile": 23.614,
+      "trailDist": 23.614
+    },
+    {
+      "name": "Goddard Shelter",
+      "mile": 36.32,
+      "trailDist": 36.32
+    },
+    {
+      "name": "Story Spring Shelter",
+      "mile": 49.679,
+      "trailDist": 49.679
+    },
+    {
+      "name": "Stratton Pond Shelter",
+      "mile": 65.426,
+      "trailDist": 65.426
+    },
+    {
+      "name": "Bromley Shelter",
+      "mile": 84.587,
+      "trailDist": 84.587
+    },
+    {
+      "name": "Griffith Lake Tenting Area",
+      "mile": 93.55,
+      "trailDist": 93.55
+    },
+    {
+      "name": "Lost Pond Shelter",
+      "mile": 103.712,
+      "trailDist": 103.712
+    },
+    {
+      "name": "Greenwall Shelter",
+      "mile": 118.966,
+      "trailDist": 118.966
+    },
+    {
+      "name": "Clarendon Shelter",
+      "mile": 132.213,
+      "trailDist": 132.213
+    },
+    {
+      "name": "Governor Clement Shelter",
+      "mile": 141.694,
+      "trailDist": 141.694
+    },
+    {
+      "name": "Pico Camp Shelter",
+      "mile": 152.381,
+      "trailDist": 152.381
+    },
+    {
+      "name": "Rolston Rest Shelter",
+      "mile": 165.264,
+      "trailDist": 165.264
+    },
+    {
+      "name": "David Logan Shelter",
+      "mile": 177.302,
+      "trailDist": 177.302
+    },
+    {
+      "name": "Sucker Brook Shelter",
+      "mile": 197.207,
+      "trailDist": 197.207
+    },
+    {
+      "name": "Skyline Lodge",
+      "mile": 211.253,
+      "trailDist": 211.253
+    },
+    {
+      "name": "Cooley Glen Shelter",
+      "mile": 223.92,
+      "trailDist": 223.92
+    },
+    {
+      "name": "Battell Shelter",
+      "mile": 233.026,
+      "trailDist": 233.026
+    },
+    {
+      "name": "Glen Ellen Lodge",
+      "mile": 241.857,
+      "trailDist": 241.857
+    },
+    {
+      "name": "Birch Glen Camp",
+      "mile": 250.309,
+      "trailDist": 250.309
+    },
+    {
+      "name": "Montclair Glen Lodge",
+      "mile": 261.332,
+      "trailDist": 261.332
+    },
+    {
+      "name": "Bamforth Ridge Shelter",
+      "mile": 268.339,
+      "trailDist": 268.339
+    },
+    {
+      "name": "Buchanan Shelter",
+      "mile": 285.69,
+      "trailDist": 285.69
+    },
+    {
+      "name": "Twin Brooks Tenting Area",
+      "mile": 299.241,
+      "trailDist": 299.241
+    },
+    {
+      "name": "Sterling Pond Shelter",
+      "mile": 314.484,
+      "trailDist": 314.484
+    },
+    {
+      "name": "Bear Hollow Shelter",
+      "mile": 323.82,
+      "trailDist": 323.82
+    },
+    {
+      "name": "Round Top Shelter",
+      "mile": 334.589,
+      "trailDist": 334.589
+    },
+    {
+      "name": "Corliss Camp",
+      "mile": 346.861,
+      "trailDist": 346.861
+    },
+    {
+      "name": "Spruce Ledge Camp",
+      "mile": 356.646,
+      "trailDist": 356.646
+    },
+    {
+      "name": "Tillotson Camp",
+      "mile": 367.975,
+      "trailDist": 367.975
+    },
+    {
+      "name": "Jay Camp",
+      "mile": 384.835,
+      "trailDist": 384.835
+    }
+  ],
+  "totalMiles": "397.0"
+}
