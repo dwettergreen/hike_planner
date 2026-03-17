@@ -840,12 +840,12 @@ function renderList(){
         const warnBd = over < 3 ? '#d4b800' : '#e09090';
         badges.push(`<span class="badge" style="background:${warnBg};color:${warnCo};border:1px solid ${warnBd}">⚠ ${mi.toFixed(1)}mi</span>`);
       }
-      // Bug badges: solid red (HIGH/EXTREME) or solid amber (MEDIUM), no species name
+      // Bug badges: tinted background with colored text (same low-sat style as other badges)
       if(nightMp >= 0.7){
         const extreme = nightMp >= 0.9;
-        badges.push(`<span class="badge" style="background:#e06060;color:#fff;border:1px solid #b84040">🦟${extreme?'!':''}</span>`);
+        badges.push(`<span class="badge" style="background:#fde8e8;color:#a01818;border:1px solid #e09090">🦟${extreme?'!':''}</span>`);
       } else if(nightMp >= 0.4){
-        badges.push(`<span class="badge" style="background:#d4a84b;color:#fff;border:1px solid #a07828">🦟</span>`);
+        badges.push(`<span class="badge" style="background:#fdf3e0;color:#7a5000;border:1px solid #d4a84b">🦟</span>`);
       }
       // Wind badges: single symbol, ! if extreme
       if(!isTerm && camp.elev >= 6500) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">💨!</span>`);
