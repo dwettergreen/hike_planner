@@ -744,12 +744,12 @@ function renderMap(){
 
     // Popup
     const badges=[];
-    if(camp.isResupply) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">Resupply</span>`);
+    if(camp.isResupply) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">🧳</span>`);
     if(camp.water) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">💧 Water</span>`);
     if(camp.outhouse) badges.push(`<span class="badge" style="background:#ede8f8;color:#6a30a0;border:1px solid #b090d8">🚽 Outhouse</span>`);
-    if(camp.type==='Established') badges.push(`<span class="badge" style="background:#d8f0e4;color:#1a6038;border:1px solid #70b890">Established</span>`);
-    if(!isTerm && camp.elev >= 6500) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">🌬️ High Wind</span>`);
-    else if(!isTerm && camp.elev >= 5800 && camp.elev < 6500) badges.push(`<span class="badge" style="background:#e6eef8;color:#2a5888;border:1px solid #a0c0e0">💨 Exposed</span>`);
+    if(camp.type==='Established') badges.push(`<span class="badge" style="background:#d8f0e4;color:#1a6038;border:1px solid #70b890">⛺ Established</span>`);
+    if(!isTerm && camp.elev >= 6500) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">💨!</span>`);
+    else if(!isTerm && camp.elev >= 5800) badges.push(`<span class="badge" style="background:#e6eef8;color:#2a5888;border:1px solid #a0c0e0">💨 Exposed</span>`);
 
     m.bindPopup(`
       <div class="pnight">Night ${idx+1} · ${dateStr}</div>
@@ -826,14 +826,30 @@ function renderList(){
     const nightMpL = bugLabel(nightMp);
     const badges=[];
     if(!isTerm){
-      if(camp.type==='Established') badges.push(`<span class="badge" style="background:#d8f0e4;color:#1a6038;border:1px solid #70b890">Established</span>`);
-      if(camp.isResupply) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">Resupply</span>`);
+      // Tent badge for established camps
+      if(camp.type==='Established') badges.push(`<span class="badge" style="background:#d8f0e4;color:#1a6038;border:1px solid #70b890">⛺</span>`);
+      // Lunchbox badge for resupply
+      if(camp.isResupply) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">🧳</span>`);
       if(camp.water) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">💧</span>`);
       if(camp.outhouse) badges.push(`<span class="badge" style="background:#ede8f8;color:#6a30a0;border:1px solid #b090d8">🚽</span>`);
-      if(isWarn) badges.push(`<span class="badge" style="background:#fde8e8;color:#a01818;border:1px solid #e09090">⚠ ${mi.toFixed(1)}mi</span>`);
-      if(nightMp >= 0.4) badges.push(`<span class="badge" style="background:${nightMpC}20;color:${nightMpC};border:1px solid ${nightMpC}55">🦟 ${bugDominantName(camp, arrivalDate(idx))} ${nightMpL}</span>`);
-      if(!isTerm && camp.elev >= 6500) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">🌬️ High Wind</span>`);
-      else if(!isTerm && camp.elev >= 5800 && camp.elev < 6500) badges.push(`<span class="badge" style="background:#e6eef8;color:#2a5888;border:1px solid #a0c0e0">💨 Exposed</span>`);
+      // Distance warning: yellow < 3mi outside range, red >= 3mi outside
+      if(isWarn){
+        const over = Math.max(min - mi, mi - max, 0);
+        const warnBg = over < 3 ? '#fff8d8' : '#fde8e8';
+        const warnCo = over < 3 ? '#7a5c00' : '#a01818';
+        const warnBd = over < 3 ? '#d4b800' : '#e09090';
+        badges.push(`<span class="badge" style="background:${warnBg};color:${warnCo};border:1px solid ${warnBd}">⚠ ${mi.toFixed(1)}mi</span>`);
+      }
+      // Bug badges: solid red (HIGH/EXTREME) or solid amber (MEDIUM), no species name
+      if(nightMp >= 0.7){
+        const extreme = nightMp >= 0.9;
+        badges.push(`<span class="badge" style="background:#e06060;color:#fff;border:1px solid #b84040">🦟${extreme?'!':''}</span>`);
+      } else if(nightMp >= 0.4){
+        badges.push(`<span class="badge" style="background:#d4a84b;color:#fff;border:1px solid #a07828">🦟</span>`);
+      }
+      // Wind badges: single symbol, ! if extreme
+      if(!isTerm && camp.elev >= 6500) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">💨!</span>`);
+      else if(!isTerm && camp.elev >= 5800) badges.push(`<span class="badge" style="background:#e6eef8;color:#2a5888;border:1px solid #a0c0e0">💨</span>`);
     }
 
     card.innerHTML=`
@@ -1139,8 +1155,8 @@ function planToCSV(){
     const mi = (thisTD_C - prevTD_C).toFixed(1);
     const mp = isTerm ? '' : bugLabel(bugPressureAt(camp, arrivalDate(idx)));
     const mpVal = mp && mp !== 'MINIMAL' ? mp + ' bugs' : '';
-    const wind = !isTerm && camp.elev >= 6500 ? 'High Wind'
-               : !isTerm && camp.elev >= 5800  ? 'Exposed' : '';
+    const wind = !isTerm && camp.elev >= 6500 ? 'Wind!'
+               : !isTerm && camp.elev >= 5800  ? 'Wind' : '';
     const water = !isTerm && camp.water ? 'Water' : '';
     const type = camp.type && camp.type !== 'Undeveloped' ? camp.type : '';
     const notes = [type, water, mpVal, wind].filter(Boolean).join(', ');
