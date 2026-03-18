@@ -767,21 +767,30 @@ function renderMap(){
     m.on('click', ()=>setActive(idx));
 
     if(!isTerm){
+      let _lastSnap = null;  // cache the last snapped camp from 'drag' events
+
       m.on('dragstart', ()=>{
+        _lastSnap = null;
         document.getElementById('drag-status').style.display='block';
         m.closePopup();
       });
       m.on('drag', e=>{
-        // Live preview: update route to snapped position
+        // Live preview: snap to nearest camp by trail distance, cache the result
         const snapped = snapNearest(e.latlng);
         if(snapped){
+          _lastSnap = snapped;
           const pts = plan.map((c,i)=> i===idx ? [snapped.lat,snapped.lon] : [c.lat,c.lon]);
           routeLine.setLatLngs(pts);
         }
       });
       m.on('dragend', e=>{
         document.getElementById('drag-status').style.display='none';
-        const snapped = snapNearest(e.target.getLatLng());
+        // Use the cached snap from the last drag event — this is what the user
+        // was watching snap to, and avoids recomputing from the pixel-exact
+        // drop position which can land between two camps on the thinned trail.
+        // Fall back to recomputing only if no drag events fired (click-release).
+        const snapped = _lastSnap || snapNearest(e.target.getLatLng());
+        _lastSnap = null;
         if(snapped){
           plan[idx] = {...snapped, isTerminus:false};
           showSnap([snapped.lat,snapped.lon]);
