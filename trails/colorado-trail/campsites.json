@@ -14,228 +14,241 @@
       "Parking",
       "Toilets"
     ],
-    "trailDist": 0.0
+    "trailDist": 0.052
   },
   {
     "mile": 16.8,
     "name": "South-Platte-River",
-    "lat": 39.47066,
-    "lon": -105.13536,
+    "lat": 39.47076,
+    "lon": -105.13533,
     "elev": 5614,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Segment 1/2 boundary. Plentiful water. Popular sites near river.",
-    "trailDist": 3.217
+    "trailDist": 3.321
   },
   {
     "mile": 13.0,
     "name": "Lenny-Rest-Bench-Camp",
-    "lat": 39.42399,
-    "lon": -105.12103,
+    "lat": 39.42407,
+    "lon": -105.12088,
     "elev": 6542,
     "type": "Undeveloped",
     "water": false,
     "outhouse": false,
     "source": "postholer",
     "desc": "Near Lenny's Rest bench. Elevated views. Dry camp; cache water from Bear Creek.",
-    "trailDist": 7.331
+    "trailDist": 7.351
   },
   {
     "mile": 8.5,
     "name": "Bear-Creek-Camp",
-    "lat": 39.42016,
-    "lon": -105.12426,
+    "lat": 39.42001,
+    "lon": -105.12432,
     "elev": 6175,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "First good camp after Waterton Canyon. Bear Creek crossing, often flowing.",
-    "trailDist": 7.866
+    "trailDist": 7.89
   },
   {
     "mile": 21.0,
     "name": "Long-Gulch-Camp",
-    "lat": 39.40053,
-    "lon": -105.23237,
+    "lat": 39.40057,
+    "lon": -105.23233,
     "elev": 7690,
     "type": "Undeveloped",
     "water": false,
     "outhouse": false,
     "source": "postholer",
     "desc": "Dry camp in Hayman Burn area. No water for ~13 mi. Carry extra.",
-    "trailDist": 18.245
+    "trailDist": 18.206
   },
   {
     "mile": 26.8,
     "name": "Long-Scraggy-TH",
-    "lat": 39.34513,
-    "lon": -105.2581,
+    "lat": 39.34528,
+    "lon": -105.25733,
     "elev": 7838,
     "type": "Undeveloped",
     "water": false,
     "outhouse": true,
     "source": "postholer",
     "desc": "Long Scraggy Peak TH. Pit toilet. Seg 2/3 boundary.",
-    "trailDist": 23.423
+    "trailDist": 23.324
   },
   {
     "mile": 31.0,
     "name": "Tramway-Creek-Camp",
-    "lat": 39.33065,
-    "lon": -105.30454,
+    "lat": 39.33066,
+    "lon": -105.30465,
     "elev": 7825,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Tramway Creek. Good water, forest sites. Popular with section hikers.",
-    "trailDist": 27.905
+    "trailDist": 27.9
   },
   {
     "mile": 35.5,
     "name": "Buffalo-Creek-Camp",
-    "lat": 39.3403,
-    "lon": -105.34064,
+    "lat": 39.34012,
+    "lon": -105.34027,
     "elev": 7395,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Near Buffalo Creek. Fire station spigot 0.1 mi off trail. Dispersed sites.",
-    "trailDist": 30.357
+    "trailDist": 30.309
   },
   {
     "mile": 39.2,
     "name": "Redskin-Creek-Camp",
-    "lat": 39.342,
-    "lon": -105.36633,
+    "lat": 39.34193,
+    "lon": -105.36635,
     "elev": 7933,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Seg 3/4 boundary. Redskin Creek, reliable water, multiple sites.",
-    "trailDist": 31.953
+    "trailDist": 31.897
   },
   {
     "mile": 50.0,
     "name": "Lost-Creek-Wilderness-Camp",
-    "lat": 39.33168,
-    "lon": -105.42203,
+    "lat": 39.33201,
+    "lon": -105.42227,
     "elev": 9019,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Deep Lost Creek Wilderness. Granite formations, reliable water.",
-    "trailDist": 35.984
+    "trailDist": 35.853
   },
   {
     "mile": 55.0,
     "name": "Wigwam-Creek-Camp",
-    "lat": 39.30741,
-    "lon": -105.50513,
+    "lat": 39.30742,
+    "lon": -105.50519,
     "elev": 10315,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Wigwam Creek area. Multiple sites. Good water.",
-    "trailDist": 41.769
+    "trailDist": 41.669
   },
   {
     "mile": 61.1,
     "name": "Kenosha-Creek-Camp",
-    "lat": 39.36311,
-    "lon": -105.63502,
+    "lat": 39.36288,
+    "lon": -105.63528,
     "elev": 10367,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Just before Kenosha Pass. Good sites, water nearby.",
-    "trailDist": 52.418
+    "trailDist": 52.293
   },
   {
     "mile": 44.0,
     "name": "Rock-Creek-Camp",
-    "lat": 39.36459,
-    "lon": -105.68345,
+    "lat": 39.36456,
+    "lon": -105.68385,
     "elev": 9534,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Lost Creek Wilderness. Free permit at trailhead kiosk.",
-    "trailDist": 56.534
+    "trailDist": 56.464
   },
   {
     "mile": 64.0,
     "name": "Kenosha-Pass-CG",
-    "lat": 39.41301,
-    "lon": -105.75879,
+    "lat": 39.41174,
+    "lon": -105.75928,
     "elev": 9974,
     "type": "Established",
     "water": true,
     "outhouse": true,
     "source": "postholer",
     "desc": "Kenosha Pass USFS Campground. US-285 crossing. Fee site, water spigot.",
-    "trailDist": 63.36
+    "trailDist": 63.265
   },
   {
     "mile": 67.0,
     "name": "Jefferson-Creek-Meadow",
-    "lat": 39.42812,
-    "lon": -105.84759,
+    "lat": 39.42845,
+    "lon": -105.84799,
     "elev": 9980,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Jefferson Creek. Beautiful meadow camp. Bear activity; hang food.",
-    "trailDist": 69.097
+    "trailDist": 69.011
   },
   {
     "mile": 87.0,
     "name": "French-Gulch-Camp",
-    "lat": 39.43534,
-    "lon": -105.87995,
+    "lat": 39.43504,
+    "lon": -105.87947,
     "elev": 11030,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "French Gulch drainage. Forest camp, good water.",
-    "trailDist": 71.857
+    "trailDist": 71.737
   },
   {
     "mile": 82.0,
     "name": "Georgia-Pass-Camp",
-    "lat": 39.45776,
-    "lon": -105.91079,
+    "lat": 39.45797,
+    "lon": -105.91104,
     "elev": 11877,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Near Georgia Pass (CDT joins here). Wind-sheltered just below pass.",
-    "trailDist": 74.355
+    "trailDist": 74.283
   },
   {
     "mile": 72.4,
     "name": "Swan-River-Camp",
-    "lat": 39.49757,
-    "lon": -105.92574,
+    "lat": 39.49754,
+    "lon": -105.92577,
     "elev": 10197,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Swan River horse camp area. Adjacent dirt road.",
-    "trailDist": 78.722
+    "trailDist": 78.611
+  },
+  {
+    "mile": 94.9,
+    "name": "Hwy-9-Camp",
+    "lat": 39.53802,
+    "lon": -106.04276,
+    "elev": 9206,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "postholer",
+    "desc": "Highway 9 / Blue River crossing. Breckenridge 4 mi south.",
+    "trailDist": 92.003
   },
   {
     "mile": 72.4,
@@ -256,59 +269,46 @@
       "Restaurant",
       "Gear Shop"
     ],
-    "trailDist": 91.9
+    "trailDist": 92.2
   },
   {
     "mile": 76.0,
     "name": "Gold-Hill-Camp",
-    "lat": 39.54098,
-    "lon": -106.04207,
+    "lat": 39.5408,
+    "lon": -106.04206,
     "elev": 9199,
     "type": "Undeveloped",
     "water": false,
     "outhouse": false,
     "source": "postholer",
     "desc": "High ridge, exposed. Dry. Views to Breckenridge ski area.",
-    "trailDist": 91.9
-  },
-  {
-    "mile": 94.9,
-    "name": "Hwy-9-Camp",
-    "lat": 39.5384,
-    "lon": -106.04277,
-    "elev": 9206,
-    "type": "Undeveloped",
-    "water": true,
-    "outhouse": false,
-    "source": "postholer",
-    "desc": "Highway 9 / Blue River crossing. Breckenridge 4 mi south.",
-    "trailDist": 92.083
+    "trailDist": 92.2
   },
   {
     "mile": 100.0,
     "name": "Miners-Creek-Camp",
-    "lat": 39.53301,
-    "lon": -106.09791,
+    "lat": 39.53295,
+    "lon": -106.09759,
     "elev": 10554,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Miners Creek drainage. Good forest camp, reliable water.",
-    "trailDist": 99.521
+    "trailDist": 96.895
   },
   {
     "mile": 105.0,
     "name": "Wheeler-Lake-Camp",
-    "lat": 39.49744,
-    "lon": -106.13539,
+    "lat": 39.4972,
+    "lon": -106.13588,
     "elev": 9767,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Wheeler Lake area. Alpine setting. Strong afternoon thunderstorms.",
-    "trailDist": 106.703
+    "trailDist": 104.07
   },
   {
     "mile": 109.3,
@@ -326,46 +326,46 @@
       "Restaurant",
       "Lodging"
     ],
-    "trailDist": 107.077
+    "trailDist": 104.451
   },
   {
     "mile": 115.0,
     "name": "Kokomo-Pass-Camp",
-    "lat": 39.42902,
-    "lon": -106.22659,
+    "lat": 39.42901,
+    "lon": -106.22657,
     "elev": 12024,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Kokomo Pass. Wind-exposed ridge. Seasonal water. Views of Tenmile Range.",
-    "trailDist": 120.147
+    "trailDist": 115.179
   },
   {
     "mile": 121.0,
     "name": "Cataract-Lake-Camp",
-    "lat": 39.42193,
-    "lon": -106.27163,
+    "lat": 39.42219,
+    "lon": -106.27152,
     "elev": 9669,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Cataract Lake. Alpine setting. Good fishing. Popular.",
-    "trailDist": 123.898
+    "trailDist": 118.881
   },
   {
     "mile": 133.0,
     "name": "Camp-Hale-Camp",
-    "lat": 39.42452,
-    "lon": -106.29834,
+    "lat": 39.42455,
+    "lon": -106.29841,
     "elev": 9364,
     "type": "Undeveloped",
     "water": true,
     "outhouse": true,
     "source": "postholer",
     "desc": "Camp Hale National Monument. Historic WWII training site (10th Mountain Division).",
-    "trailDist": 125.428
+    "trailDist": 120.399
   },
   {
     "mile": 152.0,
@@ -386,202 +386,202 @@
       "Restaurant",
       "Gear Shop"
     ],
-    "trailDist": 131.925
+    "trailDist": 126.796
   },
   {
     "mile": 137.7,
     "name": "Tennessee-Pass",
-    "lat": 39.36299,
-    "lon": -106.31158,
+    "lat": 39.36354,
+    "lon": -106.3123,
     "elev": 10427,
     "type": "Undeveloped",
     "water": false,
     "outhouse": true,
     "source": "postholer",
     "desc": "Tennessee Pass / Hwy 24. Piped spring 0.5 mi south. Seg 8/9 boundary.",
-    "trailDist": 131.925
+    "trailDist": 126.796
   },
   {
     "mile": 151.2,
     "name": "Wurtz-Ditch-Camp",
-    "lat": 39.3522,
-    "lon": -106.34956,
+    "lat": 39.35218,
+    "lon": -106.34973,
     "elev": 10420,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Seg 9/10 boundary. Good camp near ditch.",
-    "trailDist": 134.285
+    "trailDist": 129.225
   },
   {
     "mile": 148.0,
     "name": "Fancy-Creek-Camp",
-    "lat": 39.32983,
-    "lon": -106.40355,
+    "lat": 39.32984,
+    "lon": -106.40349,
     "elev": 10883,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Fancy Creek drainage. Sheltered sites in spruce forest.",
-    "trailDist": 138.047
+    "trailDist": 133.089
   },
   {
     "mile": 143.0,
     "name": "Holy-Cross-Wilderness-Camp",
-    "lat": 39.32945,
-    "lon": -106.40458,
+    "lat": 39.32951,
+    "lon": -106.40443,
     "elev": 10912,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Holy Cross Wilderness. Rugged terrain, reliable streams.",
-    "trailDist": 138.108
+    "trailDist": 133.144
   },
   {
     "mile": 127.0,
     "name": "Porcupine-Lakes-Camp",
-    "lat": 39.31905,
-    "lon": -106.41029,
+    "lat": 39.31912,
+    "lon": -106.41025,
     "elev": 11253,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Porcupine Lakes basin. Quiet. Trout fishing.",
-    "trailDist": 139.276
+    "trailDist": 134.307
   },
   {
     "mile": 164.3,
     "name": "Hagerman-Pass-Rd-Camp",
-    "lat": 39.26935,
-    "lon": -106.43257,
+    "lat": 39.26937,
+    "lon": -106.43265,
     "elev": 10335,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Hagerman Pass road junction. Seg 10/11 boundary.",
-    "trailDist": 145.642
+    "trailDist": 140.664
   },
   {
     "mile": 162.0,
     "name": "Turquoise-Lake-Camp",
-    "lat": 39.22507,
-    "lon": -106.42391,
+    "lat": 39.22544,
+    "lon": -106.4238,
     "elev": 10269,
     "type": "Established",
     "water": true,
     "outhouse": true,
     "source": "postholer",
     "desc": "Turquoise Lake USFS campground. Fee site. Great lake views.",
-    "trailDist": 149.719
+    "trailDist": 144.669
   },
   {
     "mile": 157.0,
     "name": "Halfmoon-Creek-Camp",
-    "lat": 39.15106,
-    "lon": -106.41905,
+    "lat": 39.15093,
+    "lon": -106.41907,
     "elev": 10066,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Halfmoon Creek. Near Mt. Elbert / Massive trailheads.",
-    "trailDist": 156.101
+    "trailDist": 151.078
   },
   {
     "mile": 176.0,
     "name": "Mt-Elbert-TH-Camp",
-    "lat": 39.14447,
-    "lon": -106.40816,
+    "lat": 39.14414,
+    "lon": -106.40814,
     "elev": 10587,
     "type": "Undeveloped",
     "water": true,
     "outhouse": true,
     "source": "postholer",
     "desc": "Mount Elbert Trailhead campground. High traffic. Fee site nearby.",
-    "trailDist": 157.173
+    "trailDist": 152.111
   },
   {
     "mile": 197.8,
     "name": "Elbert-Creek-CG",
-    "lat": 39.10401,
-    "lon": -106.39517,
+    "lat": 39.10391,
+    "lon": -106.39501,
     "elev": 10479,
     "type": "Established",
     "water": true,
     "outhouse": true,
     "source": "postholer",
     "desc": "Elbert Creek USFS Campground. Fee site. Seg 12/13 boundary.",
-    "trailDist": 160.758
+    "trailDist": 155.678
   },
   {
     "mile": 184.9,
     "name": "Twin-Lakes-Dam-Camp",
-    "lat": 39.08273,
-    "lon": -106.30445,
+    "lat": 39.08244,
+    "lon": -106.3038,
     "elev": 9222,
     "type": "Established",
     "water": true,
     "outhouse": true,
     "source": "postholer",
     "desc": "Twin Lakes Dam. CE/CW split. Twin Lakes village 0.5 mi (small store).",
-    "trailDist": 166.629
+    "trailDist": 161.564
   },
   {
     "mile": 190.0,
     "name": "Hope-Creek-Camp",
-    "lat": 39.06023,
-    "lon": -106.32555,
+    "lat": 39.06036,
+    "lon": -106.32565,
     "elev": 9843,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Hope Creek. Good water, established sites. SWA Pass may be required.",
-    "trailDist": 170.894
+    "trailDist": 165.815
   },
   {
     "mile": 219.3,
     "name": "Clear-Creek-Reservoir-Camp",
-    "lat": 39.01781,
-    "lon": -106.2781,
+    "lat": 39.01794,
+    "lon": -106.27827,
     "elev": 8917,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Clear Creek Reservoir. Seg 13/14 boundary. Reservoir water (treat).",
-    "trailDist": 176.325
+    "trailDist": 171.265
   },
   {
     "mile": 205.0,
     "name": "Pine-Creek-Camp",
-    "lat": 38.96521,
-    "lon": -106.27698,
+    "lat": 38.96507,
+    "lon": -106.27688,
     "elev": 10430,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Pine Creek drainage. Columbine wildflowers in season.",
-    "trailDist": 181.456
+    "trailDist": 176.281
   },
   {
     "mile": 170.0,
     "name": "Avalanche-TH-Camp",
-    "lat": 38.81372,
-    "lon": -106.28087,
+    "lat": 38.81386,
+    "lon": -106.28078,
     "elev": 9383,
     "type": "Undeveloped",
     "water": true,
     "outhouse": true,
     "source": "postholer",
     "desc": "Avalanche TH area. Pit toilet. Good dispersed sites near creek.",
-    "trailDist": 197.711
+    "trailDist": 192.585
   },
   {
     "mile": 242.0,
@@ -599,59 +599,59 @@
       "Restaurant",
       "Hot Springs"
     ],
-    "trailDist": 209.931
+    "trailDist": 204.775
   },
   {
     "mile": 211.0,
     "name": "Chalk-Creek-Camp",
-    "lat": 38.71623,
-    "lon": -106.20068,
+    "lat": 38.71668,
+    "lon": -106.20008,
     "elev": 8392,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Chalk Creek area. Good water. Close to Mt. Princeton Hot Springs.",
-    "trailDist": 212.421
+    "trailDist": 207.178
   },
   {
     "mile": 226.0,
     "name": "Chalk-Creek-Upper-Camp",
-    "lat": 38.6638,
-    "lon": -106.18179,
+    "lat": 38.66385,
+    "lon": -106.18174,
     "elev": 9603,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Upper Chalk Creek drainage. Aspens and spruce. Good water.",
-    "trailDist": 218.315
+    "trailDist": 213.152
   },
   {
     "mile": 233.0,
     "name": "Browns-Pass-Camp",
-    "lat": 38.66239,
-    "lon": -106.18126,
+    "lat": 38.66214,
+    "lon": -106.18116,
     "elev": 9593,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Browns Pass (12,010 ft). Wind-exposed. Seasonal tarn. 360\u00b0 views.",
-    "trailDist": 218.427
+    "trailDist": 213.28
   },
   {
     "mile": 248.0,
     "name": "Midway-Creek-Camp",
-    "lat": 38.56539,
-    "lon": -106.2294,
+    "lat": 38.56546,
+    "lon": -106.22935,
     "elev": 9469,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Midway Creek area. Good water, sheltered forest sites.",
-    "trailDist": 228.674
+    "trailDist": 223.559
   },
   {
     "mile": 243.0,
@@ -672,254 +672,254 @@
       "Restaurant",
       "Hostel"
     ],
-    "trailDist": 230.977
+    "trailDist": 226.018
   },
   {
     "mile": 255.0,
     "name": "Fooses-Creek-Camp",
-    "lat": 38.54078,
-    "lon": -106.24309,
+    "lat": 38.5408,
+    "lon": -106.24321,
     "elev": 8802,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Fooses Creek. Good camp before Monarch Pass climb.",
-    "trailDist": 231.273
+    "trailDist": 226.322
   },
   {
     "mile": 259.2,
     "name": "Monarch-Pass",
-    "lat": 38.48625,
-    "lon": -106.27763,
+    "lat": 38.48657,
+    "lon": -106.27739,
     "elev": 11299,
     "type": "Established",
     "water": true,
     "outhouse": true,
     "source": "postholer",
     "desc": "Monarch Pass / Hwy 50. Gondola, gift shop, vending. Salida hitch possible.",
-    "trailDist": 236.558
+    "trailDist": 231.573
   },
   {
     "mile": 264.0,
     "name": "Agate-Creek-Camp",
-    "lat": 38.45459,
-    "lon": -106.27708,
+    "lat": 38.42791,
+    "lon": -106.25492,
     "elev": 11811,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Agate Creek headwaters. High tundra camp. Seasonal water.",
-    "trailDist": 238.983
+    "trailDist": 240.33
   },
   {
     "mile": 277.8,
     "name": "Marshall-Pass",
-    "lat": 38.3913,
-    "lon": -106.24707,
+    "lat": 38.3949,
+    "lon": -106.24775,
     "elev": 10820,
     "type": "Undeveloped",
     "water": false,
     "outhouse": true,
     "source": "postholer",
     "desc": "Marshall Pass TH. Pit toilet. Dry camp. Salida hitch possible.",
-    "trailDist": 243.648
+    "trailDist": 242.992
   },
   {
     "mile": 290.0,
     "name": "Sargents-Mesa-Dry-Camp",
-    "lat": 38.29131,
-    "lon": -106.37837,
+    "lat": 38.29084,
+    "lon": -106.37861,
     "elev": 11617,
     "type": "Undeveloped",
     "water": false,
     "outhouse": false,
     "source": "postholer",
     "desc": "Open mesa dry camp. Carry all water. Up to 20-mile dry stretch.",
-    "trailDist": 257.608
+    "trailDist": 257.326
   },
   {
     "mile": 283.0,
     "name": "Baldy-Lake-Camp",
-    "lat": 38.31366,
-    "lon": -106.46604,
+    "lat": 38.31363,
+    "lon": -106.46539,
     "elev": 11516,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Baldy Lake. Best water on Sargents Mesa dry section. Shallow lake, treat.",
-    "trailDist": 263.923
+    "trailDist": 263.944
   },
   {
     "mile": 270.0,
     "name": "Razor-Creek-Camp",
-    "lat": 38.30872,
-    "lon": -106.5183,
+    "lat": 38.30838,
+    "lon": -106.51804,
     "elev": 10942,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Razor Creek. Last reliable water before long dry stretch. FILL UP.",
-    "trailDist": 267.443
+    "trailDist": 267.512
   },
   {
     "mile": 300.0,
     "name": "Sargents-Mesa-End-Camp",
-    "lat": 38.24016,
-    "lon": -106.55728,
+    "lat": 38.23999,
+    "lon": -106.55846,
     "elev": 10344,
     "type": "Undeveloped",
     "water": false,
     "outhouse": false,
     "source": "postholer",
     "desc": "End of long dry section. Water available shortly into Seg 18.",
-    "trailDist": 274.133
+    "trailDist": 274.125
   },
   {
     "mile": 318.6,
     "name": "Hwy-114-Camp",
-    "lat": 38.22545,
-    "lon": -106.58578,
+    "lat": 38.22548,
+    "lon": -106.5861,
     "elev": 9728,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Hwy 114 / Cochetopa Pass area. Gunnison ~40 mi. Seg 18/19 boundary.",
-    "trailDist": 275.984
+    "trailDist": 276.203
   },
   {
     "mile": 331.0,
     "name": "Los-Creek-Camp",
-    "lat": 38.16136,
-    "lon": -106.62055,
+    "lat": 38.14938,
+    "lon": -106.63803,
     "elev": 9616,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Los Creek area. Aspens and meadows. Good water.",
-    "trailDist": 282.817
+    "trailDist": 285.089
   },
   {
     "mile": 306.0,
     "name": "Cochetopa-Creek-Camp",
-    "lat": 38.09862,
-    "lon": -106.78041,
+    "lat": 38.09857,
+    "lon": -106.78043,
     "elev": 9711,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Cochetopa Creek drainage. Reliable water returns. Willow-edged creek.",
-    "trailDist": 292.876
+    "trailDist": 296.863
   },
   {
     "mile": 312.0,
     "name": "Saguache-Park-Camp",
-    "lat": 38.06822,
-    "lon": -106.79879,
+    "lat": 38.06808,
+    "lon": -106.79808,
     "elev": 9888,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Saguache Park area. Wetlands, abundant water. Elk habitat.",
-    "trailDist": 295.318
+    "trailDist": 299.266
   },
   {
     "mile": 325.0,
     "name": "Stone-Cellar-Camp",
-    "lat": 38.03298,
-    "lon": -106.83288,
+    "lat": 38.03313,
+    "lon": -106.83256,
     "elev": 10279,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Stone Cellar area. Historic cabin site. Creek water. Popular.",
-    "trailDist": 298.571
+    "trailDist": 302.555
   },
   {
     "mile": 376.7,
     "name": "Eddiesville-TH-Camp",
-    "lat": 38.02658,
-    "lon": -106.83447,
+    "lat": 38.02686,
+    "lon": -106.83428,
     "elev": 10325,
     "type": "Undeveloped",
     "water": true,
     "outhouse": true,
     "source": "postholer",
     "desc": "Eddiesville TH. Pit toilet. Seg 21/22 boundary. Creek water nearby.",
-    "trailDist": 299.034
+    "trailDist": 303.012
   },
   {
     "mile": 350.0,
     "name": "West-Mineral-Creek-Camp",
-    "lat": 37.96453,
-    "lon": -106.99411,
+    "lat": 37.96444,
+    "lon": -106.99364,
     "elev": 12100,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "West Mineral Creek headwaters. Good water. Approaching Carson Saddle.",
-    "trailDist": 313.001
+    "trailDist": 316.949
   },
   {
     "mile": 344.0,
     "name": "Snow-Mesa-Camp",
-    "lat": 37.9348,
-    "lon": -107.13051,
+    "lat": 37.93493,
+    "lon": -107.13084,
     "elev": 12260,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Snow Mesa, wide open tundra. Very exposed. Great stargazing.",
-    "trailDist": 323.031
+    "trailDist": 326.983
   },
   {
     "mile": 338.7,
     "name": "Spring-Creek-Pass",
-    "lat": 37.93974,
-    "lon": -107.15865,
+    "lat": 37.94011,
+    "lon": -107.1588,
     "elev": 10906,
     "type": "Undeveloped",
     "water": true,
     "outhouse": true,
     "source": "postholer",
     "desc": "Spring Creek Pass / Hwy 149. Pit toilet. Lake City ~17 mi.",
-    "trailDist": 324.774
+    "trailDist": 328.708
   },
   {
     "mile": 371.0,
     "name": "Slumgullion-Camp",
-    "lat": 37.912,
-    "lon": -107.28761,
+    "lat": 37.91266,
+    "lon": -107.28701,
     "elev": 11686,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Slumgullion area. Pine forest, good water. Lake City hitchhike point.",
-    "trailDist": 333.097
+    "trailDist": 337.203
   },
   {
     "mile": 387.0,
     "name": "Coney-Basin-Camp",
-    "lat": 37.85685,
-    "lon": -107.34559,
+    "lat": 37.85679,
+    "lon": -107.34571,
     "elev": 13271,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Coney Basin. Below CT high point (13,271 ft). Seasonal tarns.",
-    "trailDist": 339.461
+    "trailDist": 343.601
   },
   {
     "mile": 338.7,
@@ -939,72 +939,72 @@
       "Laundry",
       "Restaurant"
     ],
-    "trailDist": 341.175
+    "trailDist": 345.086
   },
   {
     "mile": 359.1,
     "name": "Carson-Saddle-Camp",
-    "lat": 37.84927,
-    "lon": -107.36909,
+    "lat": 37.85575,
+    "lon": -107.36721,
     "elev": 12352,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Carson Saddle. High alpine. Seg 20/21 boundary.",
-    "trailDist": 341.175
+    "trailDist": 345.086
   },
   {
     "mile": 365.0,
     "name": "Cataract-Gulch-Camp",
-    "lat": 37.85351,
-    "lon": -107.41908,
+    "lat": 37.85339,
+    "lon": -107.42024,
     "elev": 12927,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Cataract Gulch, steep descent. Dramatic views.",
-    "trailDist": 363.281
+    "trailDist": 348.668
   },
   {
     "mile": 382.0,
     "name": "Weminuche-Pass-Camp",
-    "lat": 37.79377,
-    "lon": -107.54697,
+    "lat": 37.79356,
+    "lon": -107.54706,
     "elev": 12490,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Weminuche Pass. CDT junction. Reliable water. Wilderness entry.",
-    "trailDist": 371.491
+    "trailDist": 360.121
   },
   {
     "mile": 424.0,
     "name": "Elk-Creek-Upper-Camp",
-    "lat": 37.71841,
-    "lon": -107.53667,
+    "lat": 37.71836,
+    "lon": -107.53609,
     "elev": 12690,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Upper Elk Creek drainage. Weminuche Wilderness. Good water.",
-    "trailDist": 377.857
+    "trailDist": 366.178
   },
   {
     "mile": 393.0,
     "name": "Elk-Creek-Camp",
-    "lat": 37.71856,
-    "lon": -107.56528,
+    "lat": 37.7183,
+    "lon": -107.56504,
     "elev": 10732,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Elk Creek headwaters. Reliable water, protected forest camp.",
-    "trailDist": 379.611
+    "trailDist": 368.021
   },
   {
     "mile": 401.0,
@@ -1025,202 +1025,202 @@
       "Restaurant",
       "Hostel"
     ],
-    "trailDist": 385.618
+    "trailDist": 374.032
   },
   {
     "mile": 401.0,
     "name": "Molas-Pass-Camp",
-    "lat": 37.73949,
-    "lon": -107.69809,
+    "lat": 37.73951,
+    "lon": -107.6981,
     "elev": 10886,
     "type": "Established",
     "water": true,
     "outhouse": true,
     "source": "postholer",
     "desc": "Molas Pass / Hwy 550. Molas Lake Campground nearby. Silverton 5 mi.",
-    "trailDist": 389.6
+    "trailDist": 377.748
   },
   {
     "mile": 406.0,
     "name": "Little-Molas-Lake-Camp",
-    "lat": 37.74152,
-    "lon": -107.70874,
+    "lat": 37.74168,
+    "lon": -107.70895,
     "elev": 10925,
     "type": "Established",
     "water": true,
     "outhouse": true,
     "source": "postholer",
     "desc": "Little Molas Lake Campground. Fee site. Stunning alpine lake. Popular.",
-    "trailDist": 390.287
-  },
-  {
-    "mile": 435.0,
-    "name": "Bolam-Pass-Camp",
-    "lat": 37.71327,
-    "lon": -107.90353,
-    "elev": 11099,
-    "type": "Undeveloped",
-    "water": true,
-    "outhouse": false,
-    "source": "postholer",
-    "desc": "Bolam Pass area. Seasonal water. Good tundra camp. Seg 24/25 boundary.",
-    "trailDist": 403.676
-  },
-  {
-    "mile": 430.0,
-    "name": "Hotel-Draw-Camp",
-    "lat": 37.71845,
-    "lon": -107.89205,
-    "elev": 11289,
-    "type": "Undeveloped",
-    "water": false,
-    "outhouse": false,
-    "source": "postholer",
-    "desc": "Hotel Draw area. Open mesa. Dry camp. Carry water from Elk Creek.",
-    "trailDist": 404.424
-  },
-  {
-    "mile": 447.0,
-    "name": "Rico-Silverton-Trail-Camp",
-    "lat": 37.72989,
-    "lon": -107.86211,
-    "elev": 11204,
-    "type": "Undeveloped",
-    "water": true,
-    "outhouse": false,
-    "source": "postholer",
-    "desc": "Rico-Silverton Trail junction. Good water from creek.",
-    "trailDist": 407.64
-  },
-  {
-    "mile": 418.0,
-    "name": "Cascade-Creek-Camp",
-    "lat": 37.74332,
-    "lon": -107.85073,
-    "elev": 10833,
-    "type": "Undeveloped",
-    "water": true,
-    "outhouse": false,
-    "source": "postholer",
-    "desc": "Cascade Creek. Seg 23/24 boundary. Good water, sheltered sites.",
-    "trailDist": 409.139
+    "trailDist": 378.445
   },
   {
     "mile": 412.0,
     "name": "Lime-Creek-Camp",
-    "lat": 37.76853,
-    "lon": -107.7551,
+    "lat": 37.76864,
+    "lon": -107.75452,
     "elev": 11398,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Lime Creek area. Weminuche Wilderness. Good water, established sites.",
-    "trailDist": 416.888
+    "trailDist": 383.481
+  },
+  {
+    "mile": 418.0,
+    "name": "Cascade-Creek-Camp",
+    "lat": 37.74406,
+    "lon": -107.85045,
+    "elev": 10833,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "postholer",
+    "desc": "Cascade Creek. Seg 23/24 boundary. Good water, sheltered sites.",
+    "trailDist": 391.11
+  },
+  {
+    "mile": 447.0,
+    "name": "Rico-Silverton-Trail-Camp",
+    "lat": 37.72981,
+    "lon": -107.86201,
+    "elev": 11204,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "postholer",
+    "desc": "Rico-Silverton Trail junction. Good water from creek.",
+    "trailDist": 392.652
+  },
+  {
+    "mile": 430.0,
+    "name": "Hotel-Draw-Camp",
+    "lat": 37.71845,
+    "lon": -107.89192,
+    "elev": 11289,
+    "type": "Undeveloped",
+    "water": false,
+    "outhouse": false,
+    "source": "postholer",
+    "desc": "Hotel Draw area. Open mesa. Dry camp. Carry water from Elk Creek.",
+    "trailDist": 395.842
+  },
+  {
+    "mile": 435.0,
+    "name": "Bolam-Pass-Camp",
+    "lat": 37.7133,
+    "lon": -107.90338,
+    "elev": 11099,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "postholer",
+    "desc": "Bolam Pass area. Seasonal water. Good tundra camp. Seg 24/25 boundary.",
+    "trailDist": 396.593
   },
   {
     "mile": 453.0,
     "name": "Groundhog-Stock-Camp",
-    "lat": 37.68473,
-    "lon": -107.98076,
+    "lat": 37.68438,
+    "lon": -107.97999,
     "elev": 11985,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Groundhog Stock Camp area. Ponderosa pines. Good water.",
-    "trailDist": 437.598
+    "trailDist": 402.689
   },
   {
     "mile": 458.0,
     "name": "Blackhawk-Camp",
-    "lat": 37.68473,
-    "lon": -107.98076,
+    "lat": 37.68438,
+    "lon": -107.97999,
     "elev": 11985,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Blackhawk Trail area. Durango about 25 mi. Seg 25/26 boundary.",
-    "trailDist": 437.698
+    "trailDist": 402.789
   },
   {
     "mile": 469.0,
     "name": "Straight-Creek-Camp",
-    "lat": 37.6794,
-    "lon": -107.97762,
+    "lat": 37.67994,
+    "lon": -107.97731,
     "elev": 11470,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Straight Creek. Last water for ~22 miles (Segs 26-27 dry stretch). FILL UP.",
-    "trailDist": 438.276
+    "trailDist": 403.222
   },
   {
     "mile": 463.9,
     "name": "Hotel-Draw-Road-Camp",
-    "lat": 37.64979,
-    "lon": -107.95692,
+    "lat": 37.64992,
+    "lon": -107.95689,
     "elev": 10394,
     "type": "Undeveloped",
     "water": false,
     "outhouse": false,
     "source": "postholer",
     "desc": "Hotel Draw road area. Dry camp. Carry water from previous source.",
-    "trailDist": 441.433
+    "trailDist": 406.3
   },
   {
     "mile": 479.9,
     "name": "La-Plata-Mtns-Camp",
-    "lat": 37.46537,
-    "lon": -108.03368,
+    "lat": 37.46574,
+    "lon": -108.03378,
     "elev": 12306,
     "type": "Undeveloped",
     "water": false,
     "outhouse": false,
     "source": "postholer",
     "desc": "La Plata Mountains ridge. Dry. Views of Durango valley.",
-    "trailDist": 458.882
+    "trailDist": 423.51
   },
   {
     "mile": 441.0,
     "name": "Taylor-Lake-Camp",
-    "lat": 37.45713,
-    "lon": -108.03007,
+    "lat": 37.45657,
+    "lon": -108.02958,
     "elev": 11644,
     "type": "Undeveloped",
     "water": true,
     "outhouse": false,
     "source": "postholer",
     "desc": "Taylor Lake area. Alpine lake camp. Fishing.",
-    "trailDist": 459.76
+    "trailDist": 424.489
   },
   {
     "mile": 475.0,
     "name": "Kennebec-Pass-Camp",
-    "lat": 37.44909,
-    "lon": -108.00429,
+    "lat": 37.44928,
+    "lon": -108.00503,
     "elev": 11699,
     "type": "Undeveloped",
     "water": false,
     "outhouse": false,
     "source": "postholer",
     "desc": "Kennebec Pass. Wind-exposed. Dry camp. Seg 26/27 boundary.",
-    "trailDist": 461.391
+    "trailDist": 426.031
   },
   {
     "mile": 483.0,
     "name": "Junction-Creek-CG",
-    "lat": 37.41611,
-    "lon": -107.97317,
+    "lat": 37.4164,
+    "lon": -107.9727,
     "elev": 8524,
     "type": "Established",
     "water": true,
     "outhouse": true,
     "source": "postholer",
     "desc": "Junction Creek Campground. USFS fee site. Last water before terminus.",
-    "trailDist": 467.077
+    "trailDist": 431.934
   },
   {
     "mile": 486.0,
@@ -1241,6 +1241,6 @@
       "Restaurant",
       "Airport"
     ],
-    "trailDist": 479.677
+    "trailDist": 444.262
   }
 ]
