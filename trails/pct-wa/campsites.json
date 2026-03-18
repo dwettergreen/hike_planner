@@ -1920,9 +1920,10 @@
   },
   {
     "mile": 2591.63,
-    "name": "Hwy 20 / Mazama",
+    "name": "Mazama (Hwy 20)",
     "lat": 48.5148,
     "lon": -120.73388,
+    "elev": 4855,
     "type": "Resupply",
     "water": true,
     "outhouse": false,
@@ -1936,7 +1937,6 @@
     ],
     "trailDist": 442.584,
     "isResupply": true,
-    "elev": 4855,
     "desc": "Mazama is 22.4 mi E on Hwy 20. Restaurants, motels, Mazama Store, Goat's Beard Mountain Supplies, trail angel Ravensong."
   },
   {
