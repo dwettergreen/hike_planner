@@ -1,0 +1,29 @@
+{
+  "trailName": "Colorado Trail",
+  "trailAbbrev": "CT",
+  "startMarkerLabel": "Waterton Canyon Trailhead \u2014 Start (Mi 0)",
+  "defaultStartDate": "2026-07-15",
+  "defaultEmergeDate": "2026-06-15",
+  "defaultAvgPace": 16,
+  "defaultFlexPace": 3,
+  "endTrailDist": 491.977,
+  "bugEmergeDoy": 160,
+  "terminus": {
+    "name": "Durango Terminus",
+    "lat": 37.3314,
+    "lon": -107.9026,
+    "elev": 6512,
+    "mile": 491.977
+  },
+  "bugBands": [
+    {
+      "name": "Mosquitoes",
+      "label": "Mosquitoes",
+      "peakDoy": 185,
+      "sigma": 18,
+      "weight": 1.5,
+      "elevDecay": 0.0003,
+      "waterBonus": 0.4
+    }
+  ]
+}
