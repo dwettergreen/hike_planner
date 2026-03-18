@@ -1923,6 +1923,7 @@
     "name": "Hwy 20 / Mazama",
     "lat": 48.5148,
     "lon": -120.73388,
+    "elev": 4855,
     "type": "Resupply",
     "water": true,
     "outhouse": false,
