@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive Camp Planner</title>
+  <title>Colorado Trail Planner</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700&family=Source+Code+Pro:wght@400;600&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -25,7 +25,7 @@
 html,body{height:100%;overflow:hidden;font-family:'Source Sans 3',sans-serif;background:var(--bg);color:var(--text);}
 
 /* ── LAYOUT ── */
-#app{display:grid;grid-template-rows:50px 1fr;height:100vh;}
+#app{display:grid;grid-template-rows:50px 1fr 160px;height:100vh;}
 
 /* ── HEADER ── */
 header{
@@ -43,17 +43,6 @@ header{
 .spacer{flex:1;}
 .hint{font-size:11px;color:#4a6080;background:#e2e6ef;border:1px solid #cdd4e0;border-radius:var(--r);padding:4px 10px;white-space:nowrap;}
 .hint b{color:var(--amber);}
-/* ── TRAIL + PLAN SELECTORS ── */
-.trail-sel-wrap{display:flex;align-items:center;gap:6px;}
-.trail-sel-label{font-size:10px;color:#6878a0;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
-.trail-sel{font-family:'Source Sans 3',sans-serif;font-size:12px;font-weight:600;color:#1a2235;
-  background:#f0f2f8;border:1px solid #cdd4e0;border-radius:var(--r);
-  padding:4px 8px;cursor:pointer;outline:none;max-width:160px;}
-.trail-sel:focus{border-color:var(--green);}
-.plan-sel{font-family:'Source Sans 3',sans-serif;font-size:11px;color:#4a6080;
-  background:#f0f2f8;border:1px solid #cdd4e0;border-radius:var(--r);
-  padding:3px 7px;cursor:pointer;outline:none;max-width:160px;display:none;}
-.plan-sel:focus{border-color:var(--blue);}
 
 /* ── MIDDLE ROW: sidebar + map ── */
 #middle{display:grid;grid-template-columns:300px 1fr;overflow:hidden;}
@@ -142,9 +131,14 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
 /* Snap pulse */
 .snap-pulse{position:absolute;border-radius:50%;border:2px solid var(--snap);animation:snap-out .55s ease-out forwards;pointer-events:none;z-index:2000;}
 
-/* ── ELEVATION CHART (inside Summary tab) ── */
-#elev-chart-wrap{width:100%;margin-bottom:4px;overflow:hidden;}
-#elev-canvas{display:block;width:100%;}
+/* ── ELEVATION CHART ── */
+#chart-row{background:#f0f2f8;border-top:1px solid var(--border);display:flex;align-items:stretch;overflow:hidden;}
+#chart-label{writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);font-size:10px;color:var(--text3);padding:0 6px;text-transform:uppercase;letter-spacing:1px;flex-shrink:0;display:flex;align-items:center;}
+#elev-chart{flex:1;overflow-x:auto;overflow-y:hidden;cursor:default;}
+#elev-chart::-webkit-scrollbar{height:5px;}
+#elev-chart::-webkit-scrollbar-track{background:#f0f2f8;}
+#elev-chart::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+#elev-canvas{display:block;}
 
   /* Loading overlay */
   #loading{position:fixed;inset:0;background:#f4f6fa;display:flex;flex-direction:column;
@@ -181,8 +175,6 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
 .ecamp-name{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;}
 .ecamp-src{font-size:9px;padding:1px 4px;border-radius:3px;font-weight:600;flex-shrink:0;}
 .src-halfmile{background:#eaecf4;color:#4a5a78;}
-.src-trailfinder{background:#eaecf4;color:#4a5a78;}
-.src-manual{background:#f0ede4;color:#7a5a20;}
 .src-resupply{background:var(--blue-bg);color:var(--blue);}
 .src-custom{background:var(--green-bg);color:var(--green);}
 .edit-search{padding:6px 10px;border-bottom:1px solid var(--border);flex-shrink:0;}
@@ -197,32 +189,22 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
 
 <div id="loading">
   <div class="spin"></div>
-  <h2>Interactive Camp Planner</h2>
+  <h2>Colorado Trail Planner</h2>
   <p>Loading trail data…</p>
 </div>
 
 <div id="app">
 
 <header>
-  <div class="logo" id="h-abbrev">HIKE</div>
+  <div class="logo">CT</div>
   <div class="sep"></div>
-  <div class="htitle"><span id="h-trailname">Trail</span> — <span>Interactive Camp Planner</span></div>
+  <div class="htitle">Washington — <span>Interactive Camp Planner</span></div>
   <div class="sep"></div>
   <div class="hstat"><div class="hstat-v" id="h-days">—</div><div class="hstat-l">Days</div></div>
   <div class="hstat"><div class="hstat-v" id="h-nights">—</div><div class="hstat-l">Nights</div></div>
   <div class="hstat"><div class="hstat-v" id="h-avg">—</div><div class="hstat-l">Avg mi/day</div></div>
   <div class="hstat"><div class="hstat-v" id="h-elev">—</div><div class="hstat-l">Avg elev</div></div>
   <div class="spacer"></div>
-  <div class="trail-sel-wrap">
-    <span class="trail-sel-label">Trail</span>
-    <select class="trail-sel" id="trail-select" onchange="onTrailSelect(this.value)">
-      <option value="">Loading…</option>
-    </select>
-    <select class="plan-sel" id="plan-select" onchange="onPlanSelect(this.value)">
-      <option value="">Default plan</option>
-    </select>
-  </div>
-  <div class="sep"></div>
   <div class="hint"><b>Drag</b> any numbered marker to snap to nearest campsite &nbsp;·&nbsp; <b>Click</b> sidebar row to fly to camp</div>
 </header>
 
@@ -231,13 +213,13 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
     <div class="stabs">
       <div class="stab on" id="tab-itin" onclick="showTab('itin')">Itinerary</div>
       <div class="stab" id="tab-sum" onclick="showTab('sum')">Summary</div>
-      <div class="stab" id="tab-edit" onclick="showTab('edit')">Edit</div>
+      <div class="stab" id="tab-edit" onclick="showTab('edit')">Editor</div>
       <div class="stab" id="tab-exp" onclick="showTab('exp')">Export</div>
     </div>
     <div class="controls">
       <div class="crow">
         <div class="clbl">Start date</div>
-        <input type="date" id="start-date" onchange="rebuildAndRender()">
+        <input type="date" id="start-date" value="2026-07-01" onchange="rebuildAndRender()">
       </div>
       <div class="crow">
         <div class="clbl">Avg mi/day</div>
@@ -250,8 +232,8 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
         <div class="cval" id="flex-lbl">±3.0</div>
       </div>
       <div class="crow">
-        <div class="clbl">Emergence date</div>
-        <input type="date" id="emerge-date" onchange="rebuildAndRender()">
+        <div class="clbl">Snowmelt date</div>
+        <input type="date" id="melt-date" value="2026-06-01" onchange="rebuildAndRender()">
       </div>
       <div class="crow" style="margin-bottom:0">
         <div class="clbl" style="font-size:10px;color:var(--text3)">Range</div>
@@ -271,7 +253,7 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
     <div class="mpill" id="edit-hint">📍 Click trail to add campsite here</div>
     <div class="mpill" id="layer-sw">
       <div style="font-family:'Bitter',serif;font-weight:700;color:var(--text);font-size:11px;margin-bottom:5px">Basemap</div>
-      <label><input type="radio" name="lyr" value="topo" checked onchange="switchLayer('topo')"> OpenTopoMap</label>
+      <label><input type="radio" name="lyr" value="topo" checked onchange="switchLayer('topo')"> OpenTopoMap (CT visible)</label>
       <label><input type="radio" name="lyr" value="usgs" onchange="switchLayer('usgs')"> USGS Topo</label>
       <label><input type="radio" name="lyr" value="osm" onchange="switchLayer('osm')"> OpenStreetMap</label>
     </div>
@@ -282,7 +264,7 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
       <div class="lr"><div class="ld" style="background:#5dba7f"></div> 2,000–3,500 ft</div>
       <div class="lr"><div class="ld" style="background:#5b9bd5"></div> &lt; 2,000 ft</div>
       <div style="margin-top:5px;padding-top:5px;border-top:1px solid var(--border)">
-      <div class="lr"><div style="width:22px;height:3px;background:#e8832a;border-radius:2px;flex-shrink:0;margin-top:1px"></div> <span id="legend-trail-label">Trail</span> (GPS)</div>
+      <div class="lr"><div style="width:22px;height:3px;background:#e8832a;border-radius:2px;flex-shrink:0;margin-top:1px"></div> PCT trail (GPS)</div>
       
       <div class="lr"><div style="width:10px;height:10px;border-radius:50%;background:#fff;border:1.5px solid #e8832a;flex-shrink:0"></div> All campsites</div>
       <div class="lr"><div style="width:12px;height:12px;background:#1d4ed8;border:1.5px solid #93c5fd;border-radius:2px;flex-shrink:0"></div> Resupply stop</div>
@@ -292,35 +274,25 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
   </div>
 </div>
 
+<div id="chart-row">
+  <div id="chart-label">Elevation (ft)</div>
+  <div id="elev-chart">
+    <canvas id="elev-canvas"></canvas>
+  </div>
+</div>
+
 </div><!-- #app -->
 
 <script>
 
 // ════════════════════════════════════════════════════
 // CONSTANTS
-// All trail-specific values are declared as `let` so
-// loadData() can override them from data/config.json.
-// The values below are safe fallback defaults only —
-// they should never be used if config.json loads correctly.
-// START_MILE / END_MILE are also overridden by
-// trail.geojson properties.startMile / properties.endMile.
 // ════════════════════════════════════════════════════
-let START_MILE        = 0;
-let END_MILE          = 100;
-let START_TRAIL_DIST  = 0.0;
-let END_TRAIL_DIST    = 100.0;
-let BASELINE_EMERGE_DOY = 152;  // baseline bug emergence day-of-year (config: bugEmergeDoy)
-let TERMINUS          = { name:'Terminus', lat:0, lon:0, elev:0, mile:100, isTerminus:true };
-let BUG_BANDS         = [];     // populated from config.json bugBands
-
-// Trail identity — populated from config.json
-let TRAIL_NAME         = 'Trail';
-let TRAIL_ABBREV       = 'HIKE';
-let START_MARKER_LABEL = 'Start';
-let DEFAULT_START_DATE = '2026-06-25';
-let DEFAULT_EMERGE_DATE = '2026-05-28';
-let DEFAULT_AVG_PACE   = 13;
-let DEFAULT_FLEX_PACE  = 3;
+const START_MILE = 0;
+const END_MILE = 486;
+const START_TRAIL_DIST = 0;    // trailDist of Bridge of Gods (before first camp)
+const END_TRAIL_DIST   = 444.3; // trailDist of Northern Terminus
+const BASELINE_MELT_DOY = 152;
 
 // ════════════════════════════════════════════════════
 // DATA — loaded async from data/ folder
@@ -329,6 +301,8 @@ let CAMPS        = [];
 let RESUPPLY     = [];
 let ALL_STOPS    = [];
 let TRAIL_COORDS = [];
+
+const TERMINUS = { name:'Northern Terminus', lat:49.000000, lon:-120.802223, elev:4247, mile:END_MILE, isTerminus:true };
 
 // ════════════════════════════════════════════════════
 // STATE
@@ -381,7 +355,7 @@ RESUPPLY.forEach(r => {
     `, { maxWidth: 260 });
 });
 
-// Actual PCT trail from GPS data
+// Actual CT trail from GPS data
 const trailLine = L.polyline(
   TRAIL_COORDS.map(function(c){ return [c[1], c[0]]; }),
   { color:'#e8832a', weight:3, opacity:0.85 }
@@ -417,81 +391,43 @@ function elevColor(e){
   return '#5b9bd5';
 }
 
-// ── Bug pressure model — bands populated from config.json bugBands at load time ─
-// Each band: { name, peakDoy, sigma, weight, elevDecay, waterBonus, color, label }
-// peakDoy is shifted by (emergeDoy - baselineEmergeDoy) at runtime.
-
-function getEmergeDoy(){
-  const el = document.getElementById('emerge-date');
-  if(!el) return BASELINE_EMERGE_DOY;
+// ── Date-aware mosquito model (Cascades snowmelt phenology) ──────────────────
+// Bands: [max_elev_ft, peak_doy, sigma_days]
+// Base mosquito peaks relative to Jun 1 (DOY 152) normal snowmelt:
+// Each band's peak = baseline_peak + (meltDoy - 152)
+const MOSQ_BASE = [
+  [3000,  155, 22],   // valleys  <3k ft
+  [4500,  175, 20],   // montane  3-4.5k ft
+  [5500,  192, 17],   // subalpine 4.5-5.5k ft
+  [99999, 207, 14],   // alpine   5.5k+ ft
+];
+function getMeltDoy(){
+  const el = document.getElementById('melt-date');
+  if(!el) return BASELINE_MELT_DOY;
   const d = new Date(el.value);
-  if(isNaN(d)) return BASELINE_EMERGE_DOY;
+  if(isNaN(d)) return BASELINE_MELT_DOY;
   return Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
 }
 
-// bugPressureAt() — returns 0–1 composite bug pressure for a camp on a given date.
-// Evaluates each band's Gaussian, applies elevation decay and water bonus,
-// then returns the MAX across all bands (worst pest wins).
-// Falls back to a generic single-band Gaussian if BUG_BANDS is empty.
-function bugPressureAt(camp, date){
-  const elev   = camp ? (camp.elev || 3000) : 3000;
-  const water  = camp ? !!camp.water : false;
-  const doy    = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 86400000);
-  const shift  = getEmergeDoy() - BASELINE_EMERGE_DOY;
+// Keep MOSQ_BANDS as a computed alias for DP access
+let MOSQ_BANDS = MOSQ_BASE;
 
-  if(!BUG_BANDS || !BUG_BANDS.length){
-    // Fallback: generic single Gaussian centred on DOY 175
-    return Math.exp(-0.5 * Math.pow((doy - (175 + shift)) / 20, 2));
+function mosquitoAt(elev, date){
+  const e   = elev || 3000;
+  const doy = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 86400000);
+  const shift = getMeltDoy() - BASELINE_MELT_DOY;
+  for(const [maxE, peak, sigma] of MOSQ_BASE){
+    if(e <= maxE) return Math.exp(-0.5 * Math.pow((doy - (peak + shift)) / sigma, 2));
   }
-
-  let maxP = 0;
-  for(const b of BUG_BANDS){
-    const peak        = (b.peakDoy || 175) + shift;
-    const sigma       = b.sigma      || 20;
-    const weight      = b.weight     || 1.0;
-    const elevDecay   = b.elevDecay  || 0;
-    const waterBonus  = b.waterBonus || 0;
-    const gauss       = Math.exp(-0.5 * Math.pow((doy - peak) / sigma, 2));
-    // Exponential elevation decay: pressure × e^(-elevDecay × elev)
-    // elevDecay=0.0003 → 74% at 1000ft, 55% at 2000ft, 22% at 5000ft
-    const elevFactor  = Math.exp(-elevDecay * elev);
-    const waterMult   = 1 + waterBonus * (water ? 1 : 0);
-    const p           = Math.min(1, weight * gauss * elevFactor * waterMult);
-    if(p > maxP) maxP = p;
-  }
-  return maxP;
+  return 0;
 }
-
-// Dominant band name at a given camp/date — used for badge labels
-function bugDominantName(camp, date){
-  if(!BUG_BANDS || !BUG_BANDS.length) return 'Bugs';
-  const elev  = camp ? (camp.elev || 3000) : 3000;
-  const water = camp ? !!camp.water : false;
-  const doy   = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 86400000);
-  const shift = getEmergeDoy() - BASELINE_EMERGE_DOY;
-  let maxP = -1, name = BUG_BANDS[0].label || BUG_BANDS[0].name || 'Bugs';
-  for(const b of BUG_BANDS){
-    const peak      = (b.peakDoy || 175) + shift;
-    const sigma     = b.sigma    || 20;
-    const weight    = b.weight   || 1.0;
-    const elevDecay = b.elevDecay  || 0;
-    const waterBonus= b.waterBonus || 0;
-    const gauss      = Math.exp(-0.5 * Math.pow((doy - peak) / sigma, 2));
-    const elevFactor = Math.exp(-elevDecay * elev);
-    const waterMult  = 1 + waterBonus * (water ? 1 : 0);
-    const p         = weight * gauss * elevFactor * waterMult;
-    if(p > maxP){ maxP = p; name = b.label || b.name || 'Bugs'; }
-  }
-  return name;
-}
-
-function bugColor(p){
+function mosquitoColor(p){
   if(p >= 0.7)  return '#e06060';
   if(p >= 0.4)  return '#d4a84b';
   if(p >= 0.15) return '#b8c43a';
   return '#5dba7f';
 }
-function bugLabel(p){
+function mosquitoLabel(p){
   if(p >= 0.7)  return 'HIGH';
   if(p >= 0.4)  return 'MEDIUM';
   if(p >= 0.15) return 'LOW';
@@ -515,7 +451,7 @@ function getPace(){
 }
 function getStartDate(){
   const v = document.getElementById('start-date').value;
-  return new Date((v || DEFAULT_START_DATE) + 'T00:00:00');
+  return new Date((v||'2026-07-01')+'T00:00:00');
 }
 function fmtDate(startDate, i){
   const d = new Date(startDate); d.setDate(d.getDate()+i);
@@ -529,20 +465,13 @@ function syncLabels(){
   document.getElementById('range-lbl').textContent = (avg-flex).toFixed(1) + ' – ' + (avg+flex).toFixed(1) + ' mi/day';
 }
 function snapNearest(latlng){
-  // Snap to the campsite physically closest to the drop location.
-  // Direct lat/lon distance is more reliable than going through trailDistFromLatLon,
-  // which uses the rendering trail's cumulative arc-length. The rendering trail
-  // (PCT: 8,974 pts from one GPS source) was computed independently from the
-  // campsite trailDist values (PCT: computed from a different high-res Halfmile source),
-  // creating systematic offsets that cause markers to snap to wrong camps further
-  // down the trail. There is only one switchback pair on PCT WA with physical
-  // separation < 0.5mi (CS2423/CS2425 at 2,348ft), well outside drag radius.
+  // First find the nearest trail point to get a trailDist reference
+  const refTD = trailDistFromLatLon(latlng.lat, latlng.lng);
+  // Then snap to the campsite with the closest trailDist
+  // (prefer trail-order proximity over raw lat/lon distance)
   let best=null, bd=Infinity;
   ALL_STOPS.forEach(c=>{
-    if(!c.lat || !c.lon) return;
-    const dlat = c.lat - latlng.lat;
-    const dlon = c.lon - latlng.lng;
-    const d = dlat*dlat + dlon*dlon; // squared Euclidean — fine for small distances
+    const d = Math.abs((c.trailDist != null ? c.trailDist : 0) - refTD);
     if(d<bd){ bd=d; best=c; }
   });
   return best;
@@ -631,8 +560,6 @@ function showSnap(latlng){
 // ════════════════════════════════════════════════════
 
 function buildPlan(){
-  // Guard: don't run before data is loaded
-  if(!ALL_STOPS.length) return null;
   const {avg} = getPace();
   const sd       = getStartDate();
   const startDoy = Math.floor((sd - new Date(sd.getFullYear(), 0, 0)) / 86400000);
@@ -655,15 +582,18 @@ function buildPlan(){
   const dists = [START_TRAIL_DIST, ...SORTED.map(getTD), END_TRAIL_DIST];
   const M     = dists.length;
 
-  // Score = elev × (1 + 2 × low-bug-bonus), date-aware
+  // Score = elev × (1 + 2 × low-mosquito-bonus), date-aware
   function score(i) {
     if(i === 0 || i === M-1) return 0;
     const camp = SORTED[i-1];
     const elev = camp.elev || 3500;
-    const arrDate = new Date(sd);
-    arrDate.setDate(arrDate.getDate() + Math.round(dists[i] / avg));
-    const bp = bugPressureAt(camp, arrDate);
-    return elev * (1 + 2.0 * (1 - bp));
+    const arrDoy = startDoy + dists[i] / avg;
+    let mp = 0;
+    const meltShift = getMeltDoy() - BASELINE_MELT_DOY;
+    for(const [maxE, peak, sigma] of MOSQ_BASE){
+      if(elev <= maxE){ mp = Math.exp(-0.5 * Math.pow((arrDoy - (peak + meltShift)) / sigma, 2)); break; }
+    }
+    return elev * (1 + 2.0 * (1 - mp));
   }
 
   // Run DP with a given [min_d, max_d] window (in trail-geometry miles)
@@ -743,20 +673,20 @@ function renderMap(){
 
     const m = L.marker([camp.lat,camp.lon],{ icon, draggable:!isTerm, autoPan:true });
 
-    // Bug pressure for this night
-    const mp   = isTerm ? 0 : bugPressureAt(camp, arrivalDate(idx));
-    const mpC  = bugColor(mp);
-    const mpL  = bugLabel(mp);
+    // Mosquito pressure for this night
+    const mp   = isTerm ? 0 : mosquitoAt(camp.elev, arrivalDate(idx));
+    const mpC  = mosquitoColor(mp);
+    const mpL  = mosquitoLabel(mp);
     const mpPct = Math.round(mp * 100);
 
     // Popup
     const badges=[];
-    if(camp.isResupply) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">🧳</span>`);
+    if(camp.isResupply) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">Resupply</span>`);
     if(camp.water) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">💧 Water</span>`);
     if(camp.outhouse) badges.push(`<span class="badge" style="background:#ede8f8;color:#6a30a0;border:1px solid #b090d8">🚽 Outhouse</span>`);
-    if(camp.type==='Established') badges.push(`<span class="badge" style="background:#d8f0e4;color:#1a6038;border:1px solid #70b890">⛺ Established</span>`);
-    if(!isTerm && camp.elev >= 6500) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">💨!</span>`);
-    else if(!isTerm && camp.elev >= 5800) badges.push(`<span class="badge" style="background:#e6eef8;color:#2a5888;border:1px solid #a0c0e0">💨 Exposed</span>`);
+    if(camp.type==='Established') badges.push(`<span class="badge" style="background:#d8f0e4;color:#1a6038;border:1px solid #70b890">Established</span>`);
+    if(!isTerm && camp.elev >= 6500) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">🌬️ High Wind</span>`);
+    else if(!isTerm && camp.elev >= 5800 && camp.elev < 6500) badges.push(`<span class="badge" style="background:#e6eef8;color:#2a5888;border:1px solid #a0c0e0">💨 Exposed</span>`);
 
     m.bindPopup(`
       <div class="pnight">Night ${idx+1} · ${dateStr}</div>
@@ -767,37 +697,28 @@ function renderMap(){
         <div class="pk">Miles today</div><div class="pv">${miToday} mi</div>
         <div class="pk">Lat / Lon</div><div class="pv">${camp.lat.toFixed(4)}, ${camp.lon.toFixed(4)}</div>
       </div>
-      ${!isTerm ? `<div style="margin-top:8px">        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px">          <span style="color:var(--text3)">🦟 Bugs</span>          <span style="color:${mpC};font-weight:700">${mpL} (${mpPct}%)</span>        </div>        <div style="height:5px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden">          <div style="width:${mpPct}%;height:100%;background:${mpC};border-radius:3px"></div>        </div>      </div>` : ''}
+      ${!isTerm ? `<div style="margin-top:8px">        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px">          <span style="color:var(--text3)">🦟 Mosquitoes</span>          <span style="color:${mpC};font-weight:700">${mpL} (${mpPct}%)</span>        </div>        <div style="height:5px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden">          <div style="width:${mpPct}%;height:100%;background:${mpC};border-radius:3px"></div>        </div>      </div>` : ''}
       ${badges.length?`<div class="pbadges">${badges.join('')}</div>`:''}
     `, { maxWidth:240 });
 
     m.on('click', ()=>setActive(idx));
 
     if(!isTerm){
-      let _lastSnap = null;  // cache the last snapped camp from 'drag' events
-
       m.on('dragstart', ()=>{
-        _lastSnap = null;
         document.getElementById('drag-status').style.display='block';
         m.closePopup();
       });
       m.on('drag', e=>{
-        // Live preview: snap to nearest camp by trail distance, cache the result
+        // Live preview: update route to snapped position
         const snapped = snapNearest(e.latlng);
         if(snapped){
-          _lastSnap = snapped;
           const pts = plan.map((c,i)=> i===idx ? [snapped.lat,snapped.lon] : [c.lat,c.lon]);
           routeLine.setLatLngs(pts);
         }
       });
       m.on('dragend', e=>{
         document.getElementById('drag-status').style.display='none';
-        // Use the cached snap from the last drag event — this is what the user
-        // was watching snap to, and avoids recomputing from the pixel-exact
-        // drop position which can land between two camps on the thinned trail.
-        // Fall back to recomputing only if no drag events fired (click-release).
-        const snapped = _lastSnap || snapNearest(e.target.getLatLng());
-        _lastSnap = null;
+        const snapped = snapNearest(e.target.getLatLng());
         if(snapped){
           plan[idx] = {...snapped, isTerminus:false};
           showSnap([snapped.lat,snapped.lon]);
@@ -822,8 +743,6 @@ function renderList(){
   const {min,max} = getPace();
 
   plan.forEach((camp,idx)=>{
-    // Skip malformed entries (safety net — should not occur in normal operation)
-    if(!camp || camp.mile == null) return;
     const isTerm=!!camp.isTerminus;
     // Use trailDist for daily distance if available, else fall back to mile diff
     const SCALE = (END_TRAIL_DIST-START_TRAIL_DIST)/(END_MILE-START_MILE);
@@ -837,42 +756,26 @@ function renderList(){
     const card=document.createElement('div');
     card.className=`ncard${idx===activeIdx?' active':''}${isWarn?' warn':''}`;
 
-    const nightMp  = isTerm ? 0 : bugPressureAt(camp, arrivalDate(idx));
-    const nightMpC = bugColor(nightMp);
-    const nightMpL = bugLabel(nightMp);
+    const nightMp  = isTerm ? 0 : mosquitoAt(camp.elev, arrivalDate(idx));
+    const nightMpC = mosquitoColor(nightMp);
+    const nightMpL = mosquitoLabel(nightMp);
     const badges=[];
     if(!isTerm){
-      // Tent badge for established camps
-      if(camp.type==='Established') badges.push(`<span class="badge" style="background:#d8f0e4;color:#1a6038;border:1px solid #70b890">⛺</span>`);
-      // Lunchbox badge for resupply
-      if(camp.isResupply) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">🧳</span>`);
+      if(camp.type==='Established') badges.push(`<span class="badge" style="background:#d8f0e4;color:#1a6038;border:1px solid #70b890">Established</span>`);
+      if(camp.isResupply) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">Resupply</span>`);
       if(camp.water) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">💧</span>`);
       if(camp.outhouse) badges.push(`<span class="badge" style="background:#ede8f8;color:#6a30a0;border:1px solid #b090d8">🚽</span>`);
-      // Distance warning: yellow < 3mi outside range, red >= 3mi outside
-      if(isWarn){
-        const over = Math.max(min - mi, mi - max, 0);
-        const warnBg = over < 3 ? '#fff8d8' : '#fde8e8';
-        const warnCo = over < 3 ? '#7a5c00' : '#a01818';
-        const warnBd = over < 3 ? '#d4b800' : '#e09090';
-        badges.push(`<span class="badge" style="background:${warnBg};color:${warnCo};border:1px solid ${warnBd}">⚠ ${mi.toFixed(1)}mi</span>`);
-      }
-      // Bug badges: tinted background with colored text (same low-sat style as other badges)
-      if(nightMp >= 0.7){
-        const extreme = nightMp >= 0.9;
-        badges.push(`<span class="badge" style="background:#fde8e8;color:#a01818;border:1px solid #e09090">🦟${extreme?'!':''}</span>`);
-      } else if(nightMp >= 0.4){
-        badges.push(`<span class="badge" style="background:#fdf3e0;color:#7a5000;border:1px solid #d4a84b">🦟</span>`);
-      }
-      // Wind badges: single symbol, ! if extreme
-      if(!isTerm && camp.elev >= 6500) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">💨!</span>`);
-      else if(!isTerm && camp.elev >= 5800) badges.push(`<span class="badge" style="background:#e6eef8;color:#2a5888;border:1px solid #a0c0e0">💨</span>`);
+      if(isWarn) badges.push(`<span class="badge" style="background:#fde8e8;color:#a01818;border:1px solid #e09090">⚠ ${mi.toFixed(1)}mi</span>`);
+      if(nightMp >= 0.4) badges.push(`<span class="badge" style="background:${nightMpC}20;color:${nightMpC};border:1px solid ${nightMpC}55">🦟 ${nightMpL}</span>`);
+      if(!isTerm && camp.elev >= 6500) badges.push(`<span class="badge" style="background:#deeaf8;color:#1a5090;border:1px solid #8ab4dc">🌬️ High Wind</span>`);
+      else if(!isTerm && camp.elev >= 5800 && camp.elev < 6500) badges.push(`<span class="badge" style="background:#e6eef8;color:#2a5888;border:1px solid #a0c0e0">💨 Exposed</span>`);
     }
 
     card.innerHTML=`
       <div class="nnum" style="color:${col};border-color:${col}55;background:${col}18">${isTerm?'🏁':idx+1}</div>
       <div class="nbody">
         <div class="nname">${camp.name}</div>
-        <div class="nmeta">${fmtDate(sd,idx)} · Mi ${(camp.mile ?? 0).toFixed(1)}</div>
+        <div class="nmeta">${fmtDate(sd,idx)} · Mi ${camp.mile.toFixed(1)}</div>
         <div class="nrow">
           <div class="nelev" style="color:${col}">${camp.elev?camp.elev.toLocaleString()+' ft':'Terminus'}</div>
           <div class="nmi">${mi.toFixed(1)} mi today</div>
@@ -885,118 +788,91 @@ function renderList(){
 }
 
 // ════════════════════════════════════════════════════
-// RENDER ELEVATION CHART  (line graph, lives in Summary tab)
+// RENDER ELEVATION CHART
 // ════════════════════════════════════════════════════
 function renderChart(){
+  const camps = plan.filter(c=>!c.isTerminus && c.elev);
+  if(!camps.length) return;
+
+  const container = document.getElementById('elev-chart');
   const canvas = document.getElementById('elev-canvas');
-  if(!canvas) return;
-  const camps = plan.filter(c => !c.isTerminus && c.elev);
-  if(!camps.length){ canvas.style.display='none'; return; }
-  canvas.style.display = 'block';
+  const h = container.clientHeight || 160;
+  const BAR_W = 18, GAP = 5, PAD_L=8, PAD_R=8, PAD_T=14, PAD_B=24;
+  const w = PAD_L + camps.length*(BAR_W+GAP) + PAD_R;
 
-  const PAD_L=28, PAD_R=10, PAD_T=12, PAD_B=20;
-  const W = canvas.parentElement ? canvas.parentElement.clientWidth || 260 : 260;
-  const H = 110;
-  canvas.width  = W;
-  canvas.height = H;
+  canvas.width = w;
+  canvas.height = h;
   const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, W, H);
+  ctx.clearRect(0,0,w,h);
 
-  const elevs  = camps.map(c => c.elev);
-  const maxE   = Math.max(...elevs);
-  const minE   = Math.min(...elevs);
-  const rangeE = maxE - minE || 1;
-  const chartW = W - PAD_L - PAD_R;
-  const chartH = H - PAD_T - PAD_B;
+  const elevs = camps.map(c=>c.elev);
+  const maxE = Math.max(...elevs);
+  const minE = 0;
+  const chartH = h - PAD_T - PAD_B;
 
-  // x/y helpers
-  const xOf = i  => PAD_L + (i / (camps.length - 1 || 1)) * chartW;
-  const yOf = el => PAD_T + chartH - ((el - minE) / rangeE) * chartH;
-
-  // Background — transparent, let the wrapper supply the colour
-  ctx.clearRect(0, 0, W, H);
-
-  // Grid lines at nice elevation intervals
-  const gridStep = rangeE > 3000 ? 1000 : rangeE > 1000 ? 500 : 200;
-  const gridStart = Math.ceil(minE / gridStep) * gridStep;
-  for(let e = gridStart; e <= maxE; e += gridStep){
-    const y = yOf(e);
-    ctx.strokeStyle = 'rgba(0,0,0,0.08)';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([3, 4]);
-    ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(W - PAD_R, y); ctx.stroke();
+  // Background grid lines
+  [2000,3500,5000,7000].forEach(e=>{
+    if(e>maxE*1.05) return;
+    const y = PAD_T + chartH - (e/maxE)*chartH;
+    ctx.strokeStyle='rgba(255,255,255,0.06)';
+    ctx.lineWidth=1;
+    ctx.setLineDash([3,4]);
+    ctx.beginPath(); ctx.moveTo(PAD_L,y); ctx.lineTo(w-PAD_R,y); ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = '#6878a0';
-    ctx.font = '8px Source Code Pro,monospace';
-    ctx.textAlign = 'right';
-    ctx.fillText((e / 1000).toFixed(1) + 'k', PAD_L - 3, y + 3);
-  }
-
-  // Filled area under the line
-  ctx.beginPath();
-  ctx.moveTo(xOf(0), yOf(camps[0].elev));
-  camps.forEach((c, i) => ctx.lineTo(xOf(i), yOf(c.elev)));
-  ctx.lineTo(xOf(camps.length - 1), H - PAD_B);
-  ctx.lineTo(xOf(0), H - PAD_B);
-  ctx.closePath();
-  const grad = ctx.createLinearGradient(0, PAD_T, 0, H - PAD_B);
-  grad.addColorStop(0, 'rgba(93,186,127,0.25)');
-  grad.addColorStop(1, 'rgba(93,186,127,0.02)');
-  ctx.fillStyle = grad;
-  ctx.fill();
-
-  // Line
-  ctx.beginPath();
-  ctx.moveTo(xOf(0), yOf(camps[0].elev));
-  camps.forEach((c, i) => ctx.lineTo(xOf(i), yOf(c.elev)));
-  ctx.strokeStyle = '#3d9e62';
-  ctx.lineWidth = 1.5;
-  ctx.lineJoin = 'round';
-  ctx.stroke();
-
-  // Dots — colour-coded by elevation, active highlighted gold
-  camps.forEach((c, i) => {
-    const x = xOf(i), y = yOf(c.elev);
-    const isActive = plan.indexOf(c) === activeIdx;
-    ctx.beginPath();
-    ctx.arc(x, y, isActive ? 4 : 2.5, 0, Math.PI * 2);
-    ctx.fillStyle   = isActive ? '#d4a84b' : elevColor(c.elev);
-    ctx.strokeStyle = isActive ? '#d4a84b' : 'rgba(0,0,0,0.2)';
-    ctx.lineWidth   = isActive ? 1.5 : 0.8;
-    ctx.fill();
-    ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,0.2)';
+    ctx.font='8px Source Code Pro,monospace';
+    ctx.textAlign='left';
+    ctx.fillText((e/1000).toFixed(0)+'k',1,y+3);
   });
 
-  // Day-number labels along the bottom
-  ctx.fillStyle = '#8090b0';
-  ctx.font = '7px Source Code Pro,monospace';
-  ctx.textAlign = 'center';
-  camps.forEach((c, i) => {
-    const step = camps.length > 20 ? 3 : camps.length > 10 ? 2 : 1;
-    if(i % step === 0) ctx.fillText(i + 1, xOf(i), H - PAD_B + 11);
+  // Active night indicator
+  const sd = getStartDate();
+
+  camps.forEach((camp,i)=>{
+    const x = PAD_L + i*(BAR_W+GAP);
+    const barH = (camp.elev/maxE)*chartH;
+    const y = PAD_T + chartH - barH;
+    const col = elevColor(camp.elev);
+    const isActive = plan.indexOf(camp)===activeIdx;
+
+    // Bar
+    ctx.fillStyle = isActive ? '#ffd700' : col;
+    ctx.globalAlpha = isActive ? 1 : 0.82;
+    ctx.fillRect(x, y, BAR_W, barH);
+    ctx.globalAlpha=1;
+
+    // Active outline
+    if(isActive){
+      ctx.strokeStyle='#ffd700';
+      ctx.lineWidth=1.5;
+      ctx.strokeRect(x-0.5,y-0.5,BAR_W+1,barH+1);
+    }
+
+    // Day number label
+    ctx.fillStyle = isActive?'#ffd700':'rgba(255,255,255,0.45)';
+    ctx.font=`${isActive?'bold ':''}8px Source Code Pro,monospace`;
+    ctx.textAlign='center';
+    ctx.fillText(camp.day||i+1, x+BAR_W/2, h-PAD_B+10);
   });
 
-  // Store for click detection
-  canvas._camps  = camps;
-  canvas._xOf    = xOf;
-  canvas._nCamps = camps.length;
+  // Assign day numbers for click detection
+  canvas._camps = camps;
+  canvas._params = {BAR_W,GAP,PAD_L,PAD_T,PAD_B,chartH,maxE,h};
 }
 
-
-// Click on chart to select night — uses closest x position to handle line graph
-document.addEventListener('click', e => {
-  const canvas = document.getElementById('elev-canvas');
-  if(e.target !== canvas || !canvas._camps) return;
-  const rect  = canvas.getBoundingClientRect();
-  const clickX = (e.clientX - rect.left) * (canvas.width / rect.width);
-  // Find camp with closest x
-  let bestI = 0, bestDist = Infinity;
-  canvas._camps.forEach((c, i) => {
-    const d = Math.abs(canvas._xOf(i) - clickX);
-    if(d < bestDist){ bestDist = d; bestI = i; }
-  });
-  const idx = plan.indexOf(canvas._camps[bestI]);
-  if(idx >= 0) setActive(idx);
+// Click on chart to select night
+document.getElementById('elev-canvas').addEventListener('click', e=>{
+  const canvas = e.target;
+  const {BAR_W,GAP,PAD_L} = canvas._params||{};
+  if(!canvas._camps) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const i = Math.floor((x-PAD_L)/(BAR_W+GAP));
+  if(i>=0 && i<canvas._camps.length){
+    const campObj = canvas._camps[i];
+    const idx = plan.indexOf(campObj);
+    if(idx>=0) setActive(idx);
+  }
 });
 
 // ════════════════════════════════════════════════════
@@ -1034,18 +910,11 @@ function renderSummary(){
       </div>
     </div>
     <div class="ss">
-      <div class="st">Elevation Profile</div>
-      <div id="elev-chart-wrap" style="background:var(--bg3);border:1px solid #cdd4e0;border-radius:4px;overflow:hidden;cursor:pointer;">
-        <canvas id="elev-canvas" style="display:block;width:100%;"></canvas>
-      </div>
-      <div style="font-size:9px;color:var(--text3);margin-top:3px;text-align:center">Click a point to select that night</div>
-    </div>
-    <div class="ss">
       <div class="st">Nights by Elevation Band</div>
       ${seg('5,000+ ft (high & dry)',camps.filter(c=>c.elev>=5000).length,'#e06060')}
       ${seg('3,500–5,000 ft',camps.filter(c=>c.elev>=3500&&c.elev<5000).length,'#d4a84b')}
       ${seg('2,000–3,500 ft',camps.filter(c=>c.elev>=2000&&c.elev<3500).length,'#5dba7f')}
-      ${seg('< 2,000 ft (bug zone)',camps.filter(c=>c.elev<2000).length,'#5b9bd5')}
+      ${seg('< 2,000 ft (mosquito zone)',camps.filter(c=>c.elev<2000).length,'#5b9bd5')}
     </div>
     <div class="ss">
       <div class="st">Amenities</div>
@@ -1055,18 +924,16 @@ function renderSummary(){
       </div>
     </div>
     <div class="ss">
-      <div class="st">🦟 Bug Exposure</div>
+      <div class="st">🦟 Mosquito Exposure</div>
       <div class="sg">
-        <div class="sc"><div class="sv" style="color:#e06060">${camps.filter((_,i)=>{const p=bugPressureAt(camps[i],arrivalDate(plan.indexOf(camps[i])));return p>=0.7;}).length}</div><div class="sl">HIGH nights</div></div>
-        <div class="sc"><div class="sv" style="color:#5dba7f">${camps.filter((_,i)=>{const p=bugPressureAt(camps[i],arrivalDate(plan.indexOf(camps[i])));return p<0.15;}).length}</div><div class="sl">MINIMAL nights</div></div>
+        <div class="sc"><div class="sv" style="color:#e06060">${camps.filter((_,i)=>{const p=mosquitoAt(camps[i].elev,arrivalDate(plan.indexOf(camps[i])));return p>=0.7;}).length}</div><div class="sl">HIGH nights</div></div>
+        <div class="sc"><div class="sv" style="color:#5dba7f">${camps.filter((_,i)=>{const p=mosquitoAt(camps[i].elev,arrivalDate(plan.indexOf(camps[i])));return p<0.15;}).length}</div><div class="sl">MINIMAL nights</div></div>
       </div>
-      ${seg('HIGH ≥ 0.7',     camps.filter((_,i)=>{const p=bugPressureAt(camps[i],arrivalDate(plan.indexOf(camps[i])));return p>=0.7;}).length,             '#e06060')}
-      ${seg('MEDIUM 0.4–0.7', camps.filter((_,i)=>{const p=bugPressureAt(camps[i],arrivalDate(plan.indexOf(camps[i])));return p>=0.4&&p<0.7;}).length,     '#d4a84b')}
-      ${seg('LOW 0.15–0.4',   camps.filter((_,i)=>{const p=bugPressureAt(camps[i],arrivalDate(plan.indexOf(camps[i])));return p>=0.15&&p<0.4;}).length,    '#b8c43a')}
-      ${seg('MINIMAL < 0.15', camps.filter((_,i)=>{const p=bugPressureAt(camps[i],arrivalDate(plan.indexOf(camps[i])));return p<0.15;}).length,             '#5dba7f')}
+      ${seg('HIGH ≥ 0.7',     camps.filter((_,i)=>{const p=mosquitoAt(camps[i].elev,arrivalDate(plan.indexOf(camps[i])));return p>=0.7;}).length,             '#e06060')}
+      ${seg('MEDIUM 0.4–0.7', camps.filter((_,i)=>{const p=mosquitoAt(camps[i].elev,arrivalDate(plan.indexOf(camps[i])));return p>=0.4&&p<0.7;}).length,     '#d4a84b')}
+      ${seg('LOW 0.15–0.4',   camps.filter((_,i)=>{const p=mosquitoAt(camps[i].elev,arrivalDate(plan.indexOf(camps[i])));return p>=0.15&&p<0.4;}).length,    '#b8c43a')}
+      ${seg('MINIMAL < 0.15', camps.filter((_,i)=>{const p=mosquitoAt(camps[i].elev,arrivalDate(plan.indexOf(camps[i])));return p<0.15;}).length,             '#5dba7f')}
     </div>`;
-  // Chart canvas is now in the DOM — draw it
-  renderChart();
 }
 
 // ════════════════════════════════════════════════════
@@ -1142,8 +1009,8 @@ function showTab(t){
   document.getElementById('sum-panel').style.display=t==='sum'?'block':'none';
   document.getElementById('exp-panel').style.display=t==='exp'?'block':'none';
   document.getElementById('edit-panel').style.display=t==='edit'?'flex':'none';
-  // Hide planner controls in all non-itinerary tabs
-  document.querySelector('.controls').style.display = t==='itin' ? '' : 'none';
+  // Hide planner controls in editor mode, show in others
+  document.querySelector('.controls').style.display = t==='edit' ? 'none' : '';
   if(t==='sum')  renderSummary();
   if(t==='exp')  renderExport();
   if(t==='edit') { editorMode=true;  renderEditor(); enterEditorMode(); }
@@ -1153,14 +1020,18 @@ function showTab(t){
 // ════════════════════════════════════════════════════
 // CONTROLS
 // ════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════
+// SHARE URL  (encodes settings + overrides into query string)
+// ══════════════════════════════════════════════════════════════════
+
 
 // ══════════════════════════════════════════════════════════════════
 // EXPORT PANEL
 // ══════════════════════════════════════════════════════════════════
 function planToCSV(){
   const sd = getStartDate();
-  // Columns: PCT Mile | (blank) | (blank) | Miles Today | (blank) | Campsite | Elevation | Date | Notes
-  const rows = ['"Mile","","","Miles Today","","Campsite","Elevation (ft)","Date","Notes"'];
+  // Columns: CT Mile | (blank) | (blank) | Miles Today | (blank) | Campsite | Elevation | Date | Notes
+  const rows = ['"CT Mile","","","Miles Today","","Campsite","Elevation (ft)","Date","Notes"'];
   plan.forEach((camp,idx)=>{
     const isTerm = !!camp.isTerminus;
     const date = fmtDate(sd, idx);
@@ -1169,17 +1040,17 @@ function planToCSV(){
       : (plan[idx-1].trailDist != null ? plan[idx-1].trailDist : (plan[idx-1].mile-START_MILE)*SCALE_C);
     const thisTD_C = camp.trailDist != null ? camp.trailDist : (camp.mile-START_MILE)*SCALE_C;
     const mi = (thisTD_C - prevTD_C).toFixed(1);
-    const mp = isTerm ? '' : bugLabel(bugPressureAt(camp, arrivalDate(idx)));
-    const mpVal = mp && mp !== 'MINIMAL' ? mp + ' bugs' : '';
-    const wind = !isTerm && camp.elev >= 6500 ? 'Wind!'
-               : !isTerm && camp.elev >= 5800  ? 'Wind' : '';
+    const mp = isTerm ? '' : mosquitoLabel(mosquitoAt(camp.elev, arrivalDate(idx)));
+    const mpVal = mp && mp !== 'MINIMAL' ? mp + ' mosquitoes' : '';
+    const wind = !isTerm && camp.elev >= 6500 ? 'High Wind'
+               : !isTerm && camp.elev >= 5800  ? 'Exposed' : '';
     const water = !isTerm && camp.water ? 'Water' : '';
     const type = camp.type && camp.type !== 'Undeveloped' ? camp.type : '';
     const notes = [type, water, mpVal, wind].filter(Boolean).join(', ');
     const elev = camp.elev ? camp.elev : '';
     const q = v => `"${String(v).replace(/"/g,'""')}"`;
     rows.push([
-      q(camp.mile.toFixed(2)),  // PCT Mile
+      q(camp.mile.toFixed(2)),  // CT Mile
       q(''), q(''),              // blank, blank
       q(mi),                     // Miles Today
       q(''),                     // blank
@@ -1199,21 +1070,20 @@ function renderExport(){
     <div class="ss">
       <div class="st">Download as CSV</div>
       <p style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.5">
-        Opens in Excel or Google Sheets. Columns: Mile, Miles Today,
-        Campsite, Elevation, Date, Notes (type / water / bug pressure / wind).
+        Opens in Excel or Google Sheets. Columns: CT Mile, Miles Today,
+        Campsite, Elevation, Date, Notes (type / water / mosquito / wind).
       </p>
       <button class="ebtn ebtn-g" onclick="downloadCSV()">⬇ Download CSV</button>
     </div>
     <div class="ss">
       <div class="st">Save plan as JSON</div>
       <p style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.5">
-        Downloads a plan file named <code style="background:var(--bg3);padding:1px 4px;border-radius:3px">{trail}-plan-{date}-{mpd}.json</code>.
-        Place it in <code style="background:var(--bg3);padding:1px 4px;border-radius:3px">trails/${CURRENT_TRAIL_ID}/plans/</code>
-        and add an entry to <code style="background:var(--bg3);padding:1px 4px;border-radius:3px">index.json</code> to restore on next load.
+        Downloads <code style="background:var(--bg3);padding:1px 4px;border-radius:3px">plan.json</code>
+        — place it in the <code style="background:var(--bg3);padding:1px 4px;border-radius:3px">data/</code>
+        folder to restore this plan automatically on next load.
+        Saves your pace settings and any manually dragged campsites.
       </p>
       <button class="ebtn ebtn-b" onclick="saveAsJSON()">💾 Save plan.json</button>
-      <div id="plan-save-hint" style="display:none;margin-top:8px;font-size:11px;color:var(--text3);
-        background:var(--bg3);border-radius:4px;padding:6px 8px;line-height:1.8;word-break:break-all"></div>
     </div>
   `;
 }
@@ -1224,17 +1094,17 @@ function downloadCSV(){
   const blob = new Blob([csv], {type:'text/csv'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'Hike_Itinerary_' + sd + '.csv';
+  a.download = 'CT_Itinerary_' + sd + '.csv';
   a.click();
   URL.revokeObjectURL(a.href);
 }
 
 function saveAsJSON(){
   const settings = {
-    startDate:  document.getElementById('start-date').value,
-    emergeDate: document.getElementById('emerge-date').value,
-    avgPace:    document.getElementById('avg-pace').value,
-    flexPace:   document.getElementById('flex-pace').value
+    startDate: document.getElementById('start-date').value,
+    meltDate:  document.getElementById('melt-date').value,
+    avgPace:   document.getElementById('avg-pace').value,
+    flexPace:  document.getElementById('flex-pace').value
   };
   // Save the FULL plan as an array of {name, mile, trailDist} — one entry per night.
   // This is more reliable than diffing against a fresh build, since the fresh
@@ -1257,28 +1127,7 @@ function saveAsJSON(){
   const blob = new Blob([JSON.stringify(saved, null, 2)], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  // Filename: {trail-id}-plan-{YYYYMMDD}-{mpd}.json  e.g. long-trail-plan-20260625-12.0.json
-  const trailSlug = CURRENT_TRAIL_ID || 'plan';
-  const sd  = document.getElementById('start-date').value.replace(/-/g,'');
-  const mpd = (+document.getElementById('avg-pace').value).toFixed(1);
-  const filename = `${trailSlug}-plan-${sd}-${mpd}.json`;
-  a.download = filename;
-
-  // Show suggested index.json label in the export panel
-  const dateVal = document.getElementById('start-date').value; // YYYY-MM-DD
-  const d = new Date(dateVal + 'T00:00:00');
-  const mon = d.toLocaleDateString('en-US',{month:'short'});
-  const day = String(d.getDate()).padStart(2,'0');
-  const yr  = String(d.getFullYear()).substring(2);
-  const suggestedLabel = `${mon} ${day} '${yr} · ${mpd} mpd`;
-  const hint = document.getElementById('plan-save-hint');
-  if(hint){
-    hint.innerHTML =
-      `<b>Filename:</b> <code>${filename}</code><br>` +
-      `<b>Suggested label:</b> <code>${suggestedLabel}</code>`;
-    hint.style.display = 'block';
-  }
-
+  a.download = 'plan.json';
   a.click();
   URL.revokeObjectURL(a.href);
 }
@@ -1358,8 +1207,7 @@ function editorStartNewAtTrailPoint(pt){
 
 function editorShowForm(c, isNew){
   const panel = document.getElementById('edit-panel');
-  const srcLabel = ['resupply','custom','halfmile','trailfinder','manual'].includes(c.source)
-    ? c.source : 'halfmile';
+  const srcLabel = c.source==='resupply' ? 'resupply' : c.source==='custom' ? 'custom' : (c.source || 'BCS');
   panel.querySelector('#ef-panel').innerHTML = `
     <div class="eform">
       <div class="eform-hdr">
@@ -1368,7 +1216,7 @@ function editorShowForm(c, isNew){
       </div>
       <div class="erow"><label class="elbl">Name</label>
         <input class="einp" id="ef-name" value="${c.name||''}"></div>
-      <div class="erow"><label class="elbl">Mile</label>
+      <div class="erow"><label class="elbl">CT Mile</label>
         <input class="einp" id="ef-mile" type="number" step="0.01" value="${c.mile||''}"></div>
       <div class="erow"><label class="elbl">Latitude</label>
         <input class="einp" id="ef-lat" type="number" step="0.000001" value="${c.lat||''}"></div>
@@ -1412,7 +1260,7 @@ function editorSave(){
   const lon  = parseFloat(document.getElementById('ef-lon').value);
   const elev = parseInt(document.getElementById('ef-elev').value)||null;
   if(!name){ alert('Name is required'); return; }
-  if(isNaN(mile)){ alert('Mile is required'); return; }
+  if(isNaN(mile)){ alert('CT Mile is required'); return; }
   if(isNaN(lat)||isNaN(lon)){ alert('Lat/lon required'); return; }
 
   const existing = ALL_STOPS[editorSel];
@@ -1514,8 +1362,7 @@ function renderEditorList(q=''){
   filtered.forEach(c => {
     const i = ALL_STOPS.indexOf(c);
     const row = document.createElement('div');
-    const srcLabel = ['resupply','custom','halfmile','trailfinder','manual'].includes(c.source)
-      ? c.source : 'halfmile';
+    const srcLabel = c.source==='resupply'?'resupply':c.source==='custom'?'custom':'halfmile';
     row.className = `ecamp-row${i===editorSel?' esel':''}${c.source==='custom'?' enew':''}`;
     row.innerHTML = `<div class="ecamp-mile">${(c.mile||0).toFixed(1)}</div>
       <div class="ecamp-name">${c.name||'(unnamed)'}</div>
@@ -1549,9 +1396,9 @@ function editorStartNew(){
 function renderAll(){
   renderMap();
   renderList();
+  renderChart();
   renderHeader();
   renderWarnings();
-  if(document.getElementById('sum-panel').style.display==='block') renderSummary();
   if(document.getElementById('exp-panel').style.display==='block') renderExport();
 }
 
@@ -1580,236 +1427,16 @@ function rebuildAndRender(){
 
 
 // ════════════════════════════════════════════════════
-// TRAIL REGISTRY + SELECTOR
-// ════════════════════════════════════════════════════
-
-let REGISTRY         = [];   // loaded from registry.json
-let CURRENT_TRAIL_ID = '';   // currently loaded trail id
-let CURRENT_TRAIL_PATH = ''; // e.g. "trails/long-trail"
-
-// Map layers that must be torn down on trail switch
-let _bgDotLayer   = null;
-let _trailLine    = null;
-let _startMarker  = null;
-
-function teardownTrail(){
-  // Remove all map layers added by loadData
-  if(_bgDotLayer)  { map.removeLayer(_bgDotLayer);  _bgDotLayer  = null; }
-  if(_trailLine)   { map.removeLayer(_trailLine);   _trailLine   = null; }
-  if(_startMarker) { map.removeLayer(_startMarker); _startMarker = null; }
-  // Remove all plan markers
-  Object.values(markers).forEach(m => map.removeLayer(m));
-  for(const k in markers) delete markers[k];
-  routeLine.setLatLngs([]);
-  // Clear editor dot layer
-  if(editorDotLayer){ map.removeLayer(editorDotLayer); editorDotLayer = null; }
-  // Reset data arrays
-  CAMPS=[]; RESUPPLY=[]; ALL_STOPS=[]; TRAIL_COORDS=[]; plan=[];
-  // Reset UI
-  document.getElementById('list-panel').innerHTML = '';
-  document.getElementById('sum-panel').innerHTML  = '';
-}
-
-async function loadTrail(trailId){
-  if(!trailId) return;
-  const entry = REGISTRY.find(r => r.id === trailId);
-  if(!entry){ console.error('Unknown trail id:', trailId); return; }
-
-  // Show loading overlay
-  const loading = document.getElementById('loading');
-  loading.innerHTML = `<div class="spin"></div><h2>Loading ${entry.label}…</h2><p>Fetching trail data…</p>`;
-  loading.style.display = 'flex';
-
-  teardownTrail();
-
-  CURRENT_TRAIL_ID   = trailId;
-  CURRENT_TRAIL_PATH = entry.path;
-
-  // Update URL hash for bookmarking / sharing
-  history.replaceState(null, '', '#trail=' + trailId);
-
-  try {
-    await loadData(entry.path);
-    loading.style.display = 'none';
-
-    // Reset controls to config defaults
-    syncLabels();
-    rebuildAndRender();
-
-    // Load plan for this trail
-    await loadPlanFile(entry.path + '/plans/index.json', entry.path);
-
-    // Populate plan selector
-    await populatePlanSelector(entry.path);
-
-  } catch(err) {
-    loading.innerHTML =
-      `<h2 style="color:#b82020">Failed to load ${entry.label}</h2>
-       <p>${err.message}</p>
-       <p style="margin-top:8px;font-size:12px;color:#6878a0">
-         Run a local web server:<br>
-         <code style="background:#eaecf4;padding:2px 6px;border-radius:3px">python3 -m http.server 8000</code>
-       </p>`;
-  }
-}
-
-async function populatePlanSelector(trailPath){
-  const sel = document.getElementById('plan-select');
-  sel.innerHTML = '<option value="">Default plan</option>';
-  try {
-    const r = await fetch(trailPath + '/plans/index.json');
-    if(!r.ok) return;
-    const plans = await r.json();
-    if(!Array.isArray(plans) || !plans.length){ sel.style.display='none'; return; }
-    plans.forEach(p => {
-      const opt = document.createElement('option');
-      opt.value = p.file;
-      opt.textContent = p.label || p.file;
-      sel.appendChild(opt);
-    });
-    sel.style.display = 'block';
-  } catch(e) { sel.style.display = 'none'; }
-}
-
-async function onTrailSelect(trailId){
-  if(!trailId || trailId === CURRENT_TRAIL_ID) return;
-  await loadTrail(trailId);
-}
-
-async function onPlanSelect(planFile){
-  if(!planFile) return;
-  try {
-    const r = await fetch(CURRENT_TRAIL_PATH + '/plans/' + planFile);
-    if(!r.ok) return;
-    const saved = await r.json();
-    applyPlanRestore(saved);
-  } catch(e) { console.warn('Could not load plan:', planFile, e); }
-}
-
-async function loadPlanFile(indexPath, trailPath){
-  // Try the trail's default plan.json first
-  try {
-    const r = await fetch(trailPath + '/plans/plan.json');
-    if(r.ok){ applyPlanRestore(await r.json()); return; }
-  } catch(e) { /* no default plan — fine */ }
-  // Fall back to legacy data/plan.json (backwards compat)
-  try {
-    const r = await fetch('data/plan.json');
-    if(r.ok){ applyPlanRestore(await r.json()); }
-  } catch(e) { /* no saved plan — fine */ }
-}
-
-function applyPlanRestore(saved){
-  if(!saved) return;
-  const s = saved.settings;
-  if(s && s.avgPace){
-    document.getElementById('avg-pace').value    = s.avgPace;
-    document.getElementById('flex-pace').value   = s.flexPace   || DEFAULT_FLEX_PACE;
-    document.getElementById('start-date').value  = s.startDate  || DEFAULT_START_DATE;
-    // emergeDate is the v4 name; fall back to meltDate for v2/v3 saved plans
-    document.getElementById('emerge-date').value = s.emergeDate || s.meltDate || DEFAULT_EMERGE_DATE;
-    syncLabels();
-    rebuildAndRender();
-  }
-  const nightList = saved.nights ||
-    (saved.overrides && saved.overrides.map(ov => ({name:ov.name, mile:ov.mile, trailDist:null})));
-  const SCALE_R = (END_TRAIL_DIST - START_TRAIL_DIST) / (END_MILE - START_MILE);
-  const planNights = plan.filter(c => !c.isTerminus).length;
-  if(nightList && nightList.length && plan.length){
-    let any = false;
-    const sameCount = nightList.length === planNights;
-    nightList.forEach((night, ni) => {
-      const refTD = night.trailDist != null
-        ? night.trailDist
-        : (night.mile - START_MILE) * SCALE_R;
-      const camp = ALL_STOPS.reduce((best, c) => {
-        const tdC = c.trailDist != null ? c.trailDist : (c.mile - START_MILE) * SCALE_R;
-        const tdB = best.trailDist != null ? best.trailDist : (best.mile - START_MILE) * SCALE_R;
-        return Math.abs(tdC - refTD) < Math.abs(tdB - refTD) ? c : best;
-      }, ALL_STOPS[0]);
-      if(!camp) return;
-      const campTD = camp.trailDist != null ? camp.trailDist : (camp.mile - START_MILE) * SCALE_R;
-      if(Math.abs(campTD - refTD) > 2.0) return;
-      if(sameCount){
-        plan[ni] = {...camp, isTerminus:false};
-        any = true;
-      } else {
-        let bestNight = -1, bestDist = Infinity;
-        plan.forEach((c, i) => {
-          if(c.isTerminus) return;
-          const td = c.trailDist != null ? c.trailDist : (c.mile - START_MILE) * SCALE_R;
-          const d = Math.abs(td - refTD);
-          if(d < bestDist){ bestDist = d; bestNight = i; }
-        });
-        if(bestNight >= 0 && bestDist < 40){ plan[bestNight] = {...camp, isTerminus:false}; any = true; }
-      }
-    });
-    if(any) renderAll();
-  }
-}
-
-// ════════════════════════════════════════════════════
 // BOOTSTRAP — fetch data files then init
 // ════════════════════════════════════════════════════
-async function loadData(trailPath) {
-  // trailPath: e.g. "trails/long-trail" or "data" (legacy fallback)
-  const base = trailPath || 'data';
-
-  const [campsiteResp, trailResp, configResp] = await Promise.all([
-    fetch(base + '/campsites.json'),
-    fetch(base + '/trail.geojson'),
-    fetch(base + '/config.json')
+async function loadData() {
+  const [campsiteResp, trailResp] = await Promise.all([
+    fetch('data/campsites.json'),
+    fetch('data/trail.geojson')
   ]);
 
-  if(!campsiteResp.ok) throw new Error('Could not load ' + base + '/campsites.json');
-  if(!trailResp.ok)    throw new Error('Could not load ' + base + '/trail.geojson');
-
-  // ── Apply config.json ───────────────────────────────────────────────────────
-  // config.json is optional — if missing, all let defaults above stay in effect.
-  // This makes the engine backwards-compatible with repos that don't have one yet.
-  if(configResp.ok){
-    const cfg = await configResp.json();
-
-    // Trail identity
-    if(cfg.trailName)       TRAIL_NAME         = cfg.trailName;
-    if(cfg.trailAbbrev)     TRAIL_ABBREV       = cfg.trailAbbrev;
-    if(cfg.startMarkerLabel) START_MARKER_LABEL = cfg.startMarkerLabel;
-
-    // Trail geometry constants
-    if(cfg.endTrailDist    != null) END_TRAIL_DIST      = cfg.endTrailDist;
-    if(cfg.bugEmergeDoy    != null) BASELINE_EMERGE_DOY = cfg.bugEmergeDoy;
-
-    // Terminus
-    if(cfg.terminus){
-      TERMINUS = { ...cfg.terminus, mile: cfg.terminus.mile ?? END_MILE, isTerminus: true };
-    }
-
-    // Bug pressure model — new multi-band format (v4)
-    if(Array.isArray(cfg.bugBands) && cfg.bugBands.length){
-      BUG_BANDS = cfg.bugBands;
-    }
-
-    // Defaults for controls
-    if(cfg.defaultStartDate)  DEFAULT_START_DATE  = cfg.defaultStartDate;
-    if(cfg.defaultEmergeDate) DEFAULT_EMERGE_DATE = cfg.defaultEmergeDate;
-    if(cfg.defaultAvgPace  != null) DEFAULT_AVG_PACE  = cfg.defaultAvgPace;
-    if(cfg.defaultFlexPace != null) DEFAULT_FLEX_PACE = cfg.defaultFlexPace;
-  } else {
-    console.warn('data/config.json not found — using built-in defaults.');
-  }
-
-  // ── Apply config defaults to DOM controls ───────────────────────────────────
-  // Only set if the user hasn't already changed them (i.e. value matches old default)
-  document.getElementById('avg-pace').value    = DEFAULT_AVG_PACE;
-  document.getElementById('flex-pace').value   = DEFAULT_FLEX_PACE;
-  document.getElementById('start-date').value  = DEFAULT_START_DATE;
-  document.getElementById('emerge-date').value = DEFAULT_EMERGE_DATE;
-
-  // ── Apply trail identity to header and legend ────────────────────────────────
-  document.getElementById('h-abbrev').textContent    = TRAIL_ABBREV;
-  document.getElementById('h-trailname').textContent = TRAIL_NAME;
-  const legendLbl = document.getElementById('legend-trail-label');
-  if(legendLbl) legendLbl.textContent = TRAIL_NAME;
+  if(!campsiteResp.ok) throw new Error('Could not load data/campsites.json');
+  if(!trailResp.ok)    throw new Error('Could not load data/trail.geojson');
 
   const allSites = await campsiteResp.json();
   const trailGeo = await trailResp.json();
@@ -1817,74 +1444,22 @@ async function loadData(trailPath) {
   // Split into camps vs resupply
   RESUPPLY  = allSites.filter(c => c.source === 'resupply');
   CAMPS     = allSites.filter(c => c.source !== 'resupply');
-  ALL_STOPS = [...allSites].sort((a,b) => (a.mile ?? 0) - (b.mile ?? 0));
+  ALL_STOPS = [...allSites].sort((a,b) => a.mile - b.mile);
 
   // Build resupply-as-camp entries (add isResupply flag)
   ALL_STOPS = ALL_STOPS.map(c => c.source === 'resupply'
     ? {...c, isResupply:true, elev: c.elev || null}
     : c);
 
-  // Trail coords from GeoJSON — with defensive MultiLineString handling.
-  // Expected format: a FeatureCollection with a single LineString feature.
-  // MultiLineString can appear when trail data is exported from OSM or QGIS
-  // as separate segments. We attempt to flatten and sort them into one chain
-  // (sorted by min-latitude so NOBO/SOBO direction is preserved).
-  // If the geometry type is unrecognised we throw immediately with a clear message.
+  // Trail coords from GeoJSON LineString
   const feat = trailGeo.features[0];
-  const geomType = feat.geometry.type;
+  TRAIL_COORDS = feat.geometry.coordinates; // [[lon,lat], ...]
 
-  if(geomType === 'LineString'){
-    // ✓ Happy path — use coordinates directly
-    TRAIL_COORDS = feat.geometry.coordinates; // [[lon,lat], ...]
-
-  } else if(geomType === 'MultiLineString'){
-    // ⚠ Flatten MultiLineString: sort segments by min-latitude (ascending = SOBO→NOBO),
-    // then chain them. Duplicate junction points at segment boundaries are removed.
-    console.warn('trail.geojson is a MultiLineString — flattening to single LineString.');
-    const segments = feat.geometry.coordinates; // [[[lon,lat],...], ...]
-    // Sort each segment so it runs south→north internally, then sort segments S→N
-    const oriented = segments.map(seg => {
-      const first = seg[0][1], last = seg[seg.length-1][1];
-      return first <= last ? seg : [...seg].reverse();
-    });
-    oriented.sort((a, b) => Math.min(...a.map(c=>c[1])) - Math.min(...b.map(c=>c[1])));
-    // Chain: drop first point of each segment if it duplicates the last of the previous
-    TRAIL_COORDS = oriented.reduce((chain, seg) => {
-      const last = chain[chain.length - 1];
-      const skipFirst = last && seg[0][0] === last[0] && seg[0][1] === last[1];
-      return chain.concat(skipFirst ? seg.slice(1) : seg);
-    }, []);
-    // Validation check: warn if the result looks suspiciously short
-    if(TRAIL_COORDS.length < 100){
-      throw new Error(
-        'trail.geojson MultiLineString flattening produced only ' + TRAIL_COORDS.length +
-        ' points — segments may not be contiguous. Check your trail data.'
-      );
-    }
-    console.log('MultiLineString flattened: ' + segments.length + ' segments → ' + TRAIL_COORDS.length + ' points.');
-
-  } else {
-    throw new Error(
-      'trail.geojson geometry type "' + geomType + '" is not supported. ' +
-      'Expected LineString or MultiLineString. ' +
-      'Re-export your trail data as a single LineString.'
-    );
-  }
-
-  // Read START_MILE / END_MILE from trail.geojson properties if provided.
-  // This makes the tool self-configuring — add startMile/endMile to any
-  // trail.geojson and the constants update automatically at load time.
-  // Falls back to the hardcoded let values above if properties are absent
-  // (backwards compatible with trail files that don't have these fields).
-  const trailProps = feat.properties || {};
-  if(trailProps.startMile != null) START_MILE = trailProps.startMile;
-  if(trailProps.endMile   != null) END_MILE   = trailProps.endMile;
-
-  // Draw the trail polyline — store reference for teardown on trail switch
+  // Draw the CT trail polyline
   const trailLatLngs = TRAIL_COORDS.map(([lon,lat]) => [lat,lon]);
-  _trailLine = L.polyline(trailLatLngs, {color:'#e07020', weight:2.5, opacity:0.7}).addTo(map);
+  L.polyline(trailLatLngs, {color:'#e07020', weight:2.5, opacity:0.7}).addTo(map);
 
-  // Start marker at first point of trail.geojson
+  // Start marker at Bridge of Gods — first point of trail.geojson
   const startLatLon = [TRAIL_COORDS[0][1], TRAIL_COORDS[0][0]];
   const startIcon = L.divIcon({className:'',
     html:`<div style="
@@ -1894,27 +1469,27 @@ async function loadData(trailPath) {
       font-family:'Source Code Pro',monospace;font-size:10px;font-weight:700;
       color:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.45);">0</div>`,
     iconSize:[20,20], iconAnchor:[10,10]});
-  _startMarker = L.marker(startLatLon, {icon:startIcon, interactive:true})
-    .bindTooltip(START_MARKER_LABEL,
+  L.marker(startLatLon, {icon:startIcon, interactive:true})
+    .bindTooltip('Waterton Canyon TH — Start (Mi 0)',
       {className:'tip-tooltip', direction:'top', offset:[0,-14]})
     .addTo(map);
 
-  // Static background dot layer — store reference for teardown
-  _bgDotLayer = L.layerGroup().addTo(map);
+  // Static background dot layer (all campsites for reference)
+  const bgDotLayer = L.layerGroup().addTo(map);
   CAMPS.forEach(c => {
     if(!c.lat || !c.lon) return;
     L.circleMarker([c.lat,c.lon], {
       radius:3, color:'#e07020', weight:1.5,
       fillColor:'#ffffff', fillOpacity:0.9, opacity:0.7
-    }).bindTooltip(c.name+' (Mi '+(c.mile ?? 0).toFixed(1)+')',
-      {className:'tip-tooltip',direction:'top',offset:[0,-4]}).addTo(_bgDotLayer);
+    }).bindTooltip(c.name+' (Mi '+c.mile.toFixed(1)+')',
+      {className:'tip-tooltip',direction:'top',offset:[0,-4]}).addTo(bgDotLayer);
   });
   RESUPPLY.forEach(r => {
     const icon = L.divIcon({className:'',
       html:`<div style="width:14px;height:14px;background:#1d4ed8;border:1.5px solid #93c5fd;border-radius:2px"></div>`,
       iconSize:[14,14],iconAnchor:[7,7]});
     L.marker([r.lat,r.lon],{icon})
-      .bindTooltip(r.name,{className:'tip-tooltip',direction:'top',offset:[0,-4]}).addTo(_bgDotLayer);
+      .bindTooltip(r.name,{className:'tip-tooltip',direction:'top',offset:[0,-4]}).addTo(bgDotLayer);
   });
 
   // Pre-build cumulative trail distance array for editor use
@@ -1936,80 +1511,77 @@ async function loadData(trailPath) {
 }
 
 async function init() {
-  // ── Step 1: Load registry.json ───────────────────────────────────────────────
-  // Registry lists all available trails. If missing, fall back to legacy
-  // data/ folder (backwards compatible with old single-trail repos).
-  let useLegacy = false;
   try {
-    const regResp = await fetch('registry.json');
-    if(regResp.ok){
-      REGISTRY = await regResp.json();
-    } else {
-      useLegacy = true;
-    }
-  } catch(e) { useLegacy = true; }
-
-  // ── Step 2: Populate trail selector ─────────────────────────────────────────
-  const trailSel = document.getElementById('trail-select');
-  if(useLegacy || !REGISTRY.length){
-    // Legacy mode — hide selector, load from data/ directly
-    trailSel.style.display = 'none';
-    trailSel.parentElement.style.display = 'none';
-    try {
-      await loadData('data');
-      document.getElementById('loading').style.display = 'none';
-      syncLabels();
-      rebuildAndRender();
-      await loadPlanFile('data/plans/index.json', 'data');
-    } catch(err) {
-      document.getElementById('loading').innerHTML =
-        `<h2 style="color:#b82020">Failed to load data</h2>
-         <p>${err.message}</p>
-         <p style="margin-top:8px;font-size:12px;color:#6878a0">
-           Run a local web server:<br>
-           <code style="background:#eaecf4;padding:2px 6px;border-radius:3px">python3 -m http.server 8000</code><br>
-           then open <a href="http://localhost:8000">localhost:8000</a>
-         </p>`;
-    }
-    return;
-  }
-
-  // Populate dropdown from registry
-  trailSel.innerHTML = '';
-  REGISTRY.forEach(entry => {
-    const opt = document.createElement('option');
-    opt.value = entry.id;
-    opt.textContent = entry.label;
-    trailSel.appendChild(opt);
-  });
-
-  // ── Step 3: Determine which trail to load (URL hash or first in registry) ───
-  let initialTrail = REGISTRY[0].id;
-  const hash = window.location.hash; // e.g. "#trail=long-trail"
-  if(hash){
-    const m = hash.match(/[#&]trail=([^&]+)/);
-    if(m){
-      const hashId = decodeURIComponent(m[1]);
-      if(REGISTRY.find(r => r.id === hashId)) initialTrail = hashId;
-    }
-  }
-  trailSel.value = initialTrail;
-
-  // ── Step 4: Load the trail ───────────────────────────────────────────────────
-  CURRENT_TRAIL_ID = initialTrail;
-  const entry = REGISTRY.find(r => r.id === initialTrail);
-  CURRENT_TRAIL_PATH = entry.path;
-
-  try {
-    await loadData(entry.path);
+    await loadData();
     document.getElementById('loading').style.display = 'none';
+
     syncLabels();
     rebuildAndRender();
-    await loadPlanFile(entry.path + '/plans/index.json', entry.path);
-    await populatePlanSelector(entry.path);
+
+ 
+
+    // Try loading last saved plan
+    try {
+      const planResp = await fetch('data/plan.json');
+      if(planResp.ok) {
+        const saved = await planResp.json();
+        // Restore settings if present
+        const s = saved && saved.settings;
+        if(s && s.avgPace) {
+          document.getElementById('avg-pace').value   = s.avgPace;
+          document.getElementById('flex-pace').value  = s.flexPace || 3;
+          document.getElementById('start-date').value = s.startDate || '2026-07-01';
+          document.getElementById('melt-date').value  = s.meltDate  || '2026-06-01';
+          syncLabels();
+          rebuildAndRender();
+        }
+        // Restore saved nights into the current plan
+        const nightList = saved.nights ||
+          (saved.overrides && saved.overrides.map(ov => ({name:ov.name, mile:ov.mile, trailDist:null})));
+        const SCALE_R = (END_TRAIL_DIST - START_TRAIL_DIST) / (END_MILE - START_MILE);
+        const planNights = plan.filter(c => !c.isTerminus).length;
+        if(nightList && nightList.length && plan.length) {
+          let any = false;
+          const sameCount = nightList.length === planNights;
+          nightList.forEach((night, ni) => {
+            // Find the camp in ALL_STOPS matching this saved night
+            const refTD = night.trailDist != null
+              ? night.trailDist
+              : (night.mile - START_MILE) * SCALE_R;
+            const camp = ALL_STOPS.reduce((best, c) => {
+              const tdC = c.trailDist != null ? c.trailDist : (c.mile - START_MILE) * SCALE_R;
+              const tdB = best.trailDist != null ? best.trailDist : (best.mile - START_MILE) * SCALE_R;
+              return Math.abs(tdC - refTD) < Math.abs(tdB - refTD) ? c : best;
+            }, ALL_STOPS[0]);
+            const campTD = camp.trailDist != null ? camp.trailDist : (camp.mile - START_MILE) * SCALE_R;
+            if(Math.abs(campTD - refTD) > 2.0) return; // camp not in dataset — skip
+            if(sameCount) {
+              // Same night count: pace unchanged — restore by position (index = index)
+              plan[ni] = {...camp, isTerminus:false};
+              any = true;
+            } else {
+              // Different night count: pace changed — match by proximity
+              let bestNight = -1, bestDist = Infinity;
+              plan.forEach((c, i) => {
+                if(c.isTerminus) return;
+                const td = c.trailDist != null ? c.trailDist : (c.mile - START_MILE) * SCALE_R;
+                const d = Math.abs(td - refTD);
+                if(d < bestDist) { bestDist = d; bestNight = i; }
+              });
+              if(bestNight >= 0 && bestDist < 40) {
+                plan[bestNight] = {...camp, isTerminus:false};
+                any = true;
+              }
+            }
+          });
+          if(any) renderAll();
+        }
+      }
+    } catch(e) { /* no saved plan — fine */ }
+
   } catch(err) {
     document.getElementById('loading').innerHTML =
-      `<h2 style="color:#b82020">Failed to load ${entry.label}</h2>
+      `<h2 style="color:#b82020">Failed to load data</h2>
        <p>${err.message}</p>
        <p style="margin-top:8px;font-size:12px;color:#6878a0">
          Run a local web server:<br>
