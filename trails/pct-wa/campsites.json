@@ -1934,10 +1934,10 @@
       "Store",
       "Trail Angel"
     ],
-    "desc": "Mazama is 22.4 mi E on Hwy 20. Restaurants, motels, Mazama Store, Goat's Beard Mountain Supplies, trail angel Ravensong.",
-    "trailDist": 443.994,
+    "trailDist": 442.584,
     "isResupply": true,
-    "elev": null
+    "elev": 4855,
+    "desc": "Mazama is 22.4 mi E on Hwy 20. Restaurants, motels, Mazama Store, Goat's Beard Mountain Supplies, trail angel Ravensong."
   },
   {
     "mile": 2594.083,
