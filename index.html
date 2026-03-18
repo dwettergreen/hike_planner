@@ -529,13 +529,20 @@ function syncLabels(){
   document.getElementById('range-lbl').textContent = (avg-flex).toFixed(1) + ' – ' + (avg+flex).toFixed(1) + ' mi/day';
 }
 function snapNearest(latlng){
-  // First find the nearest trail point to get a trailDist reference
-  const refTD = trailDistFromLatLon(latlng.lat, latlng.lng);
-  // Then snap to the campsite with the closest trailDist
-  // (prefer trail-order proximity over raw lat/lon distance)
+  // Snap to the campsite physically closest to the drop location.
+  // Direct lat/lon distance is more reliable than going through trailDistFromLatLon,
+  // which uses the rendering trail's cumulative arc-length. The rendering trail
+  // (PCT: 8,974 pts from one GPS source) was computed independently from the
+  // campsite trailDist values (PCT: computed from a different high-res Halfmile source),
+  // creating systematic offsets that cause markers to snap to wrong camps further
+  // down the trail. There is only one switchback pair on PCT WA with physical
+  // separation < 0.5mi (CS2423/CS2425 at 2,348ft), well outside drag radius.
   let best=null, bd=Infinity;
   ALL_STOPS.forEach(c=>{
-    const d = Math.abs((c.trailDist != null ? c.trailDist : 0) - refTD);
+    if(!c.lat || !c.lon) return;
+    const dlat = c.lat - latlng.lat;
+    const dlon = c.lon - latlng.lng;
+    const d = dlat*dlat + dlon*dlon; // squared Euclidean — fine for small distances
     if(d<bd){ bd=d; best=c; }
   });
   return best;
