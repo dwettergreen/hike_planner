@@ -14,7 +14,8 @@
       "Parking",
       "Toilets"
     ],
-    "trailDist": 0.052
+    "trailDist": 0.052,
+    "offTrail": false
   },
   {
     "mile": 3.6,
@@ -269,7 +270,8 @@
       "Restaurant",
       "Gear Shop"
     ],
-    "trailDist": 92.2
+    "trailDist": 92.2,
+    "offTrail": true
   },
   {
     "mile": 100.9,
@@ -326,7 +328,8 @@
       "Restaurant",
       "Lodging"
     ],
-    "trailDist": 104.451
+    "trailDist": 104.451,
+    "offTrail": false
   },
   {
     "mile": 126.0,
@@ -386,7 +389,8 @@
       "Restaurant",
       "Gear Shop"
     ],
-    "trailDist": 126.796
+    "trailDist": 126.796,
+    "offTrail": true
   },
   {
     "mile": 138.7,
@@ -592,14 +596,15 @@
     "type": "Resupply",
     "water": true,
     "outhouse": true,
-    "source": "BCS",
+    "source": "resupply",
     "desc": "Mt. Princeton Hot Springs Resort. On trail. Hot springs, restaurant.",
     "amenities": [
       "Lodging",
       "Restaurant",
       "Hot Springs"
     ],
-    "trailDist": 204.775
+    "trailDist": 204.775,
+    "offTrail": false
   },
   {
     "mile": 226.6,
@@ -672,7 +677,8 @@
       "Restaurant",
       "Hostel"
     ],
-    "trailDist": 226.018
+    "trailDist": 226.018,
+    "offTrail": true
   },
   {
     "mile": 247.6,
@@ -939,7 +945,8 @@
       "Laundry",
       "Restaurant"
     ],
-    "trailDist": 345.086
+    "trailDist": 345.086,
+    "offTrail": true
   },
   {
     "mile": 377.5,
@@ -1025,7 +1032,8 @@
       "Restaurant",
       "Hostel"
     ],
-    "trailDist": 374.032
+    "trailDist": 374.032,
+    "offTrail": true
   },
   {
     "mile": 413.2,
@@ -1241,6 +1249,7 @@
       "Restaurant",
       "Airport"
     ],
-    "trailDist": 444.262
+    "trailDist": 444.262,
+    "offTrail": false
   }
 ]
