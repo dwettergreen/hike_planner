@@ -182,9 +182,12 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
 .ecamp-src{font-size:9px;padding:1px 4px;border-radius:3px;font-weight:600;flex-shrink:0;}
 .src-halfmile{background:#eaecf4;color:#4a5a78;}
 .src-trailfinder{background:#eaecf4;color:#4a5a78;}
+.src-gmc{background:#eaecf4;color:#4a5a78;}
+.src-bcs{background:#eaecf4;color:#4a5a78;}
 .src-manual{background:#f0ede4;color:#7a5a20;}
 .src-resupply{background:var(--blue-bg);color:var(--blue);}
 .src-custom{background:var(--green-bg);color:var(--green);}
+.src-null{background:#e8e8e8;color:#888;}
 .edit-search{padding:6px 10px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .edit-search input{width:100%;padding:4px 7px;border:1px solid var(--border);border-radius:4px;
   font-size:11px;font-family:inherit;background:var(--bg3);color:var(--text);}
@@ -1358,13 +1361,14 @@ function editorStartNewAtTrailPoint(pt){
 
 function editorShowForm(c, isNew){
   const panel = document.getElementById('edit-panel');
-  const srcLabel = ['resupply','custom','halfmile','trailfinder','manual'].includes(c.source)
-    ? c.source : 'halfmile';
+  const KNOWN_SOURCES = ['resupply','custom','halfmile','trailfinder','gmc','bcs','manual'];
+  const srcLabel = KNOWN_SOURCES.includes(c.source) ? c.source : 'null';
+  const srcDisplay = srcLabel === 'null' ? '—' : srcLabel;
   panel.querySelector('#ef-panel').innerHTML = `
     <div class="eform">
       <div class="eform-hdr">
         <span>${isNew ? 'New Campsite' : 'Edit: '+c.name}</span>
-        <span class="ecamp-src src-${srcLabel}">${srcLabel}</span>
+        <span class="ecamp-src src-${srcLabel}">${srcDisplay}</span>
       </div>
       <div class="erow"><label class="elbl">Name</label>
         <input class="einp" id="ef-name" value="${c.name||''}"></div>
@@ -1423,7 +1427,7 @@ function editorSave(){
     desc:     document.getElementById('ef-desc').value.trim()||undefined,
     water:    document.getElementById('ef-water').checked,
     outhouse: document.getElementById('ef-outhouse').checked,
-    source:   existing.source||'custom',
+    source:   existing._new ? 'custom' : (existing.source || null),
     trailDist: trailDistFromLatLon(lat, lon),  // always recompute from geometry
     // For custom camps, interpolate mile from trailDist unless user edited it
     mile: (existing.source === 'custom' || existing._new)
@@ -1514,12 +1518,13 @@ function renderEditorList(q=''){
   filtered.forEach(c => {
     const i = ALL_STOPS.indexOf(c);
     const row = document.createElement('div');
-    const srcLabel = ['resupply','custom','halfmile','trailfinder','manual'].includes(c.source)
-      ? c.source : 'halfmile';
+    const KNOWN_SOURCES = ['resupply','custom','halfmile','trailfinder','gmc','bcs','manual'];
+    const srcLabel   = KNOWN_SOURCES.includes(c.source) ? c.source : 'null';
+    const srcDisplay = srcLabel === 'null' ? '—' : srcLabel;
     row.className = `ecamp-row${i===editorSel?' esel':''}${c.source==='custom'?' enew':''}`;
     row.innerHTML = `<div class="ecamp-mile">${(c.mile||0).toFixed(1)}</div>
       <div class="ecamp-name">${c.name||'(unnamed)'}</div>
-      <div class="ecamp-src src-${srcLabel}">${srcLabel}</div>`;
+      <div class="ecamp-src src-${srcLabel}">${srcDisplay}</div>`;
     row.onclick = () => editorSelectByIndex(i);
     listEl.appendChild(row);
   });

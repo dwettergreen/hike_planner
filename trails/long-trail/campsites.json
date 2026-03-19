@@ -9,7 +9,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 8",
     "elev_src": "open-elevation-dem"
   },
@@ -23,7 +23,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 8",
     "elev_src": "open-elevation-dem"
   },
@@ -37,7 +37,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Shelter on spur 250 ft from LT; sleeps 8",
     "elev_src": "open-elevation-dem"
   },
@@ -51,7 +51,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 8",
     "elev_src": "open-elevation-dem"
   },
@@ -65,7 +65,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "180 ft from LT; sleeps 8",
     "elev_src": "open-elevation-dem"
   },
@@ -79,7 +79,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 8",
     "elev_src": "open-elevation-dem"
   },
@@ -107,7 +107,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "30-ft spur from LT; sleeps 20; fires prohibited",
     "elev_src": "open-elevation-dem"
   },
@@ -135,7 +135,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 10",
     "elev_src": "open-elevation-dem"
   },
@@ -149,7 +149,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "0.1-mi spur from LT; sleeps 16",
     "elev_src": "open-elevation-dem"
   },
@@ -163,7 +163,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "100-yd spur from LT; sleeps 12",
     "elev_src": "open-elevation-dem"
   },
@@ -191,7 +191,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 10",
     "elev_src": "open-elevation-dem"
   },
@@ -205,7 +205,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "100-ft spur from LT; sleeps 8",
     "elev_src": "open-elevation-dem"
   },
@@ -219,7 +219,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 8",
     "elev_src": "open-elevation-dem"
   },
@@ -247,7 +247,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 14; tent platforms for overflow",
     "elev_src": "open-elevation-dem"
   },
@@ -275,7 +275,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "0.2-mi spur from LT; sleeps 8",
     "elev_src": "open-elevation-dem"
   },
@@ -289,7 +289,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 8",
     "elev_src": "open-elevation-dem"
   },
@@ -303,7 +303,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "400-ft spur from LT; sleeps 12",
     "elev_src": "open-elevation-dem"
   },
@@ -317,7 +317,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 10",
     "elev_src": "open-elevation-dem"
   },
@@ -331,7 +331,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 12; tent platforms just south; highest shelter on LT (3,850 ft)",
     "elev_src": "open-elevation-dem"
   },
@@ -345,7 +345,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "0.4 miles from LT along Sherburne Pass Trail; sleeps 12",
     "elev_src": "open-elevation-dem"
   },
@@ -359,7 +359,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "0.1-mi spur from LT; sleeps 8",
     "elev_src": "open-elevation-dem"
   },
@@ -373,7 +373,7 @@
     "type": "Undeveloped",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "",
     "elev_src": "open-elevation-dem"
   },
@@ -387,7 +387,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 8",
     "elev_src": "open-elevation-dem"
   },
@@ -401,7 +401,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 8",
     "elev_src": "open-elevation-dem"
   },
@@ -443,7 +443,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "0.1-mi spur from LT along Sucker Brook Trail; sleeps 8",
     "elev_src": "open-elevation-dem"
   },
@@ -457,7 +457,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "0.1 miles from LT along Skylight Pond Trail; sleeps 14; fires prohibited",
     "elev_src": "open-elevation-dem"
   },
@@ -471,7 +471,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 5; 2 tent platforms on spurs north of shelter",
     "elev_src": "open-elevation-dem"
   },
@@ -485,7 +485,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 8",
     "elev_src": "open-elevation-dem"
   },
@@ -499,7 +499,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 8; limited tenting; fires prohibited within 500 ft",
     "elev_src": "open-elevation-dem"
   },
@@ -513,7 +513,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "0.3 miles from LT along Barton Trail; sleeps 8",
     "elev_src": "open-elevation-dem"
   },
@@ -527,7 +527,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "25-ft spur from LT; space for 5; fires prohibited",
     "elev_src": "open-elevation-dem"
   },
@@ -541,7 +541,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "100 ft from LT along Beane Trail; sleeps 12",
     "elev_src": "open-elevation-dem"
   },
@@ -555,7 +555,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Space for 8",
     "elev_src": "open-elevation-dem"
   },
@@ -569,7 +569,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 10; fires prohibited",
     "elev_src": "open-elevation-dem"
   },
@@ -583,7 +583,7 @@
     "type": "Undeveloped",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "0.8 miles from LT along Dean Trail",
     "elev_src": "open-elevation-dem"
   },
@@ -597,7 +597,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "0.2-mi spur from LT; sleeps 9; tent platforms; fires prohibited",
     "elev_src": "open-elevation-dem"
   },
@@ -611,7 +611,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "4.2 miles from LT along Duck Brook Trail",
     "elev_src": "open-elevation-dem"
   },
@@ -625,7 +625,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "0.3-mi spur from LT; sleeps 16",
     "elev_src": "open-elevation-dem"
   },
@@ -639,7 +639,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 6; fires prohibited",
     "elev_src": "open-elevation-dem"
   },
@@ -653,7 +653,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "300 ft from LT along Mansfield Trail; sleeps 15; 1 tent platform; fires prohibited",
     "elev_src": "open-elevation-dem"
   },
@@ -667,7 +667,7 @@
     "type": "Undeveloped",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "100-ft spur from LT; tent platforms",
     "elev_src": "open-elevation-dem"
   },
@@ -695,7 +695,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "200-ft spur from LT; sleeps 24; fires prohibited",
     "elev_src": "open-elevation-dem"
   },
@@ -709,7 +709,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 8; fires prohibited",
     "elev_src": "open-elevation-dem"
   },
@@ -723,7 +723,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "0.8 miles from LT along Chilcoot Trail; sleeps 15",
     "elev_src": "open-elevation-dem"
   },
@@ -737,7 +737,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 5; fires prohibited",
     "elev_src": "open-elevation-dem"
   },
@@ -751,7 +751,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "On spur from LT; sleeps 12",
     "elev_src": "open-elevation-dem"
   },
@@ -765,7 +765,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 10",
     "elev_src": "open-elevation-dem"
   },
@@ -779,7 +779,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 14",
     "elev_src": "open-elevation-dem"
   },
@@ -793,7 +793,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "830-ft spur from LT; sleeps 8",
     "elev_src": "open-elevation-dem"
   },
@@ -807,7 +807,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "50 ft from LT along Frank Post Trail; sleeps 8",
     "elev_src": "open-elevation-dem"
   },
@@ -835,7 +835,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "0.1-mi spur from LT; sleeps 8",
     "elev_src": "open-elevation-dem"
   },
@@ -849,7 +849,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "0.2 miles from LT along Jay Loop; sleeps 10; tent platform",
     "elev_src": "open-elevation-dem"
   },
@@ -863,7 +863,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 6",
     "elev_src": "open-elevation-dem"
   },
@@ -877,7 +877,7 @@
     "type": "Established",
     "water": true,
     "outhouse": true,
-    "source": "trailfinder",
+    "source": "gmc",
     "desc": "Sleeps 6",
     "elev_src": "open-elevation-dem"
   },
