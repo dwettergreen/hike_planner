@@ -650,7 +650,7 @@ function buildPlan(){
 
   // Sort a copy by trailDist so dists[] is strictly ascending.
   // The DP inner loop uses "break when dist > max_d" which requires this.
-  const SORTED = [...ALL_STOPS].sort((a,b) => getTD(a) - getTD(b));
+  const SORTED = [...ALL_STOPS].filter(c => !c.offTrail).sort((a,b) => getTD(a) - getTD(b));
   const N     = SORTED.length;
   const dists = [START_TRAIL_DIST, ...SORTED.map(getTD), END_TRAIL_DIST];
   const M     = dists.length;
