@@ -4092,7 +4092,8 @@
     "outhouse": false,
     "source": "halfmile",
     "trailDist": 849.947,
-    "desc": "Campsite"
+    "desc": "Campsite",
+    "offTrail": true
   },
   {
     "mile": 879.0,
