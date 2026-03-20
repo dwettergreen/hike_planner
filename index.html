@@ -1010,7 +1010,13 @@ function renderSummary(){
   const elevs=camps.map(c=>c.elev||0);
   const maxE=Math.max(...elevs),minE=Math.min(...elevs);
   const avgE=Math.round(elevs.reduce((a,b)=>a+b)/elevs.length);
-  const dists=plan.map((c,i)=>i===0?c.mile-START_MILE:c.mile-plan[i-1].mile);
+  const SCALE_S = (END_TRAIL_DIST-START_TRAIL_DIST)/(END_MILE-START_MILE);
+  const dists=plan.map((c,i)=>{
+    const thisTD = c.trailDist != null ? c.trailDist : (c.mile-START_MILE)*SCALE_S;
+    const prevTD = i===0 ? START_TRAIL_DIST
+      : (plan[i-1].trailDist != null ? plan[i-1].trailDist : (plan[i-1].mile-START_MILE)*SCALE_S);
+    return Math.max(0, thisTD - prevTD);
+  });
   const seg=(label,count,color)=>`
     <div class="sbar-wrap">
       <div class="sbar-top"><span>${label}</span><span style="color:${color};font-weight:600">${count} night${count!==1?'s':''}</span></div>
