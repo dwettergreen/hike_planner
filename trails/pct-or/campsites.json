@@ -28,7 +28,8 @@
       "Resupply"
     ],
     "trailDist": 7.363,
-    "desc": "Callahan's Mountain Lodge, 0.3mi off trail at I-5. Accepts resupply packages."
+    "desc": "Callahan's Mountain Lodge, 0.3mi off trail at I-5. Accepts resupply packages.",
+    "offTrail": true
   },
   {
     "mile": 1740.0,
@@ -57,7 +58,7 @@
     "desc": "Small campsite"
   },
   {
-    "mile": null,
+    "mile": 1742.6,
     "name": "HyattLakeCG",
     "lat": 42.168684,
     "lon": -122.463245,
@@ -68,6 +69,46 @@
     "source": "halfmile",
     "trailDist": 23.298,
     "desc": "Hyatt Lake Campground, 3/10 mile N of PCT."
+  },
+  {
+    "mile": 1750.0,
+    "name": "KlumLandingPark",
+    "lat": 42.208734,
+    "lon": -122.374904,
+    "elev": 4577,
+    "type": "Established",
+    "water": true,
+    "outhouse": true,
+    "source": "halfmile",
+    "offTrail": true,
+    "trailDist": 30.636,
+    "desc": "Klum Landing Park county campground, 3/10 mile W of PCT. Water, fee site ($20/night)."
+  },
+  {
+    "mile": 1751.0,
+    "name": "CampRD1751",
+    "lat": 42.211323,
+    "lon": -122.368871,
+    "elev": 4635,
+    "type": "Undeveloped",
+    "water": false,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 31.106,
+    "desc": "Dispersed campsite nearby unpaved road junction."
+  },
+  {
+    "mile": 1757.5,
+    "name": "BrownMtnShelter",
+    "lat": 42.313573,
+    "lon": -122.264502,
+    "elev": 5332,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 43.518,
+    "desc": "South Brown Mountain Shelter, cabin, picnic table, water pump. 1/10 mile E of PCT."
   },
   {
     "mile": 1774.0,
@@ -200,6 +241,19 @@
     "desc": "Campsite"
   },
   {
+    "mile": 1799.0,
+    "name": "WACS1799",
+    "lat": 42.649076,
+    "lon": -122.207398,
+    "elev": 6756,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 78.559,
+    "desc": "Seasonal creek, campsite nearby."
+  },
+  {
     "mile": 1801.0,
     "name": "CS1801",
     "lat": 42.657254,
@@ -224,6 +278,19 @@
     "source": "halfmile",
     "trailDist": 82.402,
     "desc": "Small campsite"
+  },
+  {
+    "mile": 1803.5,
+    "name": "RangerSpringCamp",
+    "lat": 42.685342,
+    "lon": -122.171519,
+    "elev": 5763,
+    "type": "Undeveloped",
+    "water": false,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 83.502,
+    "desc": "Campsites near Ranger Spring trail junction. Spring is 8/10 mile W of PCT."
   },
   {
     "mile": 1806.0,
@@ -294,10 +361,50 @@
       "Resupply"
     ],
     "trailDist": 101.055,
-    "desc": "Crater Lake NP camp store, Annie Creek Restaurant, cabins. Accepts resupply packages."
+    "desc": "Crater Lake NP camp store, Annie Creek Restaurant, cabins. Accepts resupply packages.",
+    "offTrail": true
   },
   {
-    "mile": null,
+    "mile": 1822.5,
+    "name": "DuttonCamp",
+    "lat": 42.891438,
+    "lon": -122.169637,
+    "elev": 6093,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 101.805,
+    "desc": "Dutton Creek trail junction. Dutton Camp nearby. PCT Crater Lake alternate starts here."
+  },
+  {
+    "mile": 1827.5,
+    "name": "BybeeStockCamp",
+    "lat": 42.938583,
+    "lon": -122.225549,
+    "elev": 5608,
+    "type": "Undeveloped",
+    "water": false,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 107.263,
+    "desc": "Bybee Stock Camp trail junction, camping area."
+  },
+  {
+    "mile": 1837.0,
+    "name": "RedConeTrailCamp",
+    "lat": 42.994521,
+    "lon": -122.187349,
+    "elev": 6240,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 113.92,
+    "desc": "Red Cone trail camp, spring nearby."
+  },
+  {
+    "mile": 1841.2,
     "name": "GrouseHillCamp",
     "lat": 42.991014,
     "lon": -122.130836,
@@ -349,6 +456,19 @@
     "desc": "Campsite by Six Horse Spring Trail, 4/10 mile to water below."
   },
   {
+    "mile": 1872.0,
+    "name": "SixHorseSpringCamp",
+    "lat": 43.304949,
+    "lon": -122.002631,
+    "elev": 6217,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 150.11,
+    "desc": "Campsites near Six Horse Spring trail junction. Water 4/10 mile E of PCT."
+  },
+  {
     "mile": 1875.0,
     "name": "CS1875",
     "lat": 43.328736,
@@ -373,6 +493,19 @@
     "source": "halfmile",
     "trailDist": 153.541,
     "desc": "Small campsite"
+  },
+  {
+    "mile": 1880.0,
+    "name": "WindigoPassCamp",
+    "lat": 43.367511,
+    "lon": -122.033179,
+    "elev": 5821,
+    "type": "Undeveloped",
+    "water": false,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 156.113,
+    "desc": "Campsite near Forest Road 60 at Windigo Pass area."
   },
   {
     "mile": 1879.0,
@@ -414,7 +547,33 @@
     "desc": "Campsite"
   },
   {
-    "mile": null,
+    "mile": 1888.0,
+    "name": "SummitLake",
+    "lat": 43.446604,
+    "lon": -122.132741,
+    "elev": 5574,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 166.953,
+    "desc": "Large campsite near south shore of Summit Lake."
+  },
+  {
+    "mile": 1892.0,
+    "name": "WACS1892",
+    "lat": 43.480865,
+    "lon": -122.142009,
+    "elev": 5868,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 169.995,
+    "desc": "Large pond, campsite nearby."
+  },
+  {
+    "mile": 1897.6,
     "name": "CSDiamondView",
     "lat": 43.528648,
     "lon": -122.070917,
@@ -424,7 +583,8 @@
     "outhouse": false,
     "source": "halfmile",
     "trailDist": 174.762,
-    "desc": "Campsite at Diamond View Lake, Oregon Skyline Trail alternate mile 15.3."
+    "desc": "Campsite at Diamond View Lake, Oregon Skyline Trail alternate mile 15.3.",
+    "offTrail": true
   },
   {
     "mile": 1898.0,
@@ -468,7 +628,60 @@
       "Resupply"
     ],
     "trailDist": 187.096,
-    "desc": "Small resort on Odell Lake. Cabin rentals, small store. Accepts resupply packages."
+    "desc": "Small resort on Odell Lake. Cabin rentals, small store. Accepts resupply packages.",
+    "offTrail": true
+  },
+  {
+    "mile": 1910.5,
+    "name": "LowerRosaryLake",
+    "lat": 43.600827,
+    "lon": -121.996787,
+    "elev": 5724,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 187.876,
+    "desc": "Lower Rosary Lake, water, campsite."
+  },
+  {
+    "mile": 1910.6,
+    "name": "LowerRosaryLake2",
+    "lat": 43.602793,
+    "lon": -121.9965,
+    "elev": 5722,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 188.019,
+    "desc": "Lower Rosary Lake, water, another campsite."
+  },
+  {
+    "mile": 1911.0,
+    "name": "MiddleRosaryLake",
+    "lat": 43.608239,
+    "lon": -122.000451,
+    "elev": 5848,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 188.509,
+    "desc": "Campsite between Middle and North Rosary Lake."
+  },
+  {
+    "mile": 1913.0,
+    "name": "MaidenPeakSkiShelter",
+    "lat": 43.632043,
+    "lon": -122.003512,
+    "elev": 6039,
+    "type": "Undeveloped",
+    "water": false,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 191.342,
+    "desc": "Ski shelter at Maiden Peak Loop junction, emergency use/camping area."
   },
   {
     "mile": 1921.0,
@@ -482,6 +695,123 @@
     "source": "halfmile",
     "trailDist": 197.638,
     "desc": "Campsite"
+  },
+  {
+    "mile": 1929.0,
+    "name": "CharltonLake",
+    "lat": 43.745499,
+    "lon": -121.976271,
+    "elev": 5723,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 202.0,
+    "desc": "Charlton Lake, several campsites. 1/10 mile W of PCT."
+  },
+  {
+    "mile": 1934.0,
+    "name": "TaylorLake",
+    "lat": 43.804765,
+    "lon": -121.962245,
+    "elev": 5563,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 206.914,
+    "desc": "Taylor Lake, campsite."
+  },
+  {
+    "mile": 1940.5,
+    "name": "BrahmaLake",
+    "lat": 43.838011,
+    "lon": -121.947064,
+    "elev": 5672,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 209.768,
+    "desc": "Brahma Lake, campsites adjacent to trail."
+  },
+  {
+    "mile": 1942.0,
+    "name": "JezebelLake",
+    "lat": 43.845394,
+    "lon": -121.956229,
+    "elev": 5858,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 210.763,
+    "desc": "Campsites near Jezebel Lake, on trail."
+  },
+  {
+    "mile": 1948.5,
+    "name": "DesaneLake",
+    "lat": 43.913578,
+    "lon": -121.91593,
+    "elev": 5257,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 217.892,
+    "desc": "Desane Lake, campsite. 1/10 mile W of PCT."
+  },
+  {
+    "mile": 1945.0,
+    "name": "SLake",
+    "lat": 43.917597,
+    "lon": -121.914758,
+    "elev": 5154,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 218.265,
+    "desc": "S Lake, campsite adjacent to trail."
+  },
+  {
+    "mile": 1945.5,
+    "name": "MacLake",
+    "lat": 43.920137,
+    "lon": -121.91074,
+    "elev": 5115,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 218.624,
+    "desc": "Mac Lake, campsite."
+  },
+  {
+    "mile": 1946.5,
+    "name": "HorseshoeLake3",
+    "lat": 43.92512,
+    "lon": -121.895425,
+    "elev": 5048,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 219.637,
+    "desc": "Horseshoe Lake, campsite."
+  },
+  {
+    "mile": 1953.5,
+    "name": "DumbbellLake",
+    "lat": 43.957185,
+    "lon": -121.881755,
+    "elev": 5527,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 223.295,
+    "desc": "Dumbbell Lake, campsite adjacent to trail."
   },
   {
     "mile": 1953.0,
@@ -499,10 +829,11 @@
       "Resupply"
     ],
     "trailDist": 228.579,
-    "desc": "Resort on Elk Lake. Cafe, small store. Accepts resupply packages at office."
+    "desc": "Resort on Elk Lake. Cafe, small store. Accepts resupply packages at office.",
+    "offTrail": true
   },
   {
-    "mile": null,
+    "mile": 1957.6,
     "name": "KoosahMountain",
     "lat": 44.027205,
     "lon": -121.826976,
@@ -554,7 +885,7 @@
     "desc": "Campsite"
   },
   {
-    "mile": null,
+    "mile": 1982.5,
     "name": "LavaCampLake",
     "lat": 44.2611,
     "lon": -121.785694,
@@ -591,6 +922,33 @@
     "source": "halfmile",
     "trailDist": 268.601,
     "desc": "Campsite"
+  },
+  {
+    "mile": 1993.0,
+    "name": "BigLakeYouthCamp",
+    "lat": 44.371728,
+    "lon": -121.865557,
+    "elev": 4691,
+    "type": "Established",
+    "water": true,
+    "outhouse": true,
+    "source": "halfmile",
+    "offTrail": true,
+    "trailDist": 270.48,
+    "desc": "Big Lake Youth Camp, 1/2 mile W of PCT. Hiker-friendly camp, water, meals sometimes available. Call ahead."
+  },
+  {
+    "mile": 1998.5,
+    "name": "SantiamTrailheadCamp",
+    "lat": 44.425636,
+    "lon": -121.848602,
+    "elev": 4840,
+    "type": "Established",
+    "water": false,
+    "outhouse": true,
+    "source": "halfmile",
+    "trailDist": 275.845,
+    "desc": "Santiam Trailhead, picnic tables, outhouse. Common camping area."
   },
   {
     "mile": 2005.0,
@@ -632,6 +990,45 @@
     "desc": "Campsite"
   },
   {
+    "mile": 2030.0,
+    "name": "WACS2030",
+    "lat": 44.683047,
+    "lon": -121.85029,
+    "elev": 4911,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 303.655,
+    "desc": "Campsites near a small pond."
+  },
+  {
+    "mile": 2030.5,
+    "name": "JeffCreekCamp",
+    "lat": 44.686175,
+    "lon": -121.839616,
+    "elev": 4956,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 304.35,
+    "desc": "Seasonal Jeff Creek, campsites nearby."
+  },
+  {
+    "mile": 2031.5,
+    "name": "WACS2032",
+    "lat": 44.701189,
+    "lon": -121.826342,
+    "elev": 5566,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 306.135,
+    "desc": "Creek with campsites."
+  },
+  {
     "mile": 2033.0,
     "name": "CS2033",
     "lat": 44.704788,
@@ -645,7 +1042,20 @@
     "desc": "Several campsites"
   },
   {
-    "mile": null,
+    "mile": 2036.0,
+    "name": "JeffersonPark",
+    "lat": 44.706509,
+    "lon": -121.810903,
+    "elev": 5889,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 307.246,
+    "desc": "Jefferson Park, southern boundary. Campsite reservation required, book at recreation.gov."
+  },
+  {
+    "mile": 2036.3,
     "name": "ParkRidge",
     "lat": 44.728772,
     "lon": -121.8022,
@@ -658,7 +1068,7 @@
     "desc": "Small campsite along Park Ridge."
   },
   {
-    "mile": null,
+    "mile": 2040.0,
     "name": "BreitenbushCG",
     "lat": 44.76634,
     "lon": -121.783766,
@@ -669,6 +1079,45 @@
     "source": "halfmile",
     "trailDist": 313.065,
     "desc": "Breitenbush Lake Camp Ground, 3/10 mile NE of PCT, shelters ."
+  },
+  {
+    "mile": 2043.5,
+    "name": "UpperLake",
+    "lat": 44.797183,
+    "lon": -121.812414,
+    "elev": 5384,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 316.875,
+    "desc": "Upper Lake, campsite."
+  },
+  {
+    "mile": 2043.8,
+    "name": "CigarLake",
+    "lat": 44.802402,
+    "lon": -121.81171,
+    "elev": 5333,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 317.269,
+    "desc": "Cigar Lake, campsite."
+  },
+  {
+    "mile": 2047.2,
+    "name": "HeadLake",
+    "lat": 44.815033,
+    "lon": -121.790995,
+    "elev": 4966,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 319.209,
+    "desc": "Head Lake, campsite adjacent to PCT."
   },
   {
     "mile": 2047.0,
@@ -685,7 +1134,34 @@
       "Resupply"
     ],
     "trailDist": 319.25,
-    "desc": "Small store and cabins. Call ahead to confirm package acceptance."
+    "desc": "Small store and cabins. Call ahead to confirm package acceptance.",
+    "offTrail": false
+  },
+  {
+    "mile": 2049.5,
+    "name": "JudeLake",
+    "lat": 44.854876,
+    "lon": -121.763238,
+    "elev": 4623,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 322.842,
+    "desc": "Jude Lake, small campsite."
+  },
+  {
+    "mile": 2054.0,
+    "name": "LemitiCreekCamp",
+    "lat": 44.906647,
+    "lon": -121.748553,
+    "elev": 4362,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 328.021,
+    "desc": "Lemiti Creek, established campsite nearby."
   },
   {
     "mile": 2058.0,
@@ -699,6 +1175,71 @@
     "source": "halfmile",
     "trailDist": 331.369,
     "desc": "Small campsite"
+  },
+  {
+    "mile": 2057.0,
+    "name": "PinheadSaddleCamp",
+    "lat": 44.944053,
+    "lon": -121.75538,
+    "elev": 4998,
+    "type": "Undeveloped",
+    "water": false,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 331.549,
+    "desc": "Pinhead Saddle, campsite nearby road junction."
+  },
+  {
+    "mile": 2061.0,
+    "name": "WACS2063",
+    "lat": 44.983042,
+    "lon": -121.725356,
+    "elev": 3842,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 335.73,
+    "desc": "Small spring 250 feet W of PCT, campsite nearby."
+  },
+  {
+    "mile": 2063.0,
+    "name": "WarmSpringsRiverCamp",
+    "lat": 45.000932,
+    "lon": -121.716942,
+    "elev": 3347,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 337.737,
+    "desc": "Warm Springs River, double log crossing. Campsites adjacent."
+  },
+  {
+    "mile": 2063.5,
+    "name": "TR2065Camp",
+    "lat": 45.005429,
+    "lon": -121.718342,
+    "elev": 3454,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 338.093,
+    "desc": "Trail junction to small spring, campsite nearby."
+  },
+  {
+    "mile": 2071.0,
+    "name": "JoeGrahamHorseCamp",
+    "lat": 45.100683,
+    "lon": -121.743585,
+    "elev": 3350,
+    "type": "Established",
+    "water": true,
+    "outhouse": true,
+    "source": "halfmile",
+    "trailDist": 346.1,
+    "desc": "Joe Graham Horse Camp, water spigots, outhouse. Open to hikers."
   },
   {
     "mile": 2076.0,
@@ -727,7 +1268,47 @@
     "desc": "Campsite"
   },
   {
-    "mile": null,
+    "mile": 2077.0,
+    "name": "LittleCraterLakeCG",
+    "lat": 45.14782,
+    "lon": -121.753506,
+    "elev": 3245,
+    "type": "Established",
+    "water": true,
+    "outhouse": true,
+    "source": "halfmile",
+    "offTrail": true,
+    "trailDist": 351.567,
+    "desc": "Little Crater Lake Campground, 1/4 mile E of PCT. Water, outhouse, fee site."
+  },
+  {
+    "mile": 2080.0,
+    "name": "Road240Camp",
+    "lat": 45.19319,
+    "lon": -121.756943,
+    "elev": 3878,
+    "type": "Undeveloped",
+    "water": false,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 354.965,
+    "desc": "Small campsite near unpaved Road 240 junction."
+  },
+  {
+    "mile": 2080.5,
+    "name": "CraterCreekCamp",
+    "lat": 45.197325,
+    "lon": -121.753789,
+    "elev": 3928,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 355.316,
+    "desc": "Crater Creek, campsite adjacent to trail."
+  },
+  {
+    "mile": 2087.5,
     "name": "FrogLakeCG",
     "lat": 45.22268,
     "lon": -121.694246,
@@ -738,6 +1319,19 @@
     "source": "halfmile",
     "trailDist": 359.67,
     "desc": "Frog Lake Campground, well water, 6/10 mile SE of PCT."
+  },
+  {
+    "mile": 2095.0,
+    "name": "WACS2095",
+    "lat": 45.314247,
+    "lon": -121.692592,
+    "elev": 4822,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 366.86,
+    "desc": "Trailside stream, campsites."
   },
   {
     "mile": 2097.4,
@@ -756,7 +1350,8 @@
       "Resupply"
     ],
     "trailDist": 369.257,
-    "desc": "Historic lodge on Mt Hood. Accepts resupply packages at front desk."
+    "desc": "Historic lodge on Mt Hood. Accepts resupply packages at front desk.",
+    "offTrail": false
   },
   {
     "mile": 2106.0,
@@ -772,7 +1367,33 @@
     "desc": "Campsite"
   },
   {
-    "mile": null,
+    "mile": 2108.0,
+    "name": "RushingWaterCamp",
+    "lat": 45.374515,
+    "lon": -121.778782,
+    "elev": 3388,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 378.217,
+    "desc": "Rushing Water Creek, large campsite."
+  },
+  {
+    "mile": 2108.3,
+    "name": "WACS2107",
+    "lat": 45.378401,
+    "lon": -121.783489,
+    "elev": 3258,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 378.632,
+    "desc": "Trailside stream, large campsite nearby."
+  },
+  {
+    "mile": 2108.8,
     "name": "MuddyFork3",
     "lat": 45.395719,
     "lon": -121.801987,
@@ -798,7 +1419,7 @@
     "desc": "Campsite"
   },
   {
-    "mile": null,
+    "mile": 2113.8,
     "name": "LoloPass",
     "lat": 45.42684,
     "lon": -121.796218,
@@ -809,6 +1430,19 @@
     "source": "halfmile",
     "trailDist": 385.758,
     "desc": "Lolo Pass, campsite with a picnic table"
+  },
+  {
+    "mile": 2114.5,
+    "name": "WForkHoodRiverCamp",
+    "lat": 45.432162,
+    "lon": -121.798757,
+    "elev": 3609,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 386.192,
+    "desc": "Small tributary of West Fork Hood River, small campsite nearby."
   },
   {
     "mile": 2118.0,
@@ -824,6 +1458,19 @@
     "desc": "Small campsite"
   },
   {
+    "mile": 2118.5,
+    "name": "SalvationSpringCamp",
+    "lat": 45.470706,
+    "lon": -121.830167,
+    "elev": 4085,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 390.103,
+    "desc": "Salvation Spring, campsites nearby."
+  },
+  {
     "mile": 2121.0,
     "name": "CS2121",
     "lat": 45.48898,
@@ -835,6 +1482,32 @@
     "source": "halfmile",
     "trailDist": 392.648,
     "desc": "Campsite"
+  },
+  {
+    "mile": 2128.0,
+    "name": "IndianSpringsCG",
+    "lat": 45.556829,
+    "lon": -121.826756,
+    "elev": 4245,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 398.827,
+    "desc": "Indian Springs Campground (abandoned), spring nearby."
+  },
+  {
+    "mile": 2130.0,
+    "name": "WahtumLake",
+    "lat": 45.579328,
+    "lon": -121.794388,
+    "elev": 3774,
+    "type": "Undeveloped",
+    "water": true,
+    "outhouse": false,
+    "source": "halfmile",
+    "trailDist": 401.702,
+    "desc": "Wahtum Lake, campsites."
   },
   {
     "mile": 2135.0,
@@ -906,6 +1579,7 @@
       "Resupply"
     ],
     "trailDist": 417.273,
-    "desc": "Town at north end of Oregon. Full hiker services, multiple resupply options."
+    "desc": "Town at north end of Oregon. Full hiker services, multiple resupply options.",
+    "offTrail": false
   }
 ]
