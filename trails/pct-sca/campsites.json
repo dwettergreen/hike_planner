@@ -3830,6 +3830,24 @@
     "desc": "Large campsite, near Piute Creek."
   },
   {
+    "mile": 858.5,
+    "name": "Muir_Trail_Ranch",
+    "lat": 37.225804,
+    "lon": -118.861256,
+    "elev": 7640,
+    "type": "Resupply",
+    "water": true,
+    "outhouse": false,
+    "source": "resupply",
+    "offTrail": true,
+    "amenities": [
+      "Resupply",
+      "Lodging"
+    ],
+    "trailDist": 832.288,
+    "desc": "Muir Trail Ranch, 1.5 miles NW of PCT via Florence Lake Trail. Accepts resupply buckets (must pre-arrange). Hot spring nearby. Popular JMT/PCT stop."
+  },
+  {
     "mile": 858.0,
     "name": "WACS0858",
     "lat": 37.227992,
@@ -4101,6 +4119,26 @@
     "source": "halfmile",
     "trailDist": 853.658,
     "desc": "Mono Creek, steel bridge, several campsites on either side of the bridge."
+  },
+  {
+    "mile": 863.0,
+    "name": "Vermilion_Valley_Resort",
+    "lat": 37.412557,
+    "lon": -118.924659,
+    "elev": 7680,
+    "type": "Resupply",
+    "water": true,
+    "outhouse": false,
+    "source": "resupply",
+    "offTrail": true,
+    "amenities": [
+      "Store",
+      "Restaurant",
+      "Lodging",
+      "Resupply"
+    ],
+    "trailDist": 853.71,
+    "desc": "Vermilion Valley Resort, 6 miles via Lake Edison ferry or Bear Ridge Trail from VVR Ferry junction. Store, restaurant, cabins. Accepts packages ($40 fee). Key Sierra resupply."
   },
   {
     "mile": 879.0,
