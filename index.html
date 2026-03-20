@@ -1010,13 +1010,16 @@ function renderSummary(){
   const elevs=camps.map(c=>c.elev||0);
   const maxE=Math.max(...elevs),minE=Math.min(...elevs);
   const avgE=Math.round(elevs.reduce((a,b)=>a+b)/elevs.length);
-  const SCALE_S = (END_TRAIL_DIST-START_TRAIL_DIST)/(END_MILE-START_MILE);
-  const dists=plan.map((c,i)=>{
-    const thisTD = c.trailDist != null ? c.trailDist : (c.mile-START_MILE)*SCALE_S;
-    const prevTD = i===0 ? START_TRAIL_DIST
-      : (plan[i-1].trailDist != null ? plan[i-1].trailDist : (plan[i-1].mile-START_MILE)*SCALE_S);
+  // Compute daily distances using trailDist only, excluding the terminus.
+  // The terminus has no trailDist (it's a config object, not a campsite record)
+  // and must be excluded or it produces a massive bogus distance via the mile fallback.
+  const nonTerminus = plan.filter(c => !c.isTerminus);
+  const dists = nonTerminus.map((c, i) => {
+    const thisTD = c.trailDist;
+    const prevTD = i === 0 ? START_TRAIL_DIST : nonTerminus[i-1].trailDist;
+    if(thisTD == null || prevTD == null) return null;
     return Math.max(0, thisTD - prevTD);
-  });
+  }).filter(d => d !== null);
   const seg=(label,count,color)=>`
     <div class="sbar-wrap">
       <div class="sbar-top"><span>${label}</span><span style="color:${color};font-weight:600">${count} night${count!==1?'s':''}</span></div>
