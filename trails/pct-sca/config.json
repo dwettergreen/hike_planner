@@ -1,0 +1,29 @@
+{
+  "trailName": "PCT So. California",
+  "trailAbbrev": "PCT",
+  "startMarkerLabel": "Southern Terminus \u2014 Campo (Mi 0.0)",
+  "defaultStartDate": "2026-04-15",
+  "defaultEmergeDate": "2026-05-01",
+  "defaultAvgPace": 15,
+  "defaultFlexPace": 4,
+  "endTrailDist": 917.597,
+  "bugEmergeDoy": 120,
+  "terminus": {
+    "name": "Tuolumne Meadows",
+    "lat": 37.8759,
+    "lon": -119.3591,
+    "elev": 8592,
+    "mile": 942.5
+  },
+  "bugBands": [
+    {
+      "name": "Mosquitoes",
+      "label": "Mosquitoes",
+      "peakDoy": 185,
+      "sigma": 22,
+      "weight": 0.8,
+      "elevDecay": 0.0002,
+      "waterBonus": 0.25
+    }
+  ]
+}
