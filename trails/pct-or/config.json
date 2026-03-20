@@ -1,0 +1,29 @@
+{
+  "trailName": "PCT Oregon",
+  "trailAbbrev": "PCT",
+  "startMarkerLabel": "CA/OR Border \u2014 Start (Mi 1696.8)",
+  "defaultStartDate": "2026-07-15",
+  "defaultEmergeDate": "2026-06-08",
+  "defaultAvgPace": 14,
+  "defaultFlexPace": 3,
+  "endTrailDist": 417.454,
+  "bugEmergeDoy": 148,
+  "terminus": {
+    "name": "Bridge of Gods",
+    "lat": 45.661,
+    "lon": -121.8976,
+    "elev": 180,
+    "mile": 2147.3
+  },
+  "bugBands": [
+    {
+      "name": "Mosquitoes",
+      "label": "Mosquitoes",
+      "peakDoy": 169,
+      "sigma": 19,
+      "weight": 1.8,
+      "elevDecay": 0.00025,
+      "waterBonus": 0.35
+    }
+  ]
+}
