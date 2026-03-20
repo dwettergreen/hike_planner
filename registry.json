@@ -1,0 +1,6 @@
+[
+  { "id": "pct-wa", "label": "PCT Washington", "path": "trails/pct-wa" },
+  { "id": "pct-or", "label": "PCT Oregon",     "path": "trails/pct-or" },
+  { "id": "long-trail", "label": "Long Trail (VT)", "path": "trails/long-trail" },
+  { "id": "colorado-trail", "label": "Colorado Trail", "path": "trails/colorado-trail" }
+]
