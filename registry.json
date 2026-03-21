@@ -1,8 +1,8 @@
 [
   { "id": "pct-wa",         "label": "PCT Washington",     "path": "trails/pct-wa"         },
   { "id": "pct-or",         "label": "PCT Oregon",          "path": "trails/pct-or"         },
-  { "id": "pct-sca",        "label": "PCT So. California",  "path": "trails/pct-sca"        },
-  { "id": "pct-nca",        "label": "PCT No. California",  "path": "trails/pct-nca"        },
-  { "id": "long-trail",     "label": "Long Trail (VT)",     "path": "trails/long-trail"     },
+  { "id": "pct-nca",        "label": "PCT California (North)",  "path": "trails/pct-nca"        },
+  { "id": "pct-sca",        "label": "PCT California (South)",  "path": "trails/pct-sca"        },
+  { "id": "long-trail",     "label": "Long Trail Vermont",     "path": "trails/long-trail"     },
   { "id": "colorado-trail", "label": "Colorado Trail",      "path": "trails/colorado-trail" }
 ]
