@@ -2289,7 +2289,7 @@
       "Resupply"
     ],
     "trailDist": 633.473,
-    "desc": "Walker Pass Trailhead. Limited resupply cache. Last stop before Kennedy Meadows.",
+    "desc": "Walker Pass Trailhead. Limited resupply cache. Last stop before  Meadows.",
     "offTrail": true,
     "isResupply": true
   },
@@ -2426,8 +2426,8 @@
   {
     "mile": 702.2,
     "name": "Kennedy_Meadows",
-    "lat": 36.0531,
-    "lon": -118.1294,
+    "lat": 36.009389,
+    "lon": -118.128691,
     "elev": 6120,
     "type": "Resupply",
     "water": true,
