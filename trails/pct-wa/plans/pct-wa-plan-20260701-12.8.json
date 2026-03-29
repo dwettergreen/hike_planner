@@ -1,9 +1,9 @@
 {
   "version": 2,
-  "saved": "2026-03-16T01:31:45.873Z",
+  "saved": "2026-03-29T19:08:54.658Z",
   "settings": {
     "startDate": "2026-07-01",
-    "meltDate": "2026-07-05",
+    "emergeDate": "2026-07-05",
     "avgPace": "12.8",
     "flexPace": "3"
   },
@@ -39,14 +39,19 @@
       "trailDist": 74.302
     },
     {
-      "name": "CS2235",
-      "mile": 2235.033,
-      "trailDist": 87.52
+      "name": "Trout Lake",
+      "mile": 2230.42,
+      "trailDist": 82.912
     },
     {
-      "name": "LavaSpring",
-      "mile": 2249.953,
-      "trailDist": 102.455
+      "name": "CS2240",
+      "mile": 2240.859,
+      "trailDist": 93.349
+    },
+    {
+      "name": "CS2254",
+      "mile": 2254.204,
+      "trailDist": 106.706
     },
     {
       "name": "SheepLake",
@@ -54,19 +59,14 @@
       "trailDist": 125.961
     },
     {
-      "name": "CS2290",
-      "mile": 2290.14,
-      "trailDist": 142.663
+      "name": "CS2288",
+      "mile": 2287.14,
+      "trailDist": 139.664
     },
     {
-      "name": "BueschLake",
-      "mile": 2301.359,
-      "trailDist": 153.894
-    },
-    {
-      "name": "TwoLakesTR",
-      "mile": 2315.055,
-      "trailDist": 167.59
+      "name": "SandLake",
+      "mile": 2298.158,
+      "trailDist": 150.687
     },
     {
       "name": "SheepLake4",
@@ -177,6 +177,11 @@
       "name": "CS2595",
       "mile": 2595.44,
       "trailDist": 447.824
+    },
+    {
+      "name": "WACS2601",
+      "mile": 2601.386,
+      "trailDist": 453.765
     },
     {
       "name": "CS2612",
