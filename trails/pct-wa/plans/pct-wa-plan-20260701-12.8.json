@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "saved": "2026-03-29T19:08:54.658Z",
+  "saved": "2026-03-29T19:21:24.942Z",
   "settings": {
     "startDate": "2026-07-01",
     "emergeDate": "2026-07-05",
@@ -59,9 +59,9 @@
       "trailDist": 125.961
     },
     {
-      "name": "CS2288",
-      "mile": 2287.14,
-      "trailDist": 139.664
+      "name": "CS2290",
+      "mile": 2290.14,
+      "trailDist": 142.663
     },
     {
       "name": "SandLake",

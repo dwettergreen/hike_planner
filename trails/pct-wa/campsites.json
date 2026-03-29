@@ -253,6 +253,19 @@
     "trailDist": 82.879
   },
   {
+    "name": "Trout Lake",
+    "mile": 2230.42,
+    "lat": 46.161707,
+    "lon": -121.632257,
+    "elev": 3849,
+    "type": "Resupply",
+    "water": true,
+    "outhouse": true,
+    "source": "custom",
+    "trailDist": 82.912,
+    "desc": "Shuttle at 8am, 12pm and 4pm or contact angel at  https://PCT.TroutLake.org"
+  },
+  {
     "mile": 2235.033,
     "name": "CS2235",
     "lat": 46.186708,
@@ -527,6 +540,18 @@
     "outhouse": false,
     "source": "halfmile",
     "trailDist": 136.323
+  },
+  {
+    "name": "CS2288",
+    "mile": 2287.14,
+    "lat": 46.569028,
+    "lon": -121.423924,
+    "elev": 4910,
+    "type": "Undeveloped",
+    "water": false,
+    "outhouse": false,
+    "source": "custom",
+    "trailDist": 139.664
   },
   {
     "mile": 2290.14,
