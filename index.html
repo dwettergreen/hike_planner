@@ -1790,16 +1790,9 @@ async function onPlanSelect(planFile){
 }
 
 async function loadPlanFile(indexPath, trailPath){
-  // Try the trail's default plan.json first
-  try {
-    const r = await fetch(trailPath + '/plans/plan.json');
-    if(r.ok){ applyPlanRestore(await r.json()); return; }
-  } catch(e) { /* no default plan — fine */ }
-  // Fall back to legacy data/plan.json (backwards compat)
-  try {
-    const r = await fetch('data/plan.json');
-    if(r.ok){ applyPlanRestore(await r.json()); }
-  } catch(e) { /* no saved plan — fine */ }
+  // Plans are named {trail-id}-plan-{YYYYMMDD}-{mpd}.json and listed in plans/index.json.
+  // There is no default plan.json — the user selects a plan from the dropdown.
+  // This function is retained as a hook for future auto-load logic.
 }
 
 function applyPlanRestore(saved){
@@ -1856,7 +1849,7 @@ function applyPlanRestore(saved){
 // ════════════════════════════════════════════════════
 async function loadData(trailPath) {
   // trailPath: e.g. "trails/long-trail" or "data" (legacy fallback)
-  const base = trailPath || 'data';
+  const base = trailPath; // always trails/<id> — legacy data/ mode removed
 
   const [campsiteResp, trailResp, configResp] = await Promise.all([
     fetch(base + '/campsites.json'),
@@ -1898,7 +1891,7 @@ async function loadData(trailPath) {
     if(cfg.defaultAvgPace  != null) DEFAULT_AVG_PACE  = cfg.defaultAvgPace;
     if(cfg.defaultFlexPace != null) DEFAULT_FLEX_PACE = cfg.defaultFlexPace;
   } else {
-    console.warn('data/config.json not found — using built-in defaults.');
+    console.warn('config.json not found for trail — using built-in defaults.');
   }
 
   // ── Apply config defaults to DOM controls ───────────────────────────────────
@@ -2039,45 +2032,28 @@ async function loadData(trailPath) {
 }
 
 async function init() {
-  // ── Step 1: Load registry.json ───────────────────────────────────────────────
-  // Registry lists all available trails. If missing, fall back to legacy
-  // data/ folder (backwards compatible with old single-trail repos).
-  let useLegacy = false;
+  // ── Step 1: Load trail registry ──────────────────────────────────────────────
   try {
     const regResp = await fetch('registry.json');
     if(regResp.ok){
       REGISTRY = await regResp.json();
     } else {
-      useLegacy = true;
+      throw new Error('registry.json not found — is this served from a web server?');
     }
-  } catch(e) { useLegacy = true; }
-
-  // ── Step 2: Populate trail selector ─────────────────────────────────────────
-  const trailSel = document.getElementById('trail-select');
-  if(useLegacy || !REGISTRY.length){
-    // Legacy mode — hide selector, load from data/ directly
-    trailSel.style.display = 'none';
-    trailSel.parentElement.style.display = 'none';
-    try {
-      await loadData('data');
-      document.getElementById('loading').style.display = 'none';
-      syncLabels();
-      rebuildAndRender();
-      await loadPlanFile('data/plans/index.json', 'data');
-    } catch(err) {
-      document.getElementById('loading').innerHTML =
-        `<h2 style="color:#b82020">Failed to load data</h2>
-         <p>${err.message}</p>
-         <p style="margin-top:8px;font-size:12px;color:#6878a0">
-           Run a local web server:<br>
-           <code style="background:#eaecf4;padding:2px 6px;border-radius:3px">python3 -m http.server 8000</code><br>
-           then open <a href="http://localhost:8000">localhost:8000</a>
-         </p>`;
-    }
+  } catch(e) {
+    document.getElementById('loading').innerHTML =
+      `<h2 style="color:#b82020">Failed to load registry.json</h2>
+       <p>${e.message}</p>
+       <p style="margin-top:8px;font-size:12px;color:#6878a0">
+         Run a local web server:<br>
+         <code style="background:#eaecf4;padding:2px 6px;border-radius:3px">python3 -m http.server 8000</code><br>
+         then open <a href="http://localhost:8000">localhost:8000</a>
+       </p>`;
     return;
   }
 
-  // Populate dropdown from registry
+  // ── Step 2: Populate trail selector ─────────────────────────────────────────
+  const trailSel = document.getElementById('trail-select');
   trailSel.innerHTML = '';
   REGISTRY.forEach(entry => {
     const opt = document.createElement('option');
