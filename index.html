@@ -1579,7 +1579,6 @@ let _lastNoPathKey = null;
 function reslotManualCamps(manuals, newPlan){
   if(!manuals.length) return;
   const SCALE_R = (END_TRAIL_DIST - START_TRAIL_DIST) / (END_MILE - START_MILE);
-  // Total non-terminus nights in the new plan
   const nonTermSlots = newPlan.filter(c => !c.isTerminus).length;
   if(!nonTermSlots) return;
 
@@ -1590,16 +1589,42 @@ function reslotManualCamps(manuals, newPlan){
     return aTD - bTD;
   });
 
-  // Track which plan slots have been claimed by a manual camp
+  // Track which plan slots (0-based non-terminus index) have been claimed
   const claimed = new Set();
+
+  // Helper: 0-based non-terminus slot number for a given plan[] index
+  function planIdxToSlot(planIdx){
+    let count = -1;
+    for(let i = 0; i <= planIdx; i++){
+      if(!newPlan[i].isTerminus) count++;
+    }
+    return count;
+  }
 
   sorted.forEach(camp => {
     const td = camp.trailDist != null ? camp.trailDist : (camp.mile - START_MILE) * SCALE_R;
-    // Ideal fractional night index (0-based among non-terminus slots)
+
+    // Evict any existing non-manual DP entry for this same campsite to prevent duplicates
+    for(let i = 0; i < newPlan.length; i++){
+      if(!newPlan[i].isTerminus && !newPlan[i]._manual &&
+         newPlan[i].trailDist === camp.trailDist){
+        const usedTDs = new Set(newPlan.filter(c => !c.isTerminus).map(c => c.trailDist));
+        const slot = planIdxToSlot(i);
+        const slotTD = (slot / Math.max(nonTermSlots - 1, 1)) * END_TRAIL_DIST;
+        const replacement = ALL_STOPS
+          .filter(c => !c.isTerminus && !usedTDs.has(c.trailDist))
+          .sort((a, b) => Math.abs(a.trailDist - slotTD) - Math.abs(b.trailDist - slotTD))[0];
+        newPlan[i] = replacement
+          ? {...replacement, isTerminus:false, _manual:false}
+          : null;
+      }
+    }
+
+    // Compute ideal slot index proportional to trailDist position
     const ideal = Math.round((td / END_TRAIL_DIST) * (nonTermSlots - 1));
     const clamped = Math.max(0, Math.min(nonTermSlots - 1, ideal));
 
-    // Find nearest unclaimed slot to the ideal, searching outward
+    // Find nearest unclaimed slot, searching outward from ideal
     let chosen = -1;
     for(let offset = 0; offset <= nonTermSlots; offset++){
       const lo = clamped - offset;
@@ -1607,12 +1632,12 @@ function reslotManualCamps(manuals, newPlan){
       if(lo >= 0 && !claimed.has(lo)){ chosen = lo; break; }
       if(hi < nonTermSlots && hi !== lo && !claimed.has(hi)){ chosen = hi; break; }
     }
-    if(chosen < 0) return; // no slot available (shouldn't happen)
+    if(chosen < 0) return;
 
-    // Map chosen non-terminus index to actual plan[] index
+    // Place manual camp into chosen plan[] slot
     let count = -1;
     for(let i = 0; i < newPlan.length; i++){
-      if(!newPlan[i].isTerminus) count++;
+      if(newPlan[i] && !newPlan[i].isTerminus) count++;
       if(count === chosen){
         newPlan[i] = {...camp, isTerminus:false, _manual:true};
         claimed.add(chosen);
@@ -1620,6 +1645,11 @@ function reslotManualCamps(manuals, newPlan){
       }
     }
   });
+
+  // Remove any null sentinels left by the eviction step
+  for(let i = newPlan.length - 1; i >= 0; i--){
+    if(newPlan[i] === null) newPlan.splice(i, 1);
+  }
 }
 
 function rebuildAndRender(){
