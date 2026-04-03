@@ -1579,77 +1579,45 @@ let _lastNoPathKey = null;
 function reslotManualCamps(manuals, newPlan){
   if(!manuals.length) return;
   const SCALE_R = (END_TRAIL_DIST - START_TRAIL_DIST) / (END_MILE - START_MILE);
-  const nonTermSlots = newPlan.filter(c => !c.isTerminus).length;
-  if(!nonTermSlots) return;
 
-  // Sort manuals by trailDist so collision resolution preserves trail order
-  const sorted = [...manuals].sort((a, b) => {
-    const aTD = a.trailDist != null ? a.trailDist : (a.mile - START_MILE) * SCALE_R;
-    const bTD = b.trailDist != null ? b.trailDist : (b.mile - START_MILE) * SCALE_R;
-    return aTD - bTD;
-  });
-
-  // Track which plan slots (0-based non-terminus index) have been claimed
-  const claimed = new Set();
-
-  // Helper: 0-based non-terminus slot number for a given plan[] index
-  function planIdxToSlot(planIdx){
-    let count = -1;
-    for(let i = 0; i <= planIdx; i++){
-      if(!newPlan[i].isTerminus) count++;
-    }
-    return count;
+  function getTD(c){
+    return c.trailDist != null ? c.trailDist : (c.mile - START_MILE) * SCALE_R;
   }
+
+  // Sort manuals by trailDist — process in trail order
+  const sorted = [...manuals].sort((a, b) => getTD(a) - getTD(b));
+
+  // Separate terminus from non-terminus DP camps
+  const terminus = newPlan.find(c => c.isTerminus);
+  let dpCamps = newPlan.filter(c => !c.isTerminus);
+
+  // For each manual camp (in trail order), replace the DP camp whose
+  // trailDist is nearest. Greedy assignment in sorted order.
+  const replaced = new Set();
 
   sorted.forEach(camp => {
-    const td = camp.trailDist != null ? camp.trailDist : (camp.mile - START_MILE) * SCALE_R;
-
-    // Evict any existing non-manual DP entry for this same campsite to prevent duplicates
-    for(let i = 0; i < newPlan.length; i++){
-      if(!newPlan[i].isTerminus && !newPlan[i]._manual &&
-         newPlan[i].trailDist === camp.trailDist){
-        const usedTDs = new Set(newPlan.filter(c => !c.isTerminus).map(c => c.trailDist));
-        const slot = planIdxToSlot(i);
-        const slotTD = (slot / Math.max(nonTermSlots - 1, 1)) * END_TRAIL_DIST;
-        const replacement = ALL_STOPS
-          .filter(c => !c.isTerminus && !usedTDs.has(c.trailDist))
-          .sort((a, b) => Math.abs(a.trailDist - slotTD) - Math.abs(b.trailDist - slotTD))[0];
-        newPlan[i] = replacement
-          ? {...replacement, isTerminus:false, _manual:false}
-          : null;
-      }
+    const td = getTD(camp);
+    let bestIdx = -1, bestDist = Infinity;
+    for(let i = 0; i < dpCamps.length; i++){
+      if(replaced.has(i)) continue;
+      const d = Math.abs(getTD(dpCamps[i]) - td);
+      if(d < bestDist){ bestDist = d; bestIdx = i; }
     }
-
-    // Compute ideal slot index proportional to trailDist position
-    const ideal = Math.round((td / END_TRAIL_DIST) * (nonTermSlots - 1));
-    const clamped = Math.max(0, Math.min(nonTermSlots - 1, ideal));
-
-    // Find nearest unclaimed slot, searching outward from ideal
-    let chosen = -1;
-    for(let offset = 0; offset <= nonTermSlots; offset++){
-      const lo = clamped - offset;
-      const hi = clamped + offset;
-      if(lo >= 0 && !claimed.has(lo)){ chosen = lo; break; }
-      if(hi < nonTermSlots && hi !== lo && !claimed.has(hi)){ chosen = hi; break; }
-    }
-    if(chosen < 0) return;
-
-    // Place manual camp into chosen plan[] slot
-    let count = -1;
-    for(let i = 0; i < newPlan.length; i++){
-      if(newPlan[i] && !newPlan[i].isTerminus) count++;
-      if(count === chosen){
-        newPlan[i] = {...camp, isTerminus:false, _manual:true};
-        claimed.add(chosen);
-        break;
-      }
-    }
+    if(bestIdx < 0) return;
+    replaced.add(bestIdx);
+    dpCamps[bestIdx] = {...camp, isTerminus:false, _manual:true};
   });
 
-  // Remove any null sentinels left by the eviction step
-  for(let i = newPlan.length - 1; i >= 0; i--){
-    if(newPlan[i] === null) newPlan.splice(i, 1);
-  }
+  // Sort all camps by trailDist to restore trail order.
+  // Manual camps may have different trailDist than the DP camps they
+  // replaced, so a final sort guarantees ascending order and correct
+  // daily distance calculations.
+  dpCamps.sort((a, b) => getTD(a) - getTD(b));
+
+  // Rebuild newPlan in place
+  newPlan.length = 0;
+  dpCamps.forEach(c => newPlan.push(c));
+  if(terminus) newPlan.push(terminus);
 }
 
 function rebuildAndRender(){
