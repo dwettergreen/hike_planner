@@ -802,7 +802,7 @@ function renderMap(){
         const snapped = _lastSnap || snapNearest(e.target.getLatLng());
         _lastSnap = null;
         if(snapped){
-          plan[idx] = {...snapped, isTerminus:false};
+          plan[idx] = {...snapped, isTerminus:false, _manual:true};
           showSnap([snapped.lat,snapped.lon]);
           renderAll();
           scrollToNight(idx);
@@ -1257,7 +1257,8 @@ function saveAsJSON(){
     .map(c => ({
       name:      c.name,
       mile:      c.mile,
-      trailDist: c.trailDist != null ? c.trailDist : parseFloat(((c.mile - START_MILE) * SCALE).toFixed(3))
+      trailDist: c.trailDist != null ? c.trailDist : parseFloat(((c.mile - START_MILE) * SCALE).toFixed(3)),
+      _manual:   c._manual || false
     }));
   const saved = {
     version: 2,
@@ -1570,7 +1571,61 @@ function renderAll(){
 }
 
 let _lastNoPathKey = null;
+
+// Reslot manually chosen camps back into a fresh DP plan.
+// For each manual camp, compute its ideal night index proportionally
+// from its trailDist position, resolve collisions, then overwrite
+// that slot in newPlan[]. The plan is mutated in place.
+function reslotManualCamps(manuals, newPlan){
+  if(!manuals.length) return;
+  const SCALE_R = (END_TRAIL_DIST - START_TRAIL_DIST) / (END_MILE - START_MILE);
+  // Total non-terminus nights in the new plan
+  const nonTermSlots = newPlan.filter(c => !c.isTerminus).length;
+  if(!nonTermSlots) return;
+
+  // Sort manuals by trailDist so collision resolution preserves trail order
+  const sorted = [...manuals].sort((a, b) => {
+    const aTD = a.trailDist != null ? a.trailDist : (a.mile - START_MILE) * SCALE_R;
+    const bTD = b.trailDist != null ? b.trailDist : (b.mile - START_MILE) * SCALE_R;
+    return aTD - bTD;
+  });
+
+  // Track which plan slots have been claimed by a manual camp
+  const claimed = new Set();
+
+  sorted.forEach(camp => {
+    const td = camp.trailDist != null ? camp.trailDist : (camp.mile - START_MILE) * SCALE_R;
+    // Ideal fractional night index (0-based among non-terminus slots)
+    const ideal = Math.round((td / END_TRAIL_DIST) * (nonTermSlots - 1));
+    const clamped = Math.max(0, Math.min(nonTermSlots - 1, ideal));
+
+    // Find nearest unclaimed slot to the ideal, searching outward
+    let chosen = -1;
+    for(let offset = 0; offset <= nonTermSlots; offset++){
+      const lo = clamped - offset;
+      const hi = clamped + offset;
+      if(lo >= 0 && !claimed.has(lo)){ chosen = lo; break; }
+      if(hi < nonTermSlots && hi !== lo && !claimed.has(hi)){ chosen = hi; break; }
+    }
+    if(chosen < 0) return; // no slot available (shouldn't happen)
+
+    // Map chosen non-terminus index to actual plan[] index
+    let count = -1;
+    for(let i = 0; i < newPlan.length; i++){
+      if(!newPlan[i].isTerminus) count++;
+      if(count === chosen){
+        newPlan[i] = {...camp, isTerminus:false, _manual:true};
+        claimed.add(chosen);
+        break;
+      }
+    }
+  });
+}
+
 function rebuildAndRender(){
+  // Capture any manually placed camps before DP wipes the plan
+  const manuals = plan.filter(c => c._manual);
+
   const p = buildPlan();
   if(!p){
     const key = document.getElementById('avg-pace').value + '|' + document.getElementById('flex-pace').value;
@@ -1585,6 +1640,10 @@ function rebuildAndRender(){
   }
   _lastNoPathKey = null;
   plan = p;
+
+  // Re-slot manual camps into the fresh DP plan
+  if(manuals.length) reslotManualCamps(manuals, plan);
+
   activeIdx = null;
   renderAll();
   map.fitBounds(L.latLngBounds(plan.map(c=>[c.lat,c.lon])),{padding:[28,28]});
@@ -1745,7 +1804,7 @@ function applyPlanRestore(saved){
       const campTD = camp.trailDist != null ? camp.trailDist : (camp.mile - START_MILE) * SCALE_R;
       if(Math.abs(campTD - refTD) > 2.0) return;
       if(sameCount){
-        plan[ni] = {...camp, isTerminus:false};
+        plan[ni] = {...camp, isTerminus:false, _manual: night._manual || false};
         any = true;
       } else {
         let bestNight = -1, bestDist = Infinity;
@@ -1755,7 +1814,7 @@ function applyPlanRestore(saved){
           const d = Math.abs(td - refTD);
           if(d < bestDist){ bestDist = d; bestNight = i; }
         });
-        if(bestNight >= 0 && bestDist < 40){ plan[bestNight] = {...camp, isTerminus:false}; any = true; }
+        if(bestNight >= 0 && bestDist < 40){ plan[bestNight] = {...camp, isTerminus:false, _manual: night._manual || false}; any = true; }
       }
     });
     if(any) renderAll();
