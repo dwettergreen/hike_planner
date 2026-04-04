@@ -5,8 +5,8 @@ prepare_trail.py  —  Hike Planner trail data preparation
 Converts a raw GPS track and campsite list into the two data files
 the hike_planner application requires:
 
-    data/trail.geojson   — thinned rendering trail (~8,000 points)
-    data/campsites.json  — campsite array with trailDist pre-computed
+    trails/<id>/trail.geojson   — thinned rendering trail (~8,000 points)
+    trails/<id>/campsites.json  — campsite array with trailDist pre-computed
 
 Usage
 -----
@@ -15,8 +15,8 @@ Usage
         --campsites raw_campsites.csv \\
         --name      "Long Trail" \\
         --expected  272 \\
-        --thin      25 \\
-        --out       data/
+        --spacing   300 \\
+        --out       trails/long-trail/
 
 Arguments
 ---------
@@ -60,7 +60,7 @@ Output
     campsites.json  Array sorted by mile ascending, all camps with trailDist.
 
     Also prints to stdout:
-        Full-resolution arc-length  →  set as END_TRAIL_DIST in index.html
+        Full-resolution arc-length  →  set as endTrailDist in config.json
         Thinned point count
         Camp count and trailDist range
         Any validation warnings
@@ -90,8 +90,8 @@ Dependencies
 
 References
 ----------
-    Trail Import Guide v1.0  §§2–5
-    Technical Design Document v2.0  §§3, 7.2, 11.2
+    Trail Import Guide v3.1  §§2–8
+    Technical Design Document v4.0  §§3, 7.2, 11.2
 """
 
 import argparse
@@ -483,10 +483,10 @@ def build_rendering_trail(coords, thin, trail_name):
     Build the rendering trail.geojson by keeping every Nth coordinate.
     Returns a GeoJSON FeatureCollection dict with a single LineString feature.
 
-    IMPORTANT: The caller must set END_TRAIL_DIST in index.html to the
+    IMPORTANT: The caller must set endTrailDist in config.json to the
     full-resolution arc-length (total_arc), NOT to the thinned trail's
     arc-length.  buildTrailCum() in the browser rescales _trailCum[] to
-    match END_TRAIL_DIST.  See TDD §7.3.
+    match endTrailDist.  See TDD §7.3.
     """
     thinned = coords[::thin]
     # Always include the last point so the trail reaches the terminus exactly
@@ -543,7 +543,7 @@ def main():
     cum = build_cumulative(coords)
     total_arc = cum[-1]
     print(f"  Full-resolution arc-length: {total_arc:.3f} miles  ({len(coords):,} points)")
-    print(f"\n  *** SET END_TRAIL_DIST = {total_arc:.3f} in index.html ***\n")
+    print(f"\n  *** SET endTrailDist = {total_arc:.3f} in config.json ***\n")
 
     # ── 3. Load campsites ────────────────────────────────────────────────────
     camps = load_campsites(args.campsites)
@@ -626,17 +626,19 @@ Summary
 ────────────────────────────────────────────────────────────────
   Trail              {args.name}
   Campsites          {len(camps)}  ({resupply_count} resupply stops)
-  Full arc-length    {total_arc:.3f} mi   ← END_TRAIL_DIST in index.html
+  Full arc-length    {total_arc:.3f} mi   <- set as endTrailDist in config.json
   Rendering trail    {thinned_count:,} points  (~{actual_spacing_ft:.0f} ft spacing, {thinned_arc:.2f} mi arc, rescaled by browser)
 
 Next steps
-  1. Set END_TRAIL_DIST = {total_arc:.3f} in the index.html constants block.
-  2. Set START_MILE / END_MILE to the published trail mile markers.
-  3. Update TERMINUS lat/lon/elev/mile for the end terminus.
-  4. Recalibrate BASELINE_MELT_DOY and MOSQ_BASE for the trail's climate.
-  5. Update the start marker tooltip text in loadData().
+  1. Set endTrailDist = {total_arc:.3f} in trails/<id>/config.json.
+  2. Set terminus lat/lon/elev/mile for the end terminus in config.json.
+  3. Set trailName, trailAbbrev, startMarkerLabel, defaultStartDate,
+     defaultEmergeDate, defaultAvgPace, defaultFlexPace in config.json.
+  4. Calibrate bugBands for the trail's climate (do not copy PCT WA values).
+  5. Append the trail entry to registry.json.
   6. Test locally:  python3 -m http.server 8000
-  7. Commit and push data/ to GitHub Pages.
+  7. Commit source/<id>.geojson, trails/<id>/, registry.json and push.
+  See Trail Import Guide v3.1 §§7-9 for full details.
 ────────────────────────────────────────────────────────────────
 """)
 
