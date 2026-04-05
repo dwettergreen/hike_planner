@@ -280,10 +280,10 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
     </div>
     <div class="mpill" id="map-legend">
       <div class="ltitle">Campsite Elevation</div>
-      <div class="lr"><div class="ld" style="background:#e06060"></div> 5,000+ ft</div>
-      <div class="lr"><div class="ld" style="background:#d4a84b"></div> 3,500–5,000 ft</div>
-      <div class="lr"><div class="ld" style="background:#5dba7f"></div> 2,000–3,500 ft</div>
-      <div class="lr"><div class="ld" style="background:#5b9bd5"></div> &lt; 2,000 ft</div>
+      <div class="lr"><div class="ld" style="background:#e06060"></div> Top 10%</div>
+      <div class="lr"><div class="ld" style="background:#e8832a"></div> Top 20%</div>
+      <div class="lr"><div class="ld" style="background:#d4a84b"></div> Top 50%</div>
+      <div class="lr"><div class="ld" style="background:#5dba7f"></div> Below 50%</div>
       <div style="margin-top:5px;padding-top:5px;border-top:1px solid var(--border)">
       <div class="lr"><div style="width:22px;height:3px;background:#e8832a;border-radius:2px;flex-shrink:0;margin-top:1px"></div> <span id="legend-trail-label">Trail</span> (GPS)</div>
       
@@ -412,12 +412,60 @@ CAMPS.forEach(c => {
 // ════════════════════════════════════════════════════
 // HELPERS
 // ════════════════════════════════════════════════════
+// ── Dynamic elevation thresholds ─────────────────────────────────────────────
+// Recomputed from ALL_STOPS after each trail load.
+// Percentile bands relative to the highest campsite on the current trail:
+//   top 10%  → red    (within 10th percentile of highest)
+//   top 20%  → orange (within 20th percentile of highest)
+//   top 50%  → amber  (within top half)
+//   bottom 50% → green
+let ELEV_MAX = 5000;   // ft — fallback until computeElevThresholds() runs
+let ELEV_T90 = 4500;   // 90th-percentile threshold (top 10% = red)
+let ELEV_T80 = 4000;   // 80th-percentile threshold (top 20% = orange)
+let ELEV_T50 = 2500;   // median threshold (top 50% = amber vs green)
+
+function computeElevThresholds(){
+  const elevs = ALL_STOPS.map(c => c.elev).filter(e => e != null && e > 0);
+  if(!elevs.length) return;
+  elevs.sort((a,b) => a - b);
+  const n = elevs.length;
+  const pct = p => {
+    const idx = p * (n - 1);
+    const lo  = Math.floor(idx), hi = Math.ceil(idx);
+    return lo === hi ? elevs[lo] : elevs[lo] + (elevs[hi] - elevs[lo]) * (idx - lo);
+  };
+  ELEV_MAX = elevs[n - 1];
+  ELEV_T90 = pct(0.90);
+  ELEV_T80 = pct(0.80);
+  ELEV_T50 = pct(0.50);
+}
+
 function elevColor(e){
   if(!e) return '#7a9cc7';
-  if(e>=5000) return '#e06060';
-  if(e>=3500) return '#d4a84b';
-  if(e>=2000) return '#5dba7f';
-  return '#5b9bd5';
+  if(e >= ELEV_T90) return '#e06060';   // red    — top 10%
+  if(e >= ELEV_T80) return '#e8832a';   // orange — top 20%
+  if(e >= ELEV_T50) return '#d4a84b';   // amber  — top 50%
+  return '#5dba7f';                      // green  — bottom 50%
+}
+
+function updateElevLegend(){
+  const fmt = v => Math.round(v).toLocaleString();
+  const legend = document.getElementById('map-legend');
+  if(!legend) return;
+  const rows = legend.querySelectorAll('.lr');
+  const elevRows = Array.from(rows).slice(0, 4);
+  const labels = [
+    { col:'#e06060', text:'\u2265 ' + fmt(ELEV_T90) + ' ft (top 10%)' },
+    { col:'#e8832a', text: fmt(ELEV_T80) + '\u2013' + fmt(ELEV_T90) + ' ft' },
+    { col:'#d4a84b', text: fmt(ELEV_T50) + '\u2013' + fmt(ELEV_T80) + ' ft' },
+    { col:'#5dba7f', text:'< ' + fmt(ELEV_T50) + ' ft' },
+  ];
+  elevRows.forEach((row, i) => {
+    const dot = row.querySelector('.ld');
+    if(dot) dot.style.background = labels[i].col;
+    const textNodes = Array.from(row.childNodes).filter(n => n.nodeType === 3);
+    if(textNodes.length) textNodes[textNodes.length - 1].textContent = ' ' + labels[i].text;
+  });
 }
 
 // ── Bug pressure model — bands populated from config.json bugBands at load time ─
@@ -1054,10 +1102,10 @@ function renderSummary(){
     </div>
     <div class="ss">
       <div class="st">Nights by Elevation Band</div>
-      ${seg('5,000+ ft (high & dry)',camps.filter(c=>c.elev>=5000).length,'#e06060')}
-      ${seg('3,500–5,000 ft',camps.filter(c=>c.elev>=3500&&c.elev<5000).length,'#d4a84b')}
-      ${seg('2,000–3,500 ft',camps.filter(c=>c.elev>=2000&&c.elev<3500).length,'#5dba7f')}
-      ${seg('< 2,000 ft (bug zone)',camps.filter(c=>c.elev<2000).length,'#5b9bd5')}
+      ${seg('Top 10% (\u2265 '+Math.round(ELEV_T90).toLocaleString()+' ft)',camps.filter(c=>c.elev>=ELEV_T90).length,'#e06060')}
+      ${seg('Top 20% ('+Math.round(ELEV_T80).toLocaleString()+'\u2013'+Math.round(ELEV_T90).toLocaleString()+' ft)',camps.filter(c=>c.elev>=ELEV_T80&&c.elev<ELEV_T90).length,'#e8832a')}
+      ${seg('Top 50% ('+Math.round(ELEV_T50).toLocaleString()+'\u2013'+Math.round(ELEV_T80).toLocaleString()+' ft)',camps.filter(c=>c.elev>=ELEV_T50&&c.elev<ELEV_T80).length,'#d4a84b')}
+      ${seg('Below 50% (< '+Math.round(ELEV_T50).toLocaleString()+' ft)',camps.filter(c=>!c.elev||c.elev<ELEV_T50).length,'#5dba7f')}
     </div>
     <div class="ss">
       <div class="st">Amenities</div>
@@ -1644,6 +1692,7 @@ function rebuildAndRender(){
 
   activeIdx = null;
   renderAll();
+  updateElevLegend();
   map.fitBounds(L.latLngBounds(plan.map(c=>[c.lat,c.lon])),{padding:[28,28]});
 }
 
@@ -1887,6 +1936,9 @@ async function loadData(trailPath) {
   ALL_STOPS = ALL_STOPS.map(c => c.source === 'resupply'
     ? {...c, isResupply:true, elev: c.elev || null}
     : c);
+
+  // Compute dynamic elevation thresholds from this trail's campsite data
+  computeElevThresholds();
 
   // Trail coords from GeoJSON — with defensive MultiLineString handling.
   // Expected format: a FeatureCollection with a single LineString feature.
