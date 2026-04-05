@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "saved": "2026-03-29T19:21:24.942Z",
+  "saved": "2026-04-05T13:04:10.107Z",
   "settings": {
     "startDate": "2026-07-01",
     "emergeDate": "2026-07-05",
@@ -11,192 +11,230 @@
     {
       "name": "CS2157",
       "mile": 2157.127,
-      "trailDist": 9.575
+      "trailDist": 9.575,
+      "_manual": true
     },
     {
       "name": "RockCreekBridge",
       "mile": 2169.3,
-      "trailDist": 17.167
+      "trailDist": 17.167,
+      "_manual": true
     },
     {
       "name": "TroutCreek",
       "mile": 2177.115,
-      "trailDist": 29.543
+      "trailDist": 29.543,
+      "_manual": true
     },
     {
-      "name": "WACS2193",
-      "mile": 2193.549,
-      "trailDist": 46.018
+      "name": "CS2191",
+      "mile": 2191.98,
+      "trailDist": 44.44,
+      "_manual": true
     },
     {
       "name": "BlueLakeCS",
       "mile": 2205.645,
-      "trailDist": 58.101
+      "trailDist": 58.101,
+      "_manual": true
     },
     {
-      "name": "SteamboatLakeCreek",
-      "mile": 2221.836,
-      "trailDist": 74.302
+      "name": "CS2219",
+      "mile": 2219.217,
+      "trailDist": 71.685,
+      "_manual": true
     },
     {
       "name": "Trout Lake",
       "mile": 2230.42,
-      "trailDist": 82.912
+      "trailDist": 82.912,
+      "_manual": true
     },
     {
       "name": "CS2240",
       "mile": 2240.859,
-      "trailDist": 93.349
+      "trailDist": 93.349,
+      "_manual": true
     },
     {
-      "name": "CS2254",
-      "mile": 2254.204,
-      "trailDist": 106.706
+      "name": "WACS2256",
+      "mile": 2256.231,
+      "trailDist": 108.741,
+      "_manual": true
     },
     {
       "name": "SheepLake",
       "mile": 2273.45,
-      "trailDist": 125.961
+      "trailDist": 125.961,
+      "_manual": false
     },
     {
-      "name": "CS2290",
-      "mile": 2290.14,
-      "trailDist": 142.663
+      "name": "CS2288",
+      "mile": 2287.14,
+      "trailDist": 139.664,
+      "_manual": true
     },
     {
       "name": "SandLake",
       "mile": 2298.158,
-      "trailDist": 150.687
+      "trailDist": 150.687,
+      "_manual": true
+    },
+    {
+      "name": "TwoLakes",
+      "mile": 2315.055,
+      "trailDist": 167.395,
+      "_manual": true
     },
     {
       "name": "SheepLake4",
       "mile": 2326.169,
-      "trailDist": 178.684
+      "trailDist": 178.684,
+      "_manual": true
     },
     {
-      "name": "MartinsonGap",
-      "mile": 2337.479,
-      "trailDist": 190.021
-    },
-    {
-      "name": "RD2349",
-      "mile": 2349.143,
-      "trailDist": 201.691
+      "name": "GreenwaterTrib",
+      "mile": 2342.306,
+      "trailDist": 194.858,
+      "_manual": true
     },
     {
       "name": "CS2359",
       "mile": 2359.915,
-      "trailDist": 212.474
+      "trailDist": 212.474,
+      "_manual": true
     },
     {
       "name": "CS2371",
       "mile": 2371.249,
-      "trailDist": 223.791
+      "trailDist": 223.791,
+      "_manual": false
     },
     {
       "name": "MirrorLake2",
       "mile": 2385.059,
-      "trailDist": 237.573
+      "trailDist": 237.573,
+      "_manual": false
     },
     {
       "name": "CS2397B",
       "mile": 2397.979,
-      "trailDist": 250.514
+      "trailDist": 250.514,
+      "_manual": false
     },
     {
       "name": "CS2409",
       "mile": 2409.714,
-      "trailDist": 262.253
+      "trailDist": 262.253,
+      "_manual": false
     },
     {
       "name": "CS24223",
       "mile": 2423,
-      "trailDist": 277.234
+      "trailDist": 277.234,
+      "_manual": false
     },
     {
       "name": "CS2438",
       "mile": 2438.298,
-      "trailDist": 290.727
+      "trailDist": 290.727,
+      "_manual": false
     },
     {
       "name": "CS2452",
       "mile": 2452.638,
-      "trailDist": 305.023
+      "trailDist": 305.023,
+      "_manual": false
     },
     {
-      "name": "CS2468",
-      "mile": 2468.664,
-      "trailDist": 321.076
+      "name": "Stevens Pass (Hwy 2)",
+      "mile": 2464.62,
+      "trailDist": 317.029,
+      "_manual": true
     },
     {
       "name": "CS2479",
       "mile": 2479.078,
-      "trailDist": 331.481
+      "trailDist": 331.481,
+      "_manual": false
     },
     {
       "name": "CS2495",
       "mile": 2495.112,
-      "trailDist": 347.513
+      "trailDist": 347.513,
+      "_manual": false
     },
     {
       "name": "CS2505",
       "mile": 2505.896,
-      "trailDist": 358.284
+      "trailDist": 358.284,
+      "_manual": false
     },
     {
       "name": "FireCreek",
       "mile": 2518.328,
-      "trailDist": 370.719
+      "trailDist": 370.719,
+      "_manual": false
     },
     {
       "name": "CS2529B",
       "mile": 2529.842,
-      "trailDist": 382.193
+      "trailDist": 382.193,
+      "_manual": false
     },
     {
       "name": "CS2541B",
       "mile": 2541.092,
-      "trailDist": 393.45
+      "trailDist": 393.45,
+      "_manual": false
     },
     {
       "name": "WACS2552",
       "mile": 2552.877,
-      "trailDist": 405.192
+      "trailDist": 405.192,
+      "_manual": false
     },
     {
       "name": "SwampCamp",
       "mile": 2564.255,
-      "trailDist": 416.578
+      "trailDist": 416.578,
+      "_manual": false
     },
     {
       "name": "NorthForkCamp",
       "mile": 2580.185,
-      "trailDist": 432.539
+      "trailDist": 432.539,
+      "_manual": false
     },
     {
       "name": "CS2595",
       "mile": 2595.44,
-      "trailDist": 447.824
+      "trailDist": 447.824,
+      "_manual": true
     },
     {
-      "name": "WACS2601",
-      "mile": 2601.386,
-      "trailDist": 453.765
+      "name": "WForkMethowRiver",
+      "mile": 2607.084,
+      "trailDist": 459.454,
+      "_manual": true
     },
     {
-      "name": "CS2612",
-      "mile": 2612.627,
-      "trailDist": 465.003
+      "name": "HartsPass",
+      "mile": 2622.535,
+      "trailDist": 474.919,
+      "_manual": true
     },
     {
-      "name": "CS2626",
-      "mile": 2626.076,
-      "trailDist": 478.436
+      "name": "CS2630",
+      "mile": 2630.68,
+      "trailDist": 483.019,
+      "_manual": true
     },
     {
       "name": "CS2642",
       "mile": 2642.056,
-      "trailDist": 494.372
+      "trailDist": 494.372,
+      "_manual": false
     }
   ],
   "totalMiles": "505.4"
