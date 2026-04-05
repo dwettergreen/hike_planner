@@ -732,7 +732,7 @@ function renderMap(){
       html:`<div style="
         width:${isTerm?22:20}px;height:${isTerm?22:20}px;border-radius:50%;
         background:${col};
-        border:2px solid ${isActive?'#ffd700':'rgba(255,255,255,0.8)'};
+        border:2px solid ${isActive?'#ffd700':camp._manual?'#000000':'rgba(255,255,255,0.8)'};
         display:flex;align-items:center;justify-content:center;
         font-family:'Source Code Pro',monospace;font-size:9px;font-weight:700;
         color:${camp.elev&&camp.elev>4500?'#fff':'#fff'};
@@ -1128,7 +1128,7 @@ function setActive(idx){
     if(!el) return;
     const div=el.querySelector('div');
     if(!div) return;
-    div.style.border=`2px solid ${i===idx?'#ffd700':'rgba(255,255,255,0.8)'}`;
+    div.style.border=`2px solid ${i===idx?'#ffd700':plan[i]&&plan[i]._manual?'#000000':'rgba(255,255,255,0.8)'}`;
     div.style.boxShadow=i===idx?'0 0 0 3px #ffd700,0 2px 8px rgba(0,0,0,0.55)':'0 2px 8px rgba(0,0,0,0.55)';
   });
   // Sidebar highlight
