@@ -313,7 +313,7 @@ let END_MILE          = 100;
 let START_TRAIL_DIST  = 0.0;
 let END_TRAIL_DIST    = 100.0;
 let BASELINE_EMERGE_DOY = 152;  // baseline bug emergence day-of-year (config: bugEmergeDoy)
-let TERMINUS          = { name:'Terminus', lat:0, lon:0, elev:0, mile:100, isTerminus:true };
+let TERMINUS          = { name:'Terminus', lat:0, lon:0, elev:0, mile:100, trailDist:0, isTerminus:true };
 let BUG_BANDS         = [];     // populated from config.json bugBands
 
 // Trail identity — populated from config.json
@@ -1894,7 +1894,7 @@ async function loadData(trailPath) {
 
     // Terminus
     if(cfg.terminus){
-      TERMINUS = { ...cfg.terminus, mile: cfg.terminus.mile ?? END_MILE, isTerminus: true };
+      TERMINUS = { ...cfg.terminus, mile: cfg.terminus.mile ?? END_MILE, trailDist: END_TRAIL_DIST, isTerminus: true };
     }
 
     // Bug pressure model — new multi-band format (v4)
