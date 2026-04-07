@@ -195,6 +195,35 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
 .edit-count{font-size:10px;color:var(--text3);margin-top:3px;}
 #edit-hint{display:none;}
 
+/* ── IMPORT/EXPORT panel additions ── */
+.imp-drop{border:2px dashed #8090b0;border-radius:6px;padding:14px 10px;text-align:center;
+  cursor:pointer;transition:border-color .15s,background .15s;margin-bottom:8px;}
+.imp-drop:hover,.imp-drop.drag-over{border-color:var(--blue);background:#e8f0fa;}
+.imp-drop-icon{font-size:20px;margin-bottom:4px;}
+.imp-drop-text{font-size:11px;color:var(--text3);line-height:1.5;}
+.imp-drop-text b{color:var(--blue);}
+.imp-status{margin-top:8px;font-size:11px;border-radius:4px;padding:6px 8px;line-height:1.6;display:none;}
+.imp-ok  {background:#0f2018;color:var(--green);border:1px solid var(--green-dim);}
+.imp-warn{background:#1a1400;color:var(--amber);border:1px solid #7a5a20;}
+.imp-err {background:var(--red-bg);color:var(--red);border:1px solid #6a2020;}
+
+/* ── Trail-switch confirmation modal ── */
+#trail-switch-modal{display:none;position:fixed;inset:0;z-index:10000;
+  background:rgba(0,0,0,.55);align-items:center;justify-content:center;}
+#trail-switch-modal.open{display:flex;}
+.tsm-box{background:#fff;border:1px solid #3a4a60;border-radius:8px;
+  box-shadow:0 8px 32px rgba(0,0,0,.35);padding:20px 22px;max-width:340px;width:90%;font-family:'Source Sans 3',sans-serif;}
+.tsm-title{font-family:'Bitter',serif;font-size:15px;font-weight:700;color:#1a2235;margin-bottom:10px;}
+.tsm-body{font-size:12px;color:#2d4060;line-height:1.6;margin-bottom:14px;}
+.tsm-body code{background:#edf0f5;padding:1px 5px;border-radius:3px;font-family:'Source Code Pro',monospace;font-size:11px;}
+.tsm-btns{display:flex;gap:8px;justify-content:flex-end;}
+.tsm-btn{padding:6px 14px;border-radius:4px;border:1px solid;font-size:11px;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:all .15s;text-transform:uppercase;letter-spacing:.4px;}
+.tsm-cancel{background:transparent;color:var(--text3);border-color:#8090b0;}
+.tsm-cancel:hover{background:var(--bg3);}
+.tsm-confirm{background:var(--blue-bg);color:var(--blue);border-color:#7aaae0;}
+.tsm-confirm:hover{background:var(--blue);color:#fff;}
+
 </style>
 
 
@@ -235,7 +264,7 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
       <div class="stab on" id="tab-itin" onclick="showTab('itin')">Itinerary</div>
       <div class="stab" id="tab-sum" onclick="showTab('sum')">Summary</div>
       <div class="stab" id="tab-edit" onclick="showTab('edit')">Edit</div>
-      <div class="stab" id="tab-exp" onclick="showTab('exp')">Export</div>
+      <div class="stab" id="tab-exp" onclick="showTab('exp')">Import/Export</div>
     </div>
     <div class="controls">
       <div class="crow">
@@ -296,6 +325,24 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
 </div>
 
 </div><!-- #app -->
+
+<!-- ── Trail-switch confirmation modal (import) ── -->
+<div id="trail-switch-modal">
+  <div class="tsm-box">
+    <div class="tsm-title">Switch Trail to Load Plan?</div>
+    <div class="tsm-body" id="tsm-body">
+      This plan file is for a different trail.
+    </div>
+    <div class="tsm-btns">
+      <button class="tsm-btn tsm-cancel" onclick="dismissTrailSwitchModal()">Cancel</button>
+      <button class="tsm-btn tsm-confirm" id="tsm-confirm-btn" onclick="confirmTrailSwitchAndLoad()">Switch &amp; Load</button>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden file input for plan import -->
+<input type="file" id="plan-file-input" accept=".json" style="display:none"
+  onchange="handlePlanFileInput(event)">
 
 <script>
 
@@ -1257,15 +1304,23 @@ function renderExport(){
   const panel = document.getElementById('exp-panel');
   panel.innerHTML = `
     <div class="ss">
-      <div class="st">Download as CSV</div>
+      <div class="st">Import Plan File</div>
       <p style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.5">
-        Opens in Excel or Google Sheets. Columns: Mile, Miles Today,
-        Campsite, Elevation, Date, Notes (type / water / bug pressure / wind).
+        Load a previously saved <code style="background:var(--bg3);padding:1px 4px;border-radius:3px">.json</code>
+        plan file. If the file is for a different trail, you will be asked to confirm switching trails first.
       </p>
-      <button class="ebtn ebtn-g" onclick="downloadCSV()">⬇ Download CSV</button>
+      <div class="imp-drop" id="imp-drop-zone"
+        onclick="document.getElementById('plan-file-input').click()"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="handlePlanFileDrop(event)">
+        <div class="imp-drop-icon">📂</div>
+        <div class="imp-drop-text"><b>Click to choose</b> or drag &amp; drop a plan JSON file</div>
+      </div>
+      <div class="imp-status" id="imp-status"></div>
     </div>
-    <div class="ss">
-      <div class="st">Save plan as JSON</div>
+    <div class="ss" style="border-top:1px solid #cdd4e0;padding-top:10px;margin-top:4px">
+      <div class="st">Export Plan File</div>
       <p style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.5">
         Downloads a plan file named <code style="background:var(--bg3);padding:1px 4px;border-radius:3px">{trail}-plan-{date}-{mpd}.json</code>.
         Place it in <code style="background:var(--bg3);padding:1px 4px;border-radius:3px">trails/${CURRENT_TRAIL_ID}/plans/</code>
@@ -1274,6 +1329,14 @@ function renderExport(){
       <button class="ebtn ebtn-b" onclick="saveAsJSON()">💾 Save plan.json</button>
       <div id="plan-save-hint" style="display:none;margin-top:8px;font-size:11px;color:var(--text3);
         background:var(--bg3);border-radius:4px;padding:6px 8px;line-height:1.8;word-break:break-all"></div>
+    </div>
+    <div class="ss" style="border-top:1px solid #cdd4e0;padding-top:10px;margin-top:4px">
+      <div class="st">Download as CSV</div>
+      <p style="font-size:11px;color:var(--text3);margin-bottom:8px;line-height:1.5">
+        Opens in Excel or Google Sheets. Columns: Mile, Miles Today,
+        Campsite, Elevation, Date, Notes (type / water / bug pressure / wind).
+      </p>
+      <button class="ebtn ebtn-g" onclick="downloadCSV()">⬇ Download CSV</button>
     </div>
   `;
 }
@@ -1310,6 +1373,7 @@ function saveAsJSON(){
     }));
   const saved = {
     version: 2,
+    trailId: CURRENT_TRAIL_ID,
     saved: new Date().toISOString(),
     settings,
     nights,
@@ -1342,6 +1406,143 @@ function saveAsJSON(){
 
   a.click();
   URL.revokeObjectURL(a.href);
+}
+
+// ══════════════════════════════════════════════════════════════════
+// PLAN FILE IMPORT  (v6 — new)
+// ══════════════════════════════════════════════════════════════════
+
+// Holds a parsed plan object while waiting for trail-switch confirmation.
+let _pendingImportPlan = null;
+let _pendingImportFilename = '';
+
+// Entry point from the hidden file input
+function handlePlanFileInput(event){
+  const file = event.target.files[0];
+  if(file) loadPlanFromFile(file);
+  // Reset so the same filename can be re-imported
+  event.target.value = '';
+}
+
+// Entry point from drag-and-drop on the drop zone
+function handlePlanFileDrop(event){
+  event.preventDefault();
+  const zone = document.getElementById('imp-drop-zone');
+  if(zone) zone.classList.remove('drag-over');
+  const file = event.dataTransfer && event.dataTransfer.files[0];
+  if(file && file.name.endsWith('.json')) loadPlanFromFile(file);
+  else showImportStatus('err', '⛔ Drop a .json plan file');
+}
+
+// Core import function — reads, validates, then either applies or triggers modal
+function loadPlanFromFile(file){
+  const reader = new FileReader();
+  reader.onload = function(e){
+    let parsed;
+    try {
+      parsed = JSON.parse(e.target.result);
+    } catch(ex) {
+      showImportStatus('err', '⛔ Not a valid JSON file — could not parse.');
+      return;
+    }
+
+    // Schema validation
+    if(!parsed.nights || !Array.isArray(parsed.nights)){
+      showImportStatus('err', '⛔ Not a plan file — missing <code>nights</code> array.');
+      return;
+    }
+    if(!parsed.version){
+      showImportStatus('warn', '⚠ Plan file has no version field — attempting load anyway.');
+    }
+
+    const fileTrailId = parsed.trailId || null;
+
+    // Case 1: no trailId in file OR trailId matches current trail
+    if(!fileTrailId || fileTrailId === CURRENT_TRAIL_ID){
+      applyImportedPlan(parsed, file.name);
+      return;
+    }
+
+    // Case 2: trailId mismatch — check if target trail exists in registry
+    const targetEntry = REGISTRY.find(r => r.id === fileTrailId);
+    if(!targetEntry){
+      showImportStatus('err',
+        `⛔ This plan is for trail <code>${fileTrailId}</code>, which is not in this app's registry.`);
+      return;
+    }
+
+    // Case 3: known trail mismatch — show confirmation modal (Option C)
+    _pendingImportPlan     = parsed;
+    _pendingImportFilename = file.name;
+    const currentLabel  = (REGISTRY.find(r => r.id === CURRENT_TRAIL_ID) || {}).label || CURRENT_TRAIL_ID;
+    const targetLabel   = targetEntry.label;
+    document.getElementById('tsm-body').innerHTML =
+      `This plan file is for <strong>${targetLabel}</strong>.<br>` +
+      `You are currently viewing <strong>${currentLabel}</strong>.<br><br>` +
+      `Switch to <strong>${targetLabel}</strong> and load the plan?`;
+    document.getElementById('trail-switch-modal').classList.add('open');
+  };
+  reader.readAsText(file);
+}
+
+// Called when user clicks "Switch & Load" in the modal
+async function confirmTrailSwitchAndLoad(){
+  dismissTrailSwitchModal();
+  if(!_pendingImportPlan) return;
+  const targetId = _pendingImportPlan.trailId;
+  const filename = _pendingImportFilename;
+  const plan_snapshot = _pendingImportPlan;
+  _pendingImportPlan     = null;
+  _pendingImportFilename = '';
+
+  // Switch the trail selector UI
+  const sel = document.getElementById('trail-select');
+  if(sel) sel.value = targetId;
+
+  // loadTrail is async — we apply the import in its completion, via a one-shot callback
+  _postTrailLoadCallback = function(){
+    applyImportedPlan(plan_snapshot, filename);
+  };
+  await loadTrail(targetId);
+}
+
+// Called when user clicks Cancel in the modal
+function dismissTrailSwitchModal(){
+  document.getElementById('trail-switch-modal').classList.remove('open');
+  _pendingImportPlan     = null;
+  _pendingImportFilename = '';
+}
+
+// One-shot callback invoked by loadTrail() after data is ready
+// Used to chain plan import after an async trail switch.
+let _postTrailLoadCallback = null;
+
+// Applies a validated parsed plan object to the current trail state
+function applyImportedPlan(parsed, filename){
+  // Apply settings first so the DP rebuilds with the saved parameters
+  applyPlanRestore(parsed);
+
+  // Count how many nights were actually matched (not terminus)
+  const matched = plan.filter(c => !c.isTerminus && c.name).length;
+  const total   = parsed.nights.length;
+
+  if(matched === 0){
+    showImportStatus('warn',
+      `⚠ Plan loaded from <b>${filename}</b> but no campsites matched — ` +
+      `check that this file is for the correct trail version.`);
+  } else {
+    showImportStatus('ok',
+      `✓ Loaded <b>${matched}</b> of ${total} nights from <b>${filename}</b>.`);
+  }
+}
+
+// Show a status message in the import panel status area
+function showImportStatus(type, html){
+  const el = document.getElementById('imp-status');
+  if(!el) return;
+  el.className = 'imp-status imp-' + type;
+  el.innerHTML = html;
+  el.style.display = 'block';
 }
 
 
@@ -1761,6 +1962,13 @@ async function loadTrail(trailId){
 
     // Populate plan selector
     await populatePlanSelector(entry.path);
+
+    // Fire any post-load callback (e.g. from plan file import after trail switch)
+    if(_postTrailLoadCallback){
+      const cb = _postTrailLoadCallback;
+      _postTrailLoadCallback = null;
+      cb();
+    }
 
   } catch(err) {
     loading.innerHTML =
