@@ -3,11 +3,11 @@
 A browser-based, multi-night thru-hiking itinerary planner. Uses dynamic programming to find the globally optimal camp sequence for a given pace, start date, and bug emergence window. Supports multiple trails via a dropdown selector.
 
 **Currently deployed trails:**
-- **PCT Washington** — 178 campsites, Bridge of Gods to Northern Terminus (505 miles)
-- **PCT Oregon** — Bridge of Gods to CA/OR Border (417 miles)
+- **PCT Washington** — Bridge of Gods to Northern Terminus (505 miles)
+- **PCT Oregon** — Ashland to Bridge of Gods (417 miles)
 - **PCT No. California** — Tuolumne Meadows to Ashland (758 miles)
 - **PCT So. California** — Campo to Tuolumne Meadows (917 miles)
-- **Long Trail, Vermont** — 64 shelters, full 272-mile trail
+- **Long Trail, Vermont** — All Vermont (272 miles)
 - **Colorado Trail** — Denver to Durango (486 miles)
 
 **Live tool:** https://dwettergreen.github.io/hike_planner/
@@ -205,8 +205,14 @@ python3 -m http.server 8000
 
 ## Technical reference
 
-See `docs/Hike_Planner_TDD_v4_1.docx` for full DP pseudocode, V4 bug model derivation, data format specs, trail distance infrastructure, multi-trail architecture, and bug catalog.
+See `docs/Hike_Planner_User_Guide_vX_X.docx` for detailed explanation of the web-based tool and workflow for developing your hike plan. 
+
+See `docs/Hike_Planner_TDD_vX_X.docx` for full DP pseudocode, V4 bug model derivation, data format specs, trail distance infrastructure, multi-trail architecture, and bug catalog.
+
+See `docs/Trail_Import_Guide_vX_X.docx` for explanation of how to add a new trail to the tool, including scripts to prepare trail geojson and other necessary configuration settings.
+
+
 
 ---
 
-*Vibe coded with Claude - April 2026*
+*Vibe coded with Claude by David Wettergreen - April 2026*
