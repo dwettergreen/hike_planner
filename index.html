@@ -1487,13 +1487,12 @@ function loadPlanFromFile(file){
 
 // Called when user clicks "Switch & Load" in the modal
 async function confirmTrailSwitchAndLoad(){
-  dismissTrailSwitchModal();
+  // Capture pending data BEFORE dismissTrailSwitchModal() clears it
   if(!_pendingImportPlan) return;
-  const targetId = _pendingImportPlan.trailId;
-  const filename = _pendingImportFilename;
+  const targetId      = _pendingImportPlan.trailId;
+  const filename      = _pendingImportFilename;
   const plan_snapshot = _pendingImportPlan;
-  _pendingImportPlan     = null;
-  _pendingImportFilename = '';
+  dismissTrailSwitchModal();
 
   // Switch the trail selector UI
   const sel = document.getElementById('trail-select');
