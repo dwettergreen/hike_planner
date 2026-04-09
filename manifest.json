@@ -1,0 +1,25 @@
+{
+  "name": "Hike Planner",
+  "short_name": "Hike Planner",
+  "description": "Multi-night thru-hike itinerary optimizer with dynamic programming",
+  "start_url": "/hike_planner/",
+  "scope": "/hike_planner/",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#f5f6f8",
+  "theme_color": "#1a3a6a",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
