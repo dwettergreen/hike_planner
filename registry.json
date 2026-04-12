@@ -4,6 +4,6 @@
   { "id": "pct-nca",        "label": "PCT California (North)",  "path": "trails/pct-nca"        },
   { "id": "pct-sca",        "label": "PCT California (South)",  "path": "trails/pct-sca"        },
   { "id": "long-trail",     "label": "Long Trail Vermont",     "path": "trails/long-trail"     },
-  { "id": "colorado-trail", "label": "Colorado Trail",      "path": "trails/colorado-trail" }
+  { "id": "colorado-trail", "label": "Colorado Trail",      "path": "trails/colorado-trail" },
 { "id": "te-araroa-so", "label": "Te Araroa South Island", "path": "trails/te-araroa-so" }
 ]
