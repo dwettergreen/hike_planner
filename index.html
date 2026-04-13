@@ -1990,50 +1990,54 @@ function teardownTrail(){
 }
 
 // Place (or reposition) the start marker based on the current DIRECTION.
-// In NOBO, start = TRAIL_COORDS[0] (geographic south end).
-// In SOBO, start = TRAIL_COORDS[last] (geographic north end).
-// Also builds TRAIL_END_NODE — the isTerminus object for the opposite end.
+// Uses TRAIL_COORDS[0] as the trailDist=0 geographic reference (NOBO start).
+// Uses TERMINUS (from config.json) as the authoritative NOBO end point.
+// This is correct even when TRAIL_COORDS[0] is geographically north of TRAIL_COORDS[last]
+// (e.g. Colorado Trail: Denver is north but trailDist=0 because it's the NOBO start).
+// Also builds TRAIL_END_NODE — the isTerminus object used by buildPlan() in SOBO mode.
 function placeStartMarker(){
   if(!TRAIL_COORDS.length) return;
 
   // Remove any existing start marker
   if(_startMarker){ map.removeLayer(_startMarker); _startMarker = null; }
 
-  const firstCoord = TRAIL_COORDS[0];
-  const lastCoord  = TRAIL_COORDS[TRAIL_COORDS.length - 1];
+  // TRAIL_COORDS[0] is always the trailDist=0 end (NOBO start, regardless of lat/lon direction)
+  const startCoord = TRAIL_COORDS[0];
 
-  // Geographic NOBO-start endpoint (trailDist = 0, always at index 0)
-  const noboStartNode = {
-    name: START_MARKER_LABEL,
-    lat:  firstCoord[1], lon: firstCoord[0],
-    elev: 0, mile: START_MILE,
+  // SOBO-end node: the geographic NOBO start (trailDist=0), used as destination in SOBO mode
+  const soboEndNode = {
+    name:      START_MARKER_LABEL || 'Southern Terminus',
+    lat:       startCoord[1],
+    lon:       startCoord[0],
+    elev:      0,
+    mile:      START_MILE,
     trailDist: START_TRAIL_DIST,
     isTerminus: true
   };
 
   if(DIRECTION === 'SOBO'){
-    // Start marker at geographic north end (TRAIL_COORDS last point)
-    const label = SOBO_START_MARKER_LABEL || (TERMINUS.name ? 'Start — ' + TERMINUS.name : START_MARKER_LABEL);
-    const startLatLon = [lastCoord[1], lastCoord[0]];
+    // SOBO: hiker starts at the TERMINUS end (config lat/lon) and heads toward trailDist=0
+    const label = SOBO_START_MARKER_LABEL || ('Start — ' + (TERMINUS.name || 'Northern Terminus'));
+    const startLatLon = [TERMINUS.lat, TERMINUS.lon];
     const startIcon = L.divIcon({className:'',
       html:`<div style="width:20px;height:20px;border-radius:50%;background:#2a7d4f;border:2px solid rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center;font-family:'Source Code Pro',monospace;font-size:10px;font-weight:700;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.45);">0</div>`,
       iconSize:[20,20], iconAnchor:[10,10]});
     _startMarker = L.marker(startLatLon, {icon:startIcon, interactive:true})
       .bindTooltip(label, {className:'tip-tooltip', direction:'top', offset:[0,-14]})
       .addTo(map);
-    // SOBO end node = geographic south end (trailDist = 0 geographically)
-    TRAIL_END_NODE = {...noboStartNode, name: noboStartNode.name || 'Southern Terminus'};
+    // SOBO destination = trailDist=0 end (NOBO start)
+    TRAIL_END_NODE = soboEndNode;
   } else {
-    // NOBO: start marker at geographic south end (TRAIL_COORDS[0])
-    const startLatLon = [firstCoord[1], firstCoord[0]];
+    // NOBO: hiker starts at TRAIL_COORDS[0] (trailDist=0) and heads toward TERMINUS
+    const startLatLon = [startCoord[1], startCoord[0]];
     const startIcon = L.divIcon({className:'',
       html:`<div style="width:20px;height:20px;border-radius:50%;background:#2a7d4f;border:2px solid rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center;font-family:'Source Code Pro',monospace;font-size:10px;font-weight:700;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.45);">0</div>`,
       iconSize:[20,20], iconAnchor:[10,10]});
     _startMarker = L.marker(startLatLon, {icon:startIcon, interactive:true})
       .bindTooltip(START_MARKER_LABEL, {className:'tip-tooltip', direction:'top', offset:[0,-14]})
       .addTo(map);
-    // NOBO end node = TERMINUS (geographic north end) — already set from config
-    TRAIL_END_NODE = null; // signals buildPlan to use TERMINUS
+    // NOBO destination = TERMINUS (already set from config.json)
+    TRAIL_END_NODE = null; // signals buildPlan() to use TERMINUS
   }
 }
 
