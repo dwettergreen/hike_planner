@@ -9,6 +9,7 @@ A browser-based, multi-night thru-hiking itinerary planner. Uses dynamic program
 - **PCT So. California** — Campo to Tuolumne Meadows (917 miles)
 - **Long Trail, Vermont** — All Vermont (272 miles)
 - **Colorado Trail** — Denver to Durango (486 miles)
+- **Te Araroa South Island** — Bluff to Ship Cove (986 miles)
 
 **Live tool:** https://dwettergreen.github.io/hike_planner/
 
@@ -95,7 +96,8 @@ hike_planner/
 │   ├── Oregon.geojson          — PCTA 2026 PCT Oregon centerline
 │   ├── Northern_California.geojson
 │   ├── Southern_California.geojson
-│   └── long-trail.geojson      — OSM Long Trail track
+│   ├── long-trail.geojson      — OSM Long Trail track
+│   └── TeAraroaSouthIsland.gpx — Te Araroa Trust 2025-26 v44 (SOBO)
 └── trails/
     ├── pct-wa/
     │   ├── config.json         — trail constants + bug model
@@ -107,7 +109,8 @@ hike_planner/
     ├── pct-nca/      (same structure)
     ├── pct-sca/      (same structure)
     ├── long-trail/   (same structure)
-    └── colorado-trail/ (same structure)
+    ├── colorado-trail/ (same structure)
+    └── te-araroa-so/ (same structure)
 ```
 
 **Notes:**
@@ -143,6 +146,8 @@ The script prints the `endTrailDist` value to set in `config.json`, runs all 5 v
 ### GPS track sources
 
 **PCT sections:** Download from the [PCTA public Box folder](https://pcta.app.box.com/s/wsv09z18lw4kwptjrxd79kj07xm6ufsr/folder/305401160536) — `Washington.geojson`, `Oregon.geojson`, `Northern_California.geojson`, `Southern_California.geojson`. Updated each January. Commit to `source/`.
+
+**Te Araroa:** Download from [teararoa.org.nz/trail-maps](https://www.teararoa.org.nz/trail-maps/) (free account required) — "North & South Island GPX". The Trust files are SOBO (Cape Reinga → Bluff); use `--reverse` when running `prepare_trail.py`. Campsite data comes from [DOC Open Data GeoJSON](https://catalogue.data.govt.nz/dataset/doc-huts4) (requires NZTM2000→WGS84 coordinate conversion via `pyproj`) plus the [Trail Pass huts/campsites PDF](https://www.teararoa.org.nz/wp-content/uploads/2024/08/The-Trail-Pass-Huts-Campsites-full-list.pdf).
 
 **Other trails:** OpenStreetMap Waymarked Trails for the Long Trail; Colorado Trail Foundation GIS for the CT; Halfmile pctmap.net GPX for campsite waypoints (2020 legacy data, waypoints still useful).
 
@@ -186,6 +191,7 @@ See `docs/Trail_Import_Guide_v3_1.docx` for the complete step-by-step procedure,
 https://dwettergreen.github.io/hike_planner/#trail=pct-wa
 https://dwettergreen.github.io/hike_planner/#trail=long-trail
 https://dwettergreen.github.io/hike_planner/#trail=colorado-trail
+https://dwettergreen.github.io/hike_planner/#trail=te-araroa-so
 ```
 
 ---
