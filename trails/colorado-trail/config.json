@@ -1,7 +1,9 @@
 {
   "trailName": "Colorado Trail",
   "trailAbbrev": "CT",
-  "startMarkerLabel": "Waterton Canyon Trailhead \u2014 Start (Mi 0)",
+  "startMarkerLabel":       "Durango",
+  "soboStartMarkerLabel":   "Waterton Canyon Trailhead",
+  "defaultDirection":       "NOBO", 
   "defaultStartDate": "2026-07-15",
   "defaultEmergeDate": "2026-06-15",
   "defaultAvgPace": 16,

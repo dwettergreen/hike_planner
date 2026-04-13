@@ -1,8 +1,8 @@
 {
   "trailName":              "Long Trail (VT)",
   "trailAbbrev":            "LT",
-  "startMarkerLabel":       "Williamstown MA — Start",
-  "soboStartMarkerLabel":   "Canadian Border — SOBO Start",
+  "startMarkerLabel":       "Massachusetts Border",
+  "soboStartMarkerLabel":   "Canadian Border",
   "defaultDirection":       "SOBO",
   "defaultStartDate":       "2026-06-25",
   "defaultEmergeDate":      "2026-06-01",
