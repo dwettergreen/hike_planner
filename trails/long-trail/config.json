@@ -1,38 +1,40 @@
 {
-  "trailName": "Long Trail",
-  "trailAbbrev": "LT",
-  "startMarkerLabel": "Williamstown, MA \u2014 Start (Mi 0)",
-  "defaultStartDate": "2026-06-25",
-  "defaultEmergeDate": "2026-05-28",
-  "defaultAvgPace": 12,
-  "defaultFlexPace": 2,
-  "endTrailDist": 249.099,
-  "bugEmergeDoy": 148,
+  "trailName":              "Long Trail (VT)",
+  "trailAbbrev":            "LT",
+  "startMarkerLabel":       "Williamstown MA — Start",
+  "soboStartMarkerLabel":   "Canadian Border — SOBO Start",
+  "defaultDirection":       "SOBO",
+  "defaultStartDate":       "2026-06-25",
+  "defaultEmergeDate":      "2026-06-01",
+  "defaultAvgPace":         10,
+  "defaultFlexPace":        2,
+  "endTrailDist":           272.0,
+  "bugEmergeDoy":           155,
   "terminus": {
-    "name": "Northern Terminus",
-    "lat": 44.9999,
-    "lon": -72.511,
-    "elev": 2560,
-    "mile": 249.099
+    "name": "Canadian Border",
+    "lat":  45.0059,
+    "lon":  -72.4345,
+    "elev": 2600,
+    "mile": 272
   },
   "bugBands": [
     {
-      "name": "Black Flies",
-      "label": "Black Flies",
-      "peakDoy": 161,
-      "sigma": 12,
-      "weight": 1.3,
-      "elevDecay": 8e-05,
-      "waterBonus": 0.1
+      "name":       "Mosquitoes",
+      "label":      "Mosquitoes",
+      "peakDoy":    178,
+      "sigma":      25,
+      "weight":     2.5,
+      "elevDecay":  0.00020,
+      "waterBonus": 0.40
     },
     {
-      "name": "Mosquitoes",
-      "label": "Mosquitoes",
-      "peakDoy": 196,
-      "sigma": 25,
-      "weight": 1.4,
-      "elevDecay": 0.00015,
-      "waterBonus": 0.3
+      "name":       "BlackFlies",
+      "label":      "Black Flies",
+      "peakDoy":    155,
+      "sigma":      18,
+      "weight":     2.0,
+      "elevDecay":  0.00015,
+      "waterBonus": 0.20
     }
   ]
 }

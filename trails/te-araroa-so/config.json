@@ -1,28 +1,30 @@
 {
-  "trailName": "Te Araroa South Island",
-  "trailAbbrev": "TA",
-  "startMarkerLabel": "Bluff — Start (km 0)",
-  "defaultStartDate": "2026-11-15",
-  "defaultEmergeDate": "2026-11-01",
-  "defaultAvgPace": 16,
-  "defaultFlexPace": 4,
-  "endTrailDist": 985.932,
-  "bugEmergeDoy": 305,
+  "trailName":              "Te Araroa South Island",
+  "trailAbbrev":            "TA",
+  "startMarkerLabel":       "Bluff — NOBO Start",
+  "soboStartMarkerLabel":   "Ship Cove — SOBO Start",
+  "defaultDirection":       "SOBO",
+  "defaultStartDate":       "2026-11-01",
+  "defaultEmergeDate":      "2026-12-01",
+  "defaultAvgPace":         15,
+  "defaultFlexPace":        4,
+  "endTrailDist":           985.932,
+  "bugEmergeDoy":           340,
   "terminus": {
-    "name": "Ship Cove — Meretoto",
-    "lat": -41.0947,
-    "lon": 174.2353,
+    "name": "Ship Cove",
+    "lat":  -41.0116,
+    "lon":  174.2468,
     "elev": 10,
-    "mile": 985.9
+    "mile": 986
   },
   "bugBands": [
     {
-      "name": "Sandflies",
-      "label": "Sandflies",
-      "peakDoy": 355,
-      "sigma": 55,
-      "weight": 3.0,
-      "elevDecay": 0.0004,
+      "name":       "Sandflies",
+      "label":      "Sandflies",
+      "peakDoy":    355,
+      "sigma":      55,
+      "weight":     3.0,
+      "elevDecay":  0.0004,
       "waterBonus": 0.50
     }
   ]

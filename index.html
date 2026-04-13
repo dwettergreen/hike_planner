@@ -71,6 +71,8 @@ header{
 .clbl{font-size:11px;color:var(--text3);width:68px;flex-shrink:0;}
 input[type=range]{flex:1;accent-color:var(--green);cursor:pointer;}
 input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a2235;border-radius:4px;padding:3px 6px;font-size:11px;font-family:inherit;}
+select.ctrl-sel{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a2235;border-radius:4px;padding:3px 6px;font-size:11px;font-family:inherit;cursor:pointer;outline:none;}
+select.ctrl-sel:focus{border-color:var(--blue);}
 .cval{font-family:'Source Code Pro',monospace;font-size:11px;color:var(--green);width:38px;text-align:right;flex-shrink:0;}
 .btn{flex:1;padding:5px 6px;border-radius:4px;border:1px solid var(--border);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.4px;font-family:inherit;}
 
@@ -270,6 +272,13 @@ input[type=date]{flex:1;background:#ffffff;border:1px solid #8090b0;color:#1a223
     </div>
     <div class="controls">
       <div class="crow">
+        <div class="clbl">Direction</div>
+        <select id="direction" class="ctrl-sel" onchange="onDirectionChange()">
+          <option value="NOBO">Northbound (NOBO)</option>
+          <option value="SOBO">Southbound (SOBO)</option>
+        </select>
+      </div>
+      <div class="crow">
         <div class="clbl">Start date</div>
         <input type="date" id="start-date" onchange="rebuildAndRender()">
       </div>
@@ -369,10 +378,22 @@ let BUG_BANDS         = [];     // populated from config.json bugBands
 let TRAIL_NAME         = 'Trail';
 let TRAIL_ABBREV       = 'HIKE';
 let START_MARKER_LABEL = 'Start';
+let SOBO_START_MARKER_LABEL = '';  // optional SOBO start label from config
 let DEFAULT_START_DATE = '2026-06-25';
 let DEFAULT_EMERGE_DATE = '2026-05-28';
 let DEFAULT_AVG_PACE   = 13;
 let DEFAULT_FLEX_PACE  = 3;
+
+// Direction — NOBO (northbound) or SOBO (southbound)
+// DIRECTION is the live value driving the optimizer and rendering.
+// DEFAULT_DIRECTION is reset from config.json on each trail load.
+let DIRECTION          = 'NOBO';
+let DEFAULT_DIRECTION  = 'NOBO';
+
+// The final destination node for the current direction.
+// In NOBO: mirrors TERMINUS (geographic north end).
+// In SOBO: the geographic south start — built from TRAIL_COORDS[0] at load time.
+let TRAIL_END_NODE = null;  // set by placeStartMarker() after TRAIL_COORDS loads
 
 // ════════════════════════════════════════════════════
 // DATA — loaded async from data/ folder
@@ -735,27 +756,34 @@ function buildPlan(){
   if(!ALL_STOPS.length) return null;
   const {avg} = getPace();
   const sd       = getStartDate();
-  const startDoy = Math.floor((sd - new Date(sd.getFullYear(), 0, 0)) / 86400000);
 
   const TOTAL = END_TRAIL_DIST - START_TRAIL_DIST;  // geometry-derived total miles
   const T     = Math.round(TOTAL / avg);             // target number of nights
 
-  // Use trailDist (geometry-derived) for the DP distance window.
-  // Falls back to (mile - START_MILE) scaled to geometry if trailDist missing.
+  // Effective distance from the hiker's start, always 0→TOTAL regardless of direction.
+  // NOBO: effDist = trailDist (increases north).
+  // SOBO: effDist = END_TRAIL_DIST - trailDist (increases south from geographic far end).
+  // The DP always runs forward over ascending effDist, so no algorithm changes needed.
   const SCALE = TOTAL / (END_MILE - START_MILE);
   function getTD(camp){
     if(camp.trailDist != null) return camp.trailDist;
     return (camp.mile - START_MILE) * SCALE;
   }
+  function getEffDist(camp){
+    const td = getTD(camp);
+    return DIRECTION === 'SOBO' ? END_TRAIL_DIST - td : td;
+  }
 
-  // Sort a copy by trailDist so dists[] is strictly ascending.
+  // Sort ascending by effective distance so dists[] is strictly ascending.
   // The DP inner loop uses "break when dist > max_d" which requires this.
-  const SORTED = [...ALL_STOPS].filter(c => !c.offTrail).sort((a,b) => getTD(a) - getTD(b));
+  const SORTED = [...ALL_STOPS].filter(c => !c.offTrail).sort((a,b) => getEffDist(a) - getEffDist(b));
   const N     = SORTED.length;
-  const dists = [START_TRAIL_DIST, ...SORTED.map(getTD), END_TRAIL_DIST];
+  // DP node 0 = hiker start (effDist 0), node M-1 = trail end (effDist TOTAL)
+  const dists = [0, ...SORTED.map(getEffDist), TOTAL];
   const M     = dists.length;
 
-  // Score = elev × (1 + 2 × low-bug-bonus), date-aware
+  // Score = elev × (1 + 2 × low-bug-bonus), date-aware.
+  // dists[i] is distance-from-start so arrDate is correct for both directions.
   function score(i) {
     if(i === 0 || i === M-1) return 0;
     const camp = SORTED[i-1];
@@ -790,6 +818,9 @@ function buildPlan(){
     return path;
   }
 
+  // The final destination node — TERMINUS for NOBO, TRAIL_END_NODE for SOBO.
+  const endNode = (DIRECTION === 'SOBO' && TRAIL_END_NODE) ? TRAIL_END_NODE : TERMINUS;
+
   // Try progressively wider tolerances until a valid path is found
   const tolerances = [0.25, 0.35, 0.45, 0.55, 0.65, 0.80];
   for(const tol of tolerances){
@@ -797,7 +828,7 @@ function buildPlan(){
     const max_d = TOTAL / (T * (1 - tol));
     const path = runDP(min_d, max_d);
     if(path){
-      return path.map(i => i === M-1 ? {...TERMINUS} : {...SORTED[i-1], isTerminus: false});
+      return path.map(i => i === M-1 ? {...endNode} : {...SORTED[i-1], isTerminus: false});
     }
   }
   return null;
@@ -819,8 +850,13 @@ function renderMap(){
   plan.forEach((camp,idx)=>{
     const isTerm = !!camp.isTerminus;
     const col = elevColor(camp.elev);
-    const prevMile = idx===0 ? START_MILE : plan[idx-1].mile;
-    const miToday = (camp.mile-prevMile).toFixed(1);
+    // Use trailDist-based daily distance, direction-aware (always positive)
+    const SCALE_M = (END_TRAIL_DIST-START_TRAIL_DIST)/(END_MILE-START_MILE);
+    const prevTD_M = idx===0
+      ? (DIRECTION==='SOBO' ? END_TRAIL_DIST : START_TRAIL_DIST)
+      : (plan[idx-1].trailDist != null ? plan[idx-1].trailDist : (plan[idx-1].mile-START_MILE)*SCALE_M);
+    const thisTD_M = camp.trailDist != null ? camp.trailDist : (camp.mile-START_MILE)*SCALE_M;
+    const miToday = (DIRECTION==='SOBO' ? prevTD_M - thisTD_M : thisTD_M - prevTD_M).toFixed(1);
     const dateStr = fmtDate(sd,idx);
     const isActive = idx===activeIdx;
 
@@ -915,6 +951,20 @@ function renderMap(){
 // ════════════════════════════════════════════════════
 // RENDER SIDEBAR
 // ════════════════════════════════════════════════════
+
+// Returns the miles hiked on a given plan day (always positive).
+// Uses trailDist; falls back to scaled mile.
+// Direction-aware: SOBO trips decrease trailDist, so we subtract in the other order.
+function dailyDist(idx){
+  const SCALE = (END_TRAIL_DIST-START_TRAIL_DIST)/(END_MILE-START_MILE);
+  function td(c){ return c.trailDist != null ? c.trailDist : (c.mile-START_MILE)*SCALE; }
+  const prevTD = idx===0
+    ? (DIRECTION==='SOBO' ? END_TRAIL_DIST : START_TRAIL_DIST)
+    : td(plan[idx-1]);
+  const thisTD = td(plan[idx]);
+  return DIRECTION==='SOBO' ? prevTD - thisTD : thisTD - prevTD;
+}
+
 function renderList(){
   const list = document.getElementById('list-panel');
   list.innerHTML='';
@@ -925,12 +975,7 @@ function renderList(){
     // Skip malformed entries (safety net — should not occur in normal operation)
     if(!camp || camp.mile == null) return;
     const isTerm=!!camp.isTerminus;
-    // Use trailDist for daily distance if available, else fall back to mile diff
-    const SCALE = (END_TRAIL_DIST-START_TRAIL_DIST)/(END_MILE-START_MILE);
-    const prevTD = idx===0 ? START_TRAIL_DIST
-      : (plan[idx-1].trailDist != null ? plan[idx-1].trailDist : (plan[idx-1].mile-START_MILE)*SCALE);
-    const thisTD = camp.trailDist != null ? camp.trailDist : (camp.mile-START_MILE)*SCALE;
-    const mi = thisTD - prevTD;
+    const mi = dailyDist(idx);
     const isWarn=!isTerm&&(mi<min-0.3||mi>max+0.3);
     const col=elevColor(camp.elev);
 
@@ -1110,12 +1155,15 @@ function renderSummary(){
   // Compute daily distances using trailDist only, excluding the terminus.
   // The terminus has no trailDist (it's a config object, not a campsite record)
   // and must be excluded or it produces a massive bogus distance via the mile fallback.
+  // Direction-aware: SOBO trips decrease trailDist each day.
   const nonTerminus = plan.filter(c => !c.isTerminus);
   const dists = nonTerminus.map((c, i) => {
     const thisTD = c.trailDist;
-    const prevTD = i === 0 ? START_TRAIL_DIST : nonTerminus[i-1].trailDist;
+    const prevTD = i === 0
+      ? (DIRECTION === 'SOBO' ? END_TRAIL_DIST : START_TRAIL_DIST)
+      : nonTerminus[i-1].trailDist;
     if(thisTD == null || prevTD == null) return null;
-    return Math.max(0, thisTD - prevTD);
+    return Math.max(0, DIRECTION === 'SOBO' ? prevTD - thisTD : thisTD - prevTD);
   }).filter(d => d !== null);
   const seg=(label,count,color)=>`
     <div class="sbar-wrap">
@@ -1183,7 +1231,8 @@ function renderSummary(){
 // ════════════════════════════════════════════════════
 function renderHeader(){
   const camps=plan.filter(c=>!c.isTerminus);
-  const dists=plan.map((c,i)=>i===0?c.mile-START_MILE:c.mile-plan[i-1].mile);
+  // Use trailDist-based daily distances (direction-aware) for accuracy
+  const dists=plan.map((_,i)=>dailyDist(i));
   const avg=dists.reduce((a,b)=>a+b)/dists.length;
   const elevs=camps.map(c=>c.elev).filter(Boolean);
   const avgE=elevs.length?Math.round(elevs.reduce((a,b)=>a+b)/elevs.length):0;
@@ -1196,13 +1245,9 @@ function renderHeader(){
 function renderWarnings(){
   const {min,max}=getPace();
   const warns=[];
-  const SCALE_W = (END_TRAIL_DIST-START_TRAIL_DIST)/(END_MILE-START_MILE);
   plan.forEach((camp,idx)=>{
     if(camp.isTerminus) return;
-    const prevTD = idx===0 ? START_TRAIL_DIST
-      : (plan[idx-1].trailDist != null ? plan[idx-1].trailDist : (plan[idx-1].mile-START_MILE)*SCALE_W);
-    const thisTD = camp.trailDist != null ? camp.trailDist : (camp.mile-START_MILE)*SCALE_W;
-    const mi = thisTD - prevTD;
+    const mi = dailyDist(idx);
     if(mi<min-0.3||mi>max+0.3) warns.push(`Night ${idx+1}: ${mi.toFixed(1)} mi`);
   });
   const bar=document.getElementById('warnbar');
@@ -1273,11 +1318,7 @@ function planToCSV(){
   plan.forEach((camp,idx)=>{
     const isTerm = !!camp.isTerminus;
     const date = fmtDate(sd, idx);
-    const SCALE_C = (END_TRAIL_DIST-START_TRAIL_DIST)/(END_MILE-START_MILE);
-    const prevTD_C = idx===0 ? START_TRAIL_DIST
-      : (plan[idx-1].trailDist != null ? plan[idx-1].trailDist : (plan[idx-1].mile-START_MILE)*SCALE_C);
-    const thisTD_C = camp.trailDist != null ? camp.trailDist : (camp.mile-START_MILE)*SCALE_C;
-    const mi = (thisTD_C - prevTD_C).toFixed(1);
+    const mi = dailyDist(idx).toFixed(1);
     const mp = isTerm ? '' : bugLabel(bugPressureAt(camp, arrivalDate(idx)));
     const mpVal = mp && mp !== 'MINIMAL' ? mp + ' bugs' : '';
     const wind = !isTerm && camp.elev >= 6500 ? 'Wind!'
@@ -1354,12 +1395,21 @@ function downloadCSV(){
   URL.revokeObjectURL(a.href);
 }
 
+// Called when the Direction dropdown changes.
+// Updates DIRECTION, repositions the start marker, and reruns the optimizer.
+function onDirectionChange(){
+  DIRECTION = document.getElementById('direction').value;
+  placeStartMarker();
+  rebuildAndRender();
+}
+
 function saveAsJSON(){
   const settings = {
     startDate:  document.getElementById('start-date').value,
     emergeDate: document.getElementById('emerge-date').value,
     avgPace:    document.getElementById('avg-pace').value,
-    flexPace:   document.getElementById('flex-pace').value
+    flexPace:   document.getElementById('flex-pace').value,
+    direction:  DIRECTION
   };
   // Save the FULL plan as an array of {name, mile, trailDist} — one entry per night.
   // This is more reliable than diffing against a fresh build, since the fresh
@@ -1367,12 +1417,16 @@ function saveAsJSON(){
   const SCALE = (END_TRAIL_DIST - START_TRAIL_DIST) / (END_MILE - START_MILE);
   const nights = plan
     .filter(c => !c.isTerminus)
-    .map(c => ({
-      name:      c.name,
-      mile:      c.mile,
-      trailDist: c.trailDist != null ? c.trailDist : parseFloat(((c.mile - START_MILE) * SCALE).toFixed(3)),
-      _manual:   c._manual || false
-    }));
+    .map(c => {
+      const entry = {
+        name:      c.name,
+        mile:      c.mile,
+        trailDist: c.trailDist != null ? c.trailDist : parseFloat(((c.mile - START_MILE) * SCALE).toFixed(3))
+      };
+      // Per TDD §8.3: omit _manual entirely when false — don't write false
+      if(c._manual) entry._manual = true;
+      return entry;
+    });
   const saved = {
     version: 2,
     trailId: CURRENT_TRAIL_ID,
@@ -1834,8 +1888,9 @@ function reslotManualCamps(manuals, newPlan){
     return c.trailDist != null ? c.trailDist : (c.mile - START_MILE) * SCALE_R;
   }
 
-  // Sort manuals by trailDist — process in trail order
-  const sorted = [...manuals].sort((a, b) => getTD(a) - getTD(b));
+  // Sort manuals by trailDist — process in travel order (ascending for NOBO, descending for SOBO)
+  const sorted = [...manuals].sort((a, b) =>
+    DIRECTION === 'SOBO' ? getTD(b) - getTD(a) : getTD(a) - getTD(b));
 
   // Separate terminus from non-terminus DP camps
   const terminus = newPlan.find(c => c.isTerminus);
@@ -1858,11 +1913,12 @@ function reslotManualCamps(manuals, newPlan){
     dpCamps[bestIdx] = {...camp, isTerminus:false, _manual:true};
   });
 
-  // Sort all camps by trailDist to restore trail order.
-  // Manual camps may have different trailDist than the DP camps they
-  // replaced, so a final sort guarantees ascending order and correct
-  // daily distance calculations.
-  dpCamps.sort((a, b) => getTD(a) - getTD(b));
+  // Sort all camps by trailDist to restore travel order.
+  // NOBO: ascending trailDist. SOBO: descending trailDist.
+  // This guarantees positive daily distances regardless of where each
+  // manual camp's trailDist falls relative to its replaced DP slot (Bug 12 analog).
+  dpCamps.sort((a, b) =>
+    DIRECTION === 'SOBO' ? getTD(b) - getTD(a) : getTD(a) - getTD(b));
 
   // Rebuild newPlan in place
   newPlan.length = 0;
@@ -1927,9 +1983,58 @@ function teardownTrail(){
   if(editorDotLayer){ map.removeLayer(editorDotLayer); editorDotLayer = null; }
   // Reset data arrays
   CAMPS=[]; RESUPPLY=[]; ALL_STOPS=[]; TRAIL_COORDS=[]; plan=[];
+  TRAIL_END_NODE = null;
   // Reset UI
   document.getElementById('list-panel').innerHTML = '';
   document.getElementById('sum-panel').innerHTML  = '';
+}
+
+// Place (or reposition) the start marker based on the current DIRECTION.
+// In NOBO, start = TRAIL_COORDS[0] (geographic south end).
+// In SOBO, start = TRAIL_COORDS[last] (geographic north end).
+// Also builds TRAIL_END_NODE — the isTerminus object for the opposite end.
+function placeStartMarker(){
+  if(!TRAIL_COORDS.length) return;
+
+  // Remove any existing start marker
+  if(_startMarker){ map.removeLayer(_startMarker); _startMarker = null; }
+
+  const firstCoord = TRAIL_COORDS[0];
+  const lastCoord  = TRAIL_COORDS[TRAIL_COORDS.length - 1];
+
+  // Geographic NOBO-start endpoint (trailDist = 0, always at index 0)
+  const noboStartNode = {
+    name: START_MARKER_LABEL,
+    lat:  firstCoord[1], lon: firstCoord[0],
+    elev: 0, mile: START_MILE,
+    trailDist: START_TRAIL_DIST,
+    isTerminus: true
+  };
+
+  if(DIRECTION === 'SOBO'){
+    // Start marker at geographic north end (TRAIL_COORDS last point)
+    const label = SOBO_START_MARKER_LABEL || (TERMINUS.name ? 'Start — ' + TERMINUS.name : START_MARKER_LABEL);
+    const startLatLon = [lastCoord[1], lastCoord[0]];
+    const startIcon = L.divIcon({className:'',
+      html:`<div style="width:20px;height:20px;border-radius:50%;background:#2a7d4f;border:2px solid rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center;font-family:'Source Code Pro',monospace;font-size:10px;font-weight:700;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.45);">0</div>`,
+      iconSize:[20,20], iconAnchor:[10,10]});
+    _startMarker = L.marker(startLatLon, {icon:startIcon, interactive:true})
+      .bindTooltip(label, {className:'tip-tooltip', direction:'top', offset:[0,-14]})
+      .addTo(map);
+    // SOBO end node = geographic south end (trailDist = 0 geographically)
+    TRAIL_END_NODE = {...noboStartNode, name: noboStartNode.name || 'Southern Terminus'};
+  } else {
+    // NOBO: start marker at geographic south end (TRAIL_COORDS[0])
+    const startLatLon = [firstCoord[1], firstCoord[0]];
+    const startIcon = L.divIcon({className:'',
+      html:`<div style="width:20px;height:20px;border-radius:50%;background:#2a7d4f;border:2px solid rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center;font-family:'Source Code Pro',monospace;font-size:10px;font-weight:700;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.45);">0</div>`,
+      iconSize:[20,20], iconAnchor:[10,10]});
+    _startMarker = L.marker(startLatLon, {icon:startIcon, interactive:true})
+      .bindTooltip(START_MARKER_LABEL, {className:'tip-tooltip', direction:'top', offset:[0,-14]})
+      .addTo(map);
+    // NOBO end node = TERMINUS (geographic north end) — already set from config
+    TRAIL_END_NODE = null; // signals buildPlan to use TERMINUS
+  }
 }
 
 async function loadTrail(trailId){
@@ -2030,6 +2135,11 @@ function applyPlanRestore(saved){
     document.getElementById('start-date').value  = s.startDate  || DEFAULT_START_DATE;
     // emergeDate is the v4 name; fall back to meltDate for v2/v3 saved plans
     document.getElementById('emerge-date').value = s.emergeDate || s.meltDate || DEFAULT_EMERGE_DATE;
+    // Restore direction — default to NOBO for plans saved before this feature
+    const savedDir = s.direction || 'NOBO';
+    DIRECTION = savedDir;
+    document.getElementById('direction').value = savedDir;
+    placeStartMarker();  // reposition start marker for restored direction
     syncLabels();
     rebuildAndRender();
   }
@@ -2095,7 +2205,8 @@ async function loadData(trailPath) {
     // Trail identity
     if(cfg.trailName)       TRAIL_NAME         = cfg.trailName;
     if(cfg.trailAbbrev)     TRAIL_ABBREV       = cfg.trailAbbrev;
-    if(cfg.startMarkerLabel) START_MARKER_LABEL = cfg.startMarkerLabel;
+    if(cfg.startMarkerLabel)     START_MARKER_LABEL      = cfg.startMarkerLabel;
+    if(cfg.soboStartMarkerLabel) SOBO_START_MARKER_LABEL = cfg.soboStartMarkerLabel;
 
     // Trail geometry constants
     if(cfg.endTrailDist    != null) END_TRAIL_DIST      = cfg.endTrailDist;
@@ -2116,6 +2227,9 @@ async function loadData(trailPath) {
     if(cfg.defaultEmergeDate) DEFAULT_EMERGE_DATE = cfg.defaultEmergeDate;
     if(cfg.defaultAvgPace  != null) DEFAULT_AVG_PACE  = cfg.defaultAvgPace;
     if(cfg.defaultFlexPace != null) DEFAULT_FLEX_PACE = cfg.defaultFlexPace;
+
+    // Direction default — reset to trail's preferred direction on each trail load
+    DEFAULT_DIRECTION = cfg.defaultDirection || 'NOBO';
   } else {
     console.warn('config.json not found for trail — using built-in defaults.');
   }
@@ -2126,6 +2240,9 @@ async function loadData(trailPath) {
   document.getElementById('flex-pace').value   = DEFAULT_FLEX_PACE;
   document.getElementById('start-date').value  = DEFAULT_START_DATE;
   document.getElementById('emerge-date').value = DEFAULT_EMERGE_DATE;
+  // Reset direction to this trail's default
+  DIRECTION = DEFAULT_DIRECTION;
+  document.getElementById('direction').value = DIRECTION;
 
   // ── Apply trail identity to header and legend ────────────────────────────────
   document.getElementById('h-abbrev').textContent    = TRAIL_ABBREV;
@@ -2209,20 +2326,8 @@ async function loadData(trailPath) {
   const trailLatLngs = TRAIL_COORDS.map(([lon,lat]) => [lat,lon]);
   _trailLine = L.polyline(trailLatLngs, {color:'#e07020', weight:2.5, opacity:0.7}).addTo(map);
 
-  // Start marker at first point of trail.geojson
-  const startLatLon = [TRAIL_COORDS[0][1], TRAIL_COORDS[0][0]];
-  const startIcon = L.divIcon({className:'',
-    html:`<div style="
-      width:20px;height:20px;border-radius:50%;
-      background:#2a7d4f;border:2px solid rgba(255,255,255,0.85);
-      display:flex;align-items:center;justify-content:center;
-      font-family:'Source Code Pro',monospace;font-size:10px;font-weight:700;
-      color:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.45);">0</div>`,
-    iconSize:[20,20], iconAnchor:[10,10]});
-  _startMarker = L.marker(startLatLon, {icon:startIcon, interactive:true})
-    .bindTooltip(START_MARKER_LABEL,
-      {className:'tip-tooltip', direction:'top', offset:[0,-14]})
-    .addTo(map);
+  // Place start marker and build TRAIL_END_NODE — direction-aware
+  placeStartMarker();
 
   // Static background dot layer — store reference for teardown
   _bgDotLayer = L.layerGroup().addTo(map);
