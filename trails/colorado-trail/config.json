@@ -1,31 +1,31 @@
 {
-  "trailName":              "Colorado Trail",
-  "trailAbbrev":            "CT",
-  "startMarkerLabel":       "Denver — Start",
-  "soboStartMarkerLabel":   "Durango — SOBO Start",
-  "defaultDirection":       "NOBO",
-  "defaultStartDate":       "2026-07-01",
-  "defaultEmergeDate":      "2026-06-08",
-  "defaultAvgPace":         13,
-  "defaultFlexPace":        3,
-  "endTrailDist":           486.0,
-  "bugEmergeDoy":           142,
+  "trailName": "Colorado Trail",
+  "trailAbbrev": "CT",
+  "startMarkerLabel": "Durango \u2014 Start (NOBO)",
+  "soboStartMarkerLabel": "Waterton Canyon \u2014 SOBO Start",
+  "defaultDirection": "NOBO",
+  "defaultStartDate": "2026-07-01",
+  "defaultEmergeDate": "2026-06-08",
+  "defaultAvgPace": 13,
+  "defaultFlexPace": 3,
+  "endTrailDist": 444.262,
+  "bugEmergeDoy": 142,
   "terminus": {
-    "name": "Durango",
-    "lat":  37.2753,
-    "lon":  -107.8801,
-    "elev": 6512,
-    "mile": 486
+    "name": "Waterton Canyon",
+    "lat": 39.4614,
+    "lon": -105.0793,
+    "elev": 5520,
+    "mile": 444.262
   },
   "bugBands": [
     {
-      "name":       "Mosquitoes",
-      "label":      "Mosquitoes",
-      "peakDoy":    159,
-      "sigma":      12,
-      "weight":     0.8,
-      "elevDecay":  0.00035,
-      "waterBonus": 0.30
+      "name": "Mosquitoes",
+      "label": "Mosquitoes",
+      "peakDoy": 159,
+      "sigma": 12,
+      "weight": 0.8,
+      "elevDecay": 0.00035,
+      "waterBonus": 0.3
     }
   ]
 }
