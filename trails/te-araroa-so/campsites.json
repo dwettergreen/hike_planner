@@ -528,19 +528,6 @@
     "trailDist": 463.239
   },
   {
-    "mile": 468.69,
-    "name": "Hunters Hut",
-    "lat": -43.226478,
-    "lon": 170.751869,
-    "elev": 3746,
-    "type": "Established",
-    "water": true,
-    "outhouse": true,
-    "source": "doc",
-    "desc": "Included in The Trail Pass",
-    "trailDist": 468.695
-  },
-  {
     "mile": 469.11,
     "name": "Crooked Spur Hut",
     "lat": -43.623891,
@@ -565,6 +552,30 @@
     "source": "doc",
     "desc": "DOC facility",
     "trailDist": 505.81
+  },
+  {
+    "name": "Arundel Bridge Campsite",
+    "mile": 512.75,
+    "lat": -43.973674,
+    "lon": 171.296567,
+    "elev": 195,
+    "type": "Undeveloped",
+    "water": false,
+    "outhouse": false,
+    "source": "custom",
+    "trailDist": 512.745
+  },
+  {
+    "name": "Lake Clearwater Campground",
+    "mile": 555.18,
+    "lat": -43.611019,
+    "lon": 171.048252,
+    "elev": 680,
+    "type": "Undeveloped",
+    "water": false,
+    "outhouse": false,
+    "source": "custom",
+    "trailDist": 555.181
   },
   {
     "mile": 580.54,
@@ -619,16 +630,28 @@
     "trailDist": 597.688
   },
   {
-    "name": "Rakaia Gorge Campground",
+    "name": "Rakaia Gorge Camping Ground",
     "mile": 626.48,
     "lat": -43.519003,
     "lon": 171.654332,
-    "elev": 350,
-    "type": "Established",
-    "water": true,
-    "outhouse": true,
+    "elev": 280,
+    "type": "Undeveloped",
+    "water": false,
+    "outhouse": false,
     "source": "custom",
     "trailDist": 626.478
+  },
+  {
+    "name": "Trustpower Campsite",
+    "mile": 659.46,
+    "lat": -43.221777,
+    "lon": 171.458615,
+    "elev": null,
+    "type": "Undeveloped",
+    "water": false,
+    "outhouse": false,
+    "source": "custom",
+    "trailDist": 659.461
   },
   {
     "mile": 671.53,
@@ -1346,6 +1369,30 @@
     "trailDist": 951.369
   },
   {
+    "name": "Camp Bay",
+    "mile": 969.02,
+    "lat": -41.128058,
+    "lon": 174.146935,
+    "elev": 10,
+    "type": "Established",
+    "water": false,
+    "outhouse": false,
+    "source": "custom",
+    "trailDist": 969.025
+  },
+  {
+    "name": "Endeavor Inlet Campground",
+    "mile": 975.25,
+    "lat": -41.085819,
+    "lon": 174.177225,
+    "elev": 20,
+    "type": "Established",
+    "water": true,
+    "outhouse": true,
+    "source": "custom",
+    "trailDist": 975.252
+  },
+  {
     "mile": 982.42,
     "name": "Schoolhouse Bay Campsite",
     "lat": -41.11135,
@@ -1357,5 +1404,17 @@
     "source": "manual",
     "desc": "Included in The Trail Pass (Bookings required)",
     "trailDist": 982.424
+  },
+  {
+    "name": "Queen Charlotte Trailhead",
+    "mile": 985.88,
+    "lat": -41.094648,
+    "lon": 174.234415,
+    "elev": 10,
+    "type": "Established",
+    "water": false,
+    "outhouse": false,
+    "source": "custom",
+    "trailDist": 985.888
   }
 ]
