@@ -413,7 +413,6 @@ const markers = {};     // idx → L.marker
 // ── EDITOR STATE ──────────────────────────────────────────────
 let editorMode    = false;  // true when Editor tab is active
 let editorSel     = null;   // index into ALL_STOPS[] of selected camp
-let editorDirty   = false;  // unsaved changes in this session
 let editorDotLayer = null;  // L.LayerGroup for editor dots
 let editorTempMark = null;  // temp marker while editing
 
@@ -432,51 +431,8 @@ tileLayers.topo.addTo(map);
 function switchLayer(v){ Object.values(tileLayers).forEach(l=>map.removeLayer(l)); tileLayers[v].addTo(map); }
 
 
-
-// ── Resupply locations: star markers ────────────────────────────────────────
-RESUPPLY.forEach(r => {
-  const icon = L.divIcon({
-    className: '',
-    html: '<div style="width:14px;height:14px;background:#1d4ed8;border:2px solid #93c5fd;border-radius:2px;box-shadow:0 1px 4px rgba(0,0,0,0.5)"></div>',
-    iconSize: [14, 14],
-    iconAnchor: [7, 7]
-  });
-  const amenBadges = r.amenities.map(a =>
-    `<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:#1e3a5f;color:#93c5fd;border:1px solid #2563eb;font-weight:600;text-transform:uppercase">${a}</span>`
-  ).join(' ');
-  L.marker([r.lat, r.lon], { icon })
-    .addTo(map)
-    .bindPopup(`
-      <div style="font-size:10px;color:#93c5fd;letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-bottom:2px">&#9642; Resupply · Mi ${r.mile}</div>
-      <div style="font-family:'Bitter',serif;font-size:15px;font-weight:700;margin-bottom:7px">${r.name}</div>
-      <div style="font-size:12px;color:#8fa3bf;line-height:1.5;margin-bottom:7px">${r.desc}</div>
-      <div style="display:flex;gap:4px;flex-wrap:wrap">${amenBadges}</div>
-    `, { maxWidth: 260 });
-});
-
-// Actual PCT trail from GPS data
-const trailLine = L.polyline(
-  TRAIL_COORDS.map(function(c){ return [c[1], c[0]]; }),
-  { color:'#e8832a', weight:3, opacity:0.85 }
-).addTo(map);
-
-// Thin gold dashed line connecting your planned campsites in order
+// Thin dashed line connecting planned campsites — updated by renderMap()
 const routeLine = L.polyline([], { opacity:0, weight:0 }).addTo(map);
-
-
-// ── Campsites: white/orange ring, drawn after trail so visible ──
-CAMPS.forEach(c => {
-  L.circleMarker([c.lat, c.lon], {
-    radius: 4, fillColor: '#ffffff', color: '#e8832a', weight: 1.5, fillOpacity: 0.9
-  }).addTo(map)
-  .bindTooltip(
-    '<b>' + c.name + '</b><br>Mi ' + c.mile + ' · ' +
-    (c.elev ? c.elev.toLocaleString() + ' ft' : '—') +
-    (c.water ? ' · 💧' : '') +
-    (c.type === 'Established' ? ' · Established' : ''),
-    { className:'tip-tooltip', sticky:true, offset:[8,0] }
-  );
-});
 
 
 // ════════════════════════════════════════════════════
@@ -618,15 +574,25 @@ function bugLabel(p){
   if(p >= 0.15) return 'LOW';
   return 'MINIMAL';
 }
+// Returns the raw trailDist for a camp, falling back to mile-scaled estimate.
+// Used wherever raw geographic distance from trail start is needed.
+function campTD(camp){
+  if(!camp) return END_TRAIL_DIST;
+  if(camp.trailDist != null) return camp.trailDist;
+  const scale = (END_TRAIL_DIST - START_TRAIL_DIST) / (END_MILE - START_MILE);
+  return (camp.mile - START_MILE) * scale;
+}
+
+// Returns days elapsed from start date to arrive at a given plan night.
+// Direction-aware: uses effective distance from hiker's start (always 0→TOTAL).
 function arrivalDate(nightIdx){
   const sd  = getStartDate();
   const avg = getPace().avg;
   const camp = plan[nightIdx];
-  const SCALE = (END_TRAIL_DIST-START_TRAIL_DIST)/(END_MILE-START_MILE);
-  const td = camp ? (camp.trailDist != null ? camp.trailDist : (camp.mile-START_MILE)*SCALE)
-                  : END_TRAIL_DIST;
+  const td = campTD(camp);
+  const effDist = DIRECTION === 'SOBO' ? END_TRAIL_DIST - td : td;
   const d = new Date(sd);
-  d.setDate(d.getDate() + Math.round(td / avg));
+  d.setDate(d.getDate() + Math.round(effDist / avg));
   return d;
 }
 function getPace(){
@@ -651,13 +617,10 @@ function syncLabels(){
 }
 function snapNearest(latlng){
   // Snap to the campsite physically closest to the drop location.
-  // Direct lat/lon distance is more reliable than going through trailDistFromLatLon,
-  // which uses the rendering trail's cumulative arc-length. The rendering trail
-  // (PCT: 8,974 pts from one GPS source) was computed independently from the
-  // campsite trailDist values (PCT: computed from a different high-res Halfmile source),
-  // creating systematic offsets that cause markers to snap to wrong camps further
-  // down the trail. There is only one switchback pair on PCT WA with physical
-  // separation < 0.5mi (CS2423/CS2425 at 2,348ft), well outside drag radius.
+  // Direct lat/lon distance is used rather than trailDistFromLatLon because
+  // the rendering trail and campsite trailDist values may come from different
+  // GPS sources, creating systematic offsets. Physical proximity is reliable
+  // for drag-and-drop snapping at typical map zoom levels.
   let best=null, bd=Infinity;
   ALL_STOPS.forEach(c=>{
     if(!c.lat || !c.lon) return;
@@ -761,17 +724,10 @@ function buildPlan(){
   const T     = Math.round(TOTAL / avg);             // target number of nights
 
   // Effective distance from the hiker's start, always 0→TOTAL regardless of direction.
-  // NOBO: effDist = trailDist (increases north).
-  // SOBO: effDist = END_TRAIL_DIST - trailDist (increases south from geographic far end).
-  // The DP always runs forward over ascending effDist, so no algorithm changes needed.
-  const SCALE = TOTAL / (END_MILE - START_MILE);
-  function getTD(camp){
-    if(camp.trailDist != null) return camp.trailDist;
-    return (camp.mile - START_MILE) * SCALE;
-  }
+  // NOBO: effDist = trailDist. SOBO: effDist = END_TRAIL_DIST - trailDist.
+  // The DP always runs forward over ascending effDist.
   function getEffDist(camp){
-    const td = getTD(camp);
-    return DIRECTION === 'SOBO' ? END_TRAIL_DIST - td : td;
+    return DIRECTION === 'SOBO' ? END_TRAIL_DIST - campTD(camp) : campTD(camp);
   }
 
   // Sort ascending by effective distance so dists[] is strictly ascending.
@@ -850,12 +806,11 @@ function renderMap(){
   plan.forEach((camp,idx)=>{
     const isTerm = !!camp.isTerminus;
     const col = elevColor(camp.elev);
-    // Use trailDist-based daily distance, direction-aware (always positive)
-    const SCALE_M = (END_TRAIL_DIST-START_TRAIL_DIST)/(END_MILE-START_MILE);
+    // Use campTD for direction-aware daily distance (always positive)
     const prevTD_M = idx===0
       ? (DIRECTION==='SOBO' ? END_TRAIL_DIST : START_TRAIL_DIST)
-      : (plan[idx-1].trailDist != null ? plan[idx-1].trailDist : (plan[idx-1].mile-START_MILE)*SCALE_M);
-    const thisTD_M = camp.trailDist != null ? camp.trailDist : (camp.mile-START_MILE)*SCALE_M;
+      : campTD(plan[idx-1]);
+    const thisTD_M = campTD(camp);
     const miToday = (DIRECTION==='SOBO' ? prevTD_M - thisTD_M : thisTD_M - prevTD_M).toFixed(1);
     const dateStr = fmtDate(sd,idx);
     const isActive = idx===activeIdx;
@@ -956,12 +911,10 @@ function renderMap(){
 // Uses trailDist; falls back to scaled mile.
 // Direction-aware: SOBO trips decrease trailDist, so we subtract in the other order.
 function dailyDist(idx){
-  const SCALE = (END_TRAIL_DIST-START_TRAIL_DIST)/(END_MILE-START_MILE);
-  function td(c){ return c.trailDist != null ? c.trailDist : (c.mile-START_MILE)*SCALE; }
   const prevTD = idx===0
     ? (DIRECTION==='SOBO' ? END_TRAIL_DIST : START_TRAIL_DIST)
-    : td(plan[idx-1]);
-  const thisTD = td(plan[idx]);
+    : campTD(plan[idx-1]);
+  const thisTD = campTD(plan[idx]);
   return DIRECTION==='SOBO' ? prevTD - thisTD : thisTD - prevTD;
 }
 
@@ -1019,7 +972,7 @@ function renderList(){
         <div class="nname">${camp.name}</div>
         <div class="nmeta">${fmtDate(sd,idx)} · Mi ${(camp.mile ?? 0).toFixed(1)}</div>
         <div class="nrow">
-          <div class="nelev" style="color:${col}">${camp.elev?camp.elev.toLocaleString()+' ft':'Terminus'}</div>
+          <div class="nelev" style="color:${col}">${camp.elev ? camp.elev.toLocaleString()+' ft' : isTerm ? '' : '—'}</div>
           <div class="nmi">${mi.toFixed(1)} mi today</div>
           ${badges.join('')}
         </div>
@@ -1158,13 +1111,12 @@ function renderSummary(){
   // Direction-aware: SOBO trips decrease trailDist each day.
   const nonTerminus = plan.filter(c => !c.isTerminus);
   const dists = nonTerminus.map((c, i) => {
-    const thisTD = c.trailDist;
+    const thisTD = campTD(c);
     const prevTD = i === 0
       ? (DIRECTION === 'SOBO' ? END_TRAIL_DIST : START_TRAIL_DIST)
-      : nonTerminus[i-1].trailDist;
-    if(thisTD == null || prevTD == null) return null;
+      : campTD(nonTerminus[i-1]);
     return Math.max(0, DIRECTION === 'SOBO' ? prevTD - thisTD : thisTD - prevTD);
-  }).filter(d => d !== null);
+  });
   const seg=(label,count,color)=>`
     <div class="sbar-wrap">
       <div class="sbar-top"><span>${label}</span><span style="color:${color};font-weight:600">${count} night${count!==1?'s':''}</span></div>
@@ -1414,14 +1366,13 @@ function saveAsJSON(){
   // Save the FULL plan as an array of {name, mile, trailDist} — one entry per night.
   // This is more reliable than diffing against a fresh build, since the fresh
   // build may differ due to rounding, new camps, or changed campsites.json.
-  const SCALE = (END_TRAIL_DIST - START_TRAIL_DIST) / (END_MILE - START_MILE);
   const nights = plan
     .filter(c => !c.isTerminus)
     .map(c => {
       const entry = {
         name:      c.name,
         mile:      c.mile,
-        trailDist: c.trailDist != null ? c.trailDist : parseFloat(((c.mile - START_MILE) * SCALE).toFixed(3))
+        trailDist: parseFloat(campTD(c).toFixed(3))
       };
       // Per TDD §8.3: omit _manual entirely when false — don't write false
       if(c._manual) entry._manual = true;
@@ -1675,8 +1626,7 @@ function editorStartNewAtTrailPoint(pt){
 
 function editorShowForm(c, isNew){
   const panel = document.getElementById('edit-panel');
-  const KNOWN_SOURCES = ['resupply','custom','halfmile','trailfinder','gmc','bcs','manual'];
-  const srcLabel = KNOWN_SOURCES.includes(c.source) ? c.source : 'null';
+  const KNOWN_SOURCES = ['resupply','custom','halfmile','trailfinder','gmc','bcs','manual','doc','trailpass'];
   const srcDisplay = srcLabel === 'null' ? '—' : srcLabel;
   panel.querySelector('#ef-panel').innerHTML = `
     <div class="eform">
@@ -1763,7 +1713,6 @@ function editorSave(){
   ALL_STOPS.sort((a,b)=>(a.mile||0)-(b.mile||0));
   editorSel = ALL_STOPS.findIndex(c=>c.name===name && Math.abs((c.mile||0)-mile)<0.001);
 
-  editorDirty = true;
   if(editorTempMark){ map.removeLayer(editorTempMark); editorTempMark=null; }
   rebuildEditorDots();
   renderEditorList();
@@ -1781,7 +1730,6 @@ function editorDelete(){
   if(ci>=0) CAMPS.splice(ci,1);
   editorSel = null;
   if(editorTempMark){ map.removeLayer(editorTempMark); editorTempMark=null; }
-  editorDirty = true;
   rebuildEditorDots();
   renderEditorList();
   document.getElementById('ef-panel').innerHTML = '';
@@ -1810,7 +1758,6 @@ function editorDownload(){
   a.download = 'campsites.json';
   a.click();
   URL.revokeObjectURL(a.href);
-  editorDirty = false;
 }
 
 let _editorSearchTimer = null;
@@ -1832,7 +1779,7 @@ function renderEditorList(q=''){
   filtered.forEach(c => {
     const i = ALL_STOPS.indexOf(c);
     const row = document.createElement('div');
-    const KNOWN_SOURCES = ['resupply','custom','halfmile','trailfinder','gmc','bcs','manual'];
+    const KNOWN_SOURCES = ['resupply','custom','halfmile','trailfinder','gmc','bcs','manual','doc','trailpass'];
     const srcLabel   = KNOWN_SOURCES.includes(c.source) ? c.source : 'null';
     const srcDisplay = srcLabel === 'null' ? '—' : srcLabel;
     row.className = `ecamp-row${i===editorSel?' esel':''}${c.source==='custom'?' enew':''}`;
@@ -1882,30 +1829,22 @@ let _lastNoPathKey = null;
 // that slot in newPlan[]. The plan is mutated in place.
 function reslotManualCamps(manuals, newPlan){
   if(!manuals.length) return;
-  const SCALE_R = (END_TRAIL_DIST - START_TRAIL_DIST) / (END_MILE - START_MILE);
 
-  function getTD(c){
-    return c.trailDist != null ? c.trailDist : (c.mile - START_MILE) * SCALE_R;
-  }
-
-  // Sort manuals by trailDist — process in travel order (ascending for NOBO, descending for SOBO)
+  // Sort manuals in travel order (ascending trailDist for NOBO, descending for SOBO)
   const sorted = [...manuals].sort((a, b) =>
-    DIRECTION === 'SOBO' ? getTD(b) - getTD(a) : getTD(a) - getTD(b));
+    DIRECTION === 'SOBO' ? campTD(b) - campTD(a) : campTD(a) - campTD(b));
 
-  // Separate terminus from non-terminus DP camps
   const terminus = newPlan.find(c => c.isTerminus);
   let dpCamps = newPlan.filter(c => !c.isTerminus);
 
-  // For each manual camp (in trail order), replace the DP camp whose
-  // trailDist is nearest. Greedy assignment in sorted order.
+  // Greedy nearest-match: each manual replaces the closest DP slot by trailDist
   const replaced = new Set();
-
   sorted.forEach(camp => {
-    const td = getTD(camp);
+    const td = campTD(camp);
     let bestIdx = -1, bestDist = Infinity;
     for(let i = 0; i < dpCamps.length; i++){
       if(replaced.has(i)) continue;
-      const d = Math.abs(getTD(dpCamps[i]) - td);
+      const d = Math.abs(campTD(dpCamps[i]) - td);
       if(d < bestDist){ bestDist = d; bestIdx = i; }
     }
     if(bestIdx < 0) return;
@@ -1913,14 +1852,10 @@ function reslotManualCamps(manuals, newPlan){
     dpCamps[bestIdx] = {...camp, isTerminus:false, _manual:true};
   });
 
-  // Sort all camps by trailDist to restore travel order.
-  // NOBO: ascending trailDist. SOBO: descending trailDist.
-  // This guarantees positive daily distances regardless of where each
-  // manual camp's trailDist falls relative to its replaced DP slot (Bug 12 analog).
+  // Sort to restore travel order — prevents negative daily distances (Bug 12)
   dpCamps.sort((a, b) =>
-    DIRECTION === 'SOBO' ? getTD(b) - getTD(a) : getTD(a) - getTD(b));
+    DIRECTION === 'SOBO' ? campTD(b) - campTD(a) : campTD(a) - campTD(b));
 
-  // Rebuild newPlan in place
   newPlan.length = 0;
   dpCamps.forEach(c => newPlan.push(c));
   if(terminus) newPlan.push(terminus);
@@ -1983,6 +1918,7 @@ function teardownTrail(){
   if(editorDotLayer){ map.removeLayer(editorDotLayer); editorDotLayer = null; }
   // Reset data arrays
   CAMPS=[]; RESUPPLY=[]; ALL_STOPS=[]; TRAIL_COORDS=[]; plan=[];
+  _trailCum = null;
   TRAIL_END_NODE = null;
   // Reset UI
   document.getElementById('list-panel').innerHTML = '';
@@ -2149,23 +2085,17 @@ function applyPlanRestore(saved){
   }
   const nightList = saved.nights ||
     (saved.overrides && saved.overrides.map(ov => ({name:ov.name, mile:ov.mile, trailDist:null})));
-  const SCALE_R = (END_TRAIL_DIST - START_TRAIL_DIST) / (END_MILE - START_MILE);
   const planNights = plan.filter(c => !c.isTerminus).length;
   if(nightList && nightList.length && plan.length){
     let any = false;
     const sameCount = nightList.length === planNights;
     nightList.forEach((night, ni) => {
-      const refTD = night.trailDist != null
-        ? night.trailDist
-        : (night.mile - START_MILE) * SCALE_R;
-      const camp = ALL_STOPS.reduce((best, c) => {
-        const tdC = c.trailDist != null ? c.trailDist : (c.mile - START_MILE) * SCALE_R;
-        const tdB = best.trailDist != null ? best.trailDist : (best.mile - START_MILE) * SCALE_R;
-        return Math.abs(tdC - refTD) < Math.abs(tdB - refTD) ? c : best;
-      }, ALL_STOPS[0]);
+      const refTD = campTD(night);
+      const camp = ALL_STOPS.reduce((best, c) =>
+        Math.abs(campTD(c) - refTD) < Math.abs(campTD(best) - refTD) ? c : best
+      , ALL_STOPS[0]);
       if(!camp) return;
-      const campTD = camp.trailDist != null ? camp.trailDist : (camp.mile - START_MILE) * SCALE_R;
-      if(Math.abs(campTD - refTD) > 2.0) return;
+      if(Math.abs(campTD(camp) - refTD) > 2.0) return;
       if(sameCount){
         plan[ni] = {...camp, isTerminus:false, _manual: night._manual || false};
         any = true;
@@ -2173,8 +2103,7 @@ function applyPlanRestore(saved){
         let bestNight = -1, bestDist = Infinity;
         plan.forEach((c, i) => {
           if(c.isTerminus) return;
-          const td = c.trailDist != null ? c.trailDist : (c.mile - START_MILE) * SCALE_R;
-          const d = Math.abs(td - refTD);
+          const d = Math.abs(campTD(c) - refTD);
           if(d < bestDist){ bestDist = d; bestNight = i; }
         });
         if(bestNight >= 0 && bestDist < 40){ plan[bestNight] = {...camp, isTerminus:false, _manual: night._manual || false}; any = true; }

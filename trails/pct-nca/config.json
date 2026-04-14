@@ -1,29 +1,31 @@
 {
-  "trailName": "PCT No. California",
-  "trailAbbrev": "PCT",
-  "startMarkerLabel": "Tuolumne Meadows \u2014 Start (Mi 942.5)",
-  "defaultStartDate": "2026-07-01",
-  "defaultEmergeDate": "2026-06-20",
-  "defaultAvgPace": 14,
-  "defaultFlexPace": 4,
-  "endTrailDist": 758.331,
-  "bugEmergeDoy": 172,
+  "trailName":              "PCT No. California",
+  "trailAbbrev":            "PCT",
+  "startMarkerLabel":       "Tuolumne Meadows — Start (Mi 942.5)",
+  "soboStartMarkerLabel":   "Ashland — SOBO Start (Mi 1696.8)",
+  "defaultDirection":       "NOBO",
+  "defaultStartDate":       "2026-07-10",
+  "defaultEmergeDate":      "2026-06-20",
+  "defaultAvgPace":         15,
+  "defaultFlexPace":        3,
+  "endTrailDist":           758.0,
+  "bugEmergeDoy":           171,
   "terminus": {
-    "name": "Ashland \u2014 OR/CA Border",
-    "lat": 42.0061,
-    "lon": -122.5294,
-    "elev": 4310,
+    "name": "Callahans Lodge / Ashland",
+    "lat":  42.1407,
+    "lon":  -122.5978,
+    "elev": 1943,
     "mile": 1696.8
   },
   "bugBands": [
     {
-      "name": "Mosquitoes",
-      "label": "Mosquitoes",
-      "peakDoy": 196,
-      "sigma": 24,
-      "weight": 1.6,
-      "elevDecay": 0.00022,
-      "waterBonus": 0.3
+      "name":       "Mosquitoes",
+      "label":      "Mosquitoes",
+      "peakDoy":    196,
+      "sigma":      23,
+      "weight":     1.6,
+      "elevDecay":  0.00025,
+      "waterBonus": 0.35
     }
   ]
 }
