@@ -619,6 +619,18 @@
     "trailDist": 597.688
   },
   {
+    "name": "Rakaia Gorge Campground",
+    "mile": 626.48,
+    "lat": -43.519003,
+    "lon": 171.654332,
+    "elev": 350,
+    "type": "Established",
+    "water": true,
+    "outhouse": true,
+    "source": "custom",
+    "trailDist": 626.478
+  },
+  {
     "mile": 671.53,
     "name": "Hamilton Hut",
     "lat": -43.129339,
