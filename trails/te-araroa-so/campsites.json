@@ -1,5 +1,29 @@
 [
   {
+    "name": "Invercargill",
+    "mile": 21.29,
+    "lat": -46.418474,
+    "lon": 168.337514,
+    "elev": 10,
+    "type": "Established",
+    "water": true,
+    "outhouse": true,
+    "source": "custom",
+    "trailDist": 21.286
+  },
+  {
+    "name": "Colac Bay Beach",
+    "mile": 48.64,
+    "lat": -46.361483,
+    "lon": 167.890131,
+    "elev": 10,
+    "type": "Undeveloped",
+    "water": false,
+    "outhouse": false,
+    "source": "custom",
+    "trailDist": 48.636
+  },
+  {
     "mile": 56.66,
     "name": "Turnbull's (Big Dam) Hut",
     "lat": -46.291583,
@@ -24,6 +48,42 @@
     "source": "doc",
     "desc": "Included in The Trail Pass",
     "trailDist": 59.579
+  },
+  {
+    "name": "Tuatapere",
+    "mile": 70.1,
+    "lat": -46.150681,
+    "lon": 167.822764,
+    "elev": 30,
+    "type": "Undeveloped",
+    "water": false,
+    "outhouse": false,
+    "source": "custom",
+    "trailDist": 70.096
+  },
+  {
+    "name": "Merryvale Hut",
+    "mile": 76.53,
+    "lat": -46.074551,
+    "lon": 167.853244,
+    "elev": 500,
+    "type": "Established",
+    "water": false,
+    "outhouse": false,
+    "source": "custom",
+    "trailDist": 76.53
+  },
+  {
+    "name": "Telford Burn Campsite",
+    "mile": 113.13,
+    "lat": -45.804272,
+    "lon": 167.881558,
+    "elev": 420,
+    "type": "Undeveloped",
+    "water": false,
+    "outhouse": false,
+    "source": "custom",
+    "trailDist": 113.125
   },
   {
     "mile": 114.84,
@@ -313,7 +373,7 @@
   },
   {
     "mile": 344.47,
-    "name": "Top T\u012bmaru Hut",
+    "name": "Top Tīmaru Hut",
     "lat": -44.470482,
     "lon": 169.501394,
     "elev": 2975,
@@ -677,7 +737,7 @@
   },
   {
     "mile": 710.22,
-    "name": "Kiwi Hut \u2013 West Coast",
+    "name": "Kiwi Hut – West Coast",
     "lat": -42.756888,
     "lon": 171.743228,
     "elev": 1106,
