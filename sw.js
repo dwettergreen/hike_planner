@@ -1,7 +1,7 @@
 // sw.js — Hike Planner Service Worker
 // Cache version: increment CACHE_VER when deploying significant updates
 // to force clients to download fresh files.
-const CACHE_VER = 'v1';
+const CACHE_VER = 'v2';
 const CACHE_NAME = 'hike-planner-' + CACHE_VER;
 
 // Files to pre-cache on install.
