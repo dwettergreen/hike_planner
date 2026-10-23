@@ -10,6 +10,7 @@ A browser-based, multi-night thru-hiking itinerary planner. Uses dynamic program
 - **Long Trail, Vermont** — All Vermont (272 miles)
 - **Colorado Trail** — Denver to Durango (486 miles)
 - **Te Araroa South Island** — Bluff to Ship Cove (986 miles)
+- **AT North**: Maine Junction (Killington, VT) to Katahdin (473 miles, southbound by default)
 
 **Live tool:** https://dwettergreen.github.io/hike_planner/
 
@@ -88,16 +89,15 @@ hike_planner/
 ├── registry.json           — list of available trails (required)
 ├── prepare_trail.py        — data preparation script (see below)
 ├── docs/
-│   ├── Hike_Planner_TDD_v4_1.docx     — technical design document
-│   ├── Trail_Import_Guide_v3_1.docx   — step-by-step trail import guide
-│   └── Hike_Planner_User_Guide_v1_0.docx — end-user planning guide
-├── source/                 — raw GPS source files (committed for reproducibility)
-│   ├── Washington.geojson      — PCTA 2026 PCT Washington centerline
-│   ├── Oregon.geojson          — PCTA 2026 PCT Oregon centerline
-│   ├── Northern_California.geojson
-│   ├── Southern_California.geojson
-│   ├── long-trail.geojson      — OSM Long Trail track
-│   └── TeAraroaSouthIsland.gpx — Te Araroa Trust 2025-26 v44 (SOBO)
+│   ├── Hike_Planner_TDD_v4_2.docx        - technical design document
+│   ├── Trail_Import_Guide_v3.3.docx      - step-by-step trail import guide
+│   └── Hike_Planner_User_Guide_v1_3.docx - end-user planning guide
+├── source/                 — raw source data (committed for reproducibility)
+│   ├── at-north.geojson            - NPS/ATC A.T. centerline, VT–ME (June 2023 version)
+│   ├── at-north-facilities.json    - NPS/ATC shelters, campsites, privies (Apr 2026)
+│   ├── at-north-elev.json          - USGS 3DEP campsite elevations (cache)
+│   └── at-north_build_campsites.py - builds trails/at-north/campsites_source.csv
+│   (Raw sources for the older trails were not saved; re-download per the Trail Import Guide.)
 └── trails/
     ├── pct-wa/
     │   ├── config.json         — trail constants + bug model
@@ -110,7 +110,8 @@ hike_planner/
     ├── pct-sca/      (same structure)
     ├── long-trail/   (same structure)
     ├── colorado-trail/ (same structure)
-    └── te-araroa-so/ (same structure)
+    ├── te-araroa-so/ (same structure)
+    └── at-north/     (same structure, plus campsites_source.csv)
 ```
 
 **Notes:**
@@ -142,12 +143,17 @@ The script prints the `endTrailDist` value to set in `config.json`, runs all 5 v
 | `--expected` | 0 (skip) | Published miles, used for arc-length validation |
 | `--spacing` | 300 ft | Target distance between rendering trail points |
 | `--reverse` | off | Reverse coords if source track is SOBO |
+| `--chain` | latitude | `endpoints` joins GeoJSON segments by matching endpoints (needed when the trail is not monotonic in latitude, e.g. the AT) |
+| `--start-lat` | none | Clip the track at its first crossing of a latitude (e.g. a state line) |
+| `--start-point` | none | Clip the track at the point nearest `LAT,LON` (e.g. a trail junction) |
 
 ### GPS track sources
 
 **PCT sections:** Download from the [PCTA public Box folder](https://pcta.app.box.com/s/wsv09z18lw4kwptjrxd79kj07xm6ufsr/folder/305401160536) — `Washington.geojson`, `Oregon.geojson`, `Northern_California.geojson`, `Southern_California.geojson`. Updated each January. Commit to `source/`.
 
 **Te Araroa:** Download from [teararoa.org.nz/trail-maps](https://www.teararoa.org.nz/trail-maps/) (free account required) — "North & South Island GPX". The Trust files are SOBO (Cape Reinga → Bluff); use `--reverse` when running `prepare_trail.py`. Campsite data comes from [DOC Open Data GeoJSON](https://catalogue.data.govt.nz/dataset/doc-huts4) (requires NZTM2000→WGS84 coordinate conversion via `pyproj`) plus the [Trail Pass huts/campsites PDF](https://www.teararoa.org.nz/wp-content/uploads/2024/08/The-Trail-Pass-Huts-Campsites-full-list.pdf).
+
+**AT North:** Track from the NPS/ATC [ANST_Centerline FeatureServer](https://services1.arcgis.com/fBc8EJBxQRMcHlei/ArcGIS/rest/services/ANST_Centerline/FeatureServer) (query with a bounding box, `outSR=4326`, `f=geojson`; run the query in a browser if your shell's network blocks ArcGIS). Shelters, campsites and privies from the [ANST_Facilities FeatureServer](https://services1.arcgis.com/fBc8EJBxQRMcHlei/ArcGIS/rest/services/ANST_Facilities/FeatureServer); elevations from the USGS 3DEP point query service. Build with `--chain endpoints --start-lat 42.745 --start-point 43.67501,-72.83835`.
 
 **Other trails:** OpenStreetMap Waymarked Trails for the Long Trail; Colorado Trail Foundation GIS for the CT; Halfmile pctmap.net GPX for campsite waypoints (2020 legacy data, waypoints still useful).
 
@@ -181,7 +187,7 @@ The script prints the `endTrailDist` value to set in `config.json`, runs all 5 v
 
 7. **Push.** Trail appears in the dropdown. No changes to `index.html`.
 
-See `docs/Trail_Import_Guide_v3_1.docx` for the complete step-by-step procedure, including campsite extraction from Halfmile waypoints, resupply stop conventions, bug model calibration by climate, and the pre-commit checklist.
+See `docs/Trail_Import_Guide_v3.3.docx` for the complete step-by-step procedure, including campsite extraction from Halfmile waypoints, resupply stop conventions, bug model calibration by climate, and the pre-commit checklist.
 
 ---
 
@@ -192,6 +198,7 @@ https://dwettergreen.github.io/hike_planner/#trail=pct-wa
 https://dwettergreen.github.io/hike_planner/#trail=long-trail
 https://dwettergreen.github.io/hike_planner/#trail=colorado-trail
 https://dwettergreen.github.io/hike_planner/#trail=te-araroa-so
+https://dwettergreen.github.io/hike_planner/#trail=at-north
 ```
 
 ---
