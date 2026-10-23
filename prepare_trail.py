@@ -552,7 +552,35 @@ def validate(coords, cum, camps, expected_miles):
 
 # ── Trail geojson output ──────────────────────────────────────────────────────
 
-def build_rendering_trail(coords, thin, trail_name):
+def simplify_rdp(coords, tol_ft):
+    """
+    Douglas-Peucker simplification: keep the fewest points such that the
+    simplified line never departs more than tol_ft from the full track.
+    Keeps vertices at switchbacks and bends; drops points on straight runs.
+    Uses a local equirectangular projection (accurate to <0.5% over a trail).
+    Iterative, so safe for 200k+ point tracks.
+    """
+    mid = math.radians(sum(c[1] for c in coords[::100]) / len(coords[::100]))
+    kx, ky = 364000 * math.cos(mid), 364000          # ~ft per degree
+    xy = [(c[0] * kx, c[1] * ky) for c in coords]
+    keep = [False] * len(xy); keep[0] = keep[-1] = True
+    stack = [(0, len(xy) - 1)]
+    while stack:
+        a, b = stack.pop()
+        ax, ay = xy[a]; dx, dy = xy[b][0] - ax, xy[b][1] - ay
+        L = math.hypot(dx, dy) or 1e-9
+        best, bi = 0.0, -1
+        for i in range(a + 1, b):
+            d = abs(dy * (xy[i][0] - ax) - dx * (xy[i][1] - ay)) / L
+            if d > best:
+                best, bi = d, i
+        if best > tol_ft:
+            keep[bi] = True
+            stack += [(a, bi), (bi, b)]
+    return [c for c, k in zip(coords, keep) if k]
+
+
+def build_rendering_trail(coords, thin, trail_name, simplify_ft=None):
     """
     Build the rendering trail.geojson by keeping every Nth coordinate.
     Returns a GeoJSON FeatureCollection dict with a single LineString feature.
@@ -562,7 +590,7 @@ def build_rendering_trail(coords, thin, trail_name):
     arc-length.  buildTrailCum() in the browser rescales _trailCum[] to
     match endTrailDist.  See TDD §7.3.
     """
-    thinned = coords[::thin]
+    thinned = simplify_rdp(coords, simplify_ft) if simplify_ft else coords[::thin]
     # Always include the last point so the trail reaches the terminus exactly
     if thinned[-1] != coords[-1]:
         thinned.append(coords[-1])
@@ -613,6 +641,9 @@ def main():
     parser.add_argument('--start-lat', type=float, default=None,
                         help="Clip the track at its first crossing of this latitude "
                              "(e.g. 42.745 for the MA/VT line)")
+    parser.add_argument('--simplify-ft', type=float, default=None,
+                        help="Thin the rendering trail with Douglas-Peucker at this tolerance "
+                             "in feet instead of uniform --spacing (keeps switchbacks)")
     parser.add_argument('--start-point', default=None,
                         help="Clip the track at the point nearest LAT,LON (e.g. a junction)")
     args = parser.parse_args()
@@ -666,9 +697,12 @@ def main():
     print(f"\nBuilding rendering trail...")
     print(f"  Source avg spacing:  {avg_spacing_ft:.1f} ft/pt")
     print(f"  Target spacing:      {args.spacing:.0f} ft/pt")
-    print(f"  Computed thin value: every {thin}th point")
+    if args.simplify_ft:
+        print(f"  Douglas-Peucker:     tolerance {args.simplify_ft:g} ft (--spacing ignored)")
+    else:
+        print(f"  Computed thin value: every {thin}th point")
 
-    rendering_trail = build_rendering_trail(coords, thin, args.name)
+    rendering_trail = build_rendering_trail(coords, thin, args.name, args.simplify_ft)
     thinned_count = len(rendering_trail['features'][0]['geometry']['coordinates'])
     thinned_arc = sum(
         haversine(
@@ -680,6 +714,7 @@ def main():
     actual_spacing_ft = (thinned_arc * 5280) / thinned_count
     print(f"  Output: {thinned_count:,} points, {thinned_arc:.2f} mi arc, "
           f"~{actual_spacing_ft:.0f} ft avg spacing")
+    print(f"  Arc retained:        {100 * thinned_arc / total_arc:.1f}% of full resolution")
     print(f"  (Note: {total_arc - thinned_arc:.2f} mi lost to corner-cutting — "
           f"buildTrailCum() rescales this in the browser)")
     if thinned_count < 3000:
@@ -687,7 +722,7 @@ def main():
               f"Try --spacing {args.spacing // 2:.0f}.")
     elif thinned_count > 20000:
         print(f"  Warning: {thinned_count:,} output points may slow map rendering. "
-              f"Try --spacing {args.spacing * 2:.0f}.")
+              (f"Try --simplify-ft {args.simplify_ft * 1.5:g}." if args.simplify_ft else f"Try --spacing {args.spacing * 2:.0f}."))
 
     # ── 8. Write output files ─────────────────────────────────────────────────
     out_dir = Path(args.out)
