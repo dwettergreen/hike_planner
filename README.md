@@ -146,6 +146,7 @@ The script prints the `endTrailDist` value to set in `config.json`, runs all 5 v
 | `--chain` | latitude | `endpoints` joins GeoJSON segments by matching endpoints (needed when the trail is not monotonic in latitude, e.g. the AT) |
 | `--start-lat` | none | Clip the track at its first crossing of a latitude (e.g. a state line) |
 | `--start-point` | none | Clip the track at the point nearest `LAT,LON` (e.g. a trail junction) |
+| `--simplify-ft` | none | Thin the rendering trail with Douglas–Peucker at this tolerance (ft) instead of `--spacing`; keeps switchbacks |
 
 ### GPS track sources
 
@@ -153,7 +154,7 @@ The script prints the `endTrailDist` value to set in `config.json`, runs all 5 v
 
 **Te Araroa:** Download from [teararoa.org.nz/trail-maps](https://www.teararoa.org.nz/trail-maps/) (free account required) — "North & South Island GPX". The Trust files are SOBO (Cape Reinga → Bluff); use `--reverse` when running `prepare_trail.py`. Campsite data comes from [DOC Open Data GeoJSON](https://catalogue.data.govt.nz/dataset/doc-huts4) (requires NZTM2000→WGS84 coordinate conversion via `pyproj`) plus the [Trail Pass huts/campsites PDF](https://www.teararoa.org.nz/wp-content/uploads/2024/08/The-Trail-Pass-Huts-Campsites-full-list.pdf).
 
-**AT North:** Track from the NPS/ATC [ANST_Centerline FeatureServer](https://services1.arcgis.com/fBc8EJBxQRMcHlei/ArcGIS/rest/services/ANST_Centerline/FeatureServer) (query with a bounding box, `outSR=4326`, `f=geojson`; run the query in a browser if your shell's network blocks ArcGIS). Shelters, campsites and privies from the [ANST_Facilities FeatureServer](https://services1.arcgis.com/fBc8EJBxQRMcHlei/ArcGIS/rest/services/ANST_Facilities/FeatureServer); elevations from the USGS 3DEP point query service. Build with `--chain endpoints --start-lat 42.745 --start-point 43.67501,-72.83835`.
+**AT North:** Track from the NPS/ATC [ANST_Centerline FeatureServer](https://services1.arcgis.com/fBc8EJBxQRMcHlei/ArcGIS/rest/services/ANST_Centerline/FeatureServer) (query with a bounding box, `outSR=4326`, `f=geojson`; run the query in a browser if your shell's network blocks ArcGIS). Shelters, campsites and privies from the [ANST_Facilities FeatureServer](https://services1.arcgis.com/fBc8EJBxQRMcHlei/ArcGIS/rest/services/ANST_Facilities/FeatureServer); elevations from the USGS 3DEP point query service. Build with `--chain endpoints --start-lat 42.745 --start-point 43.67501,-72.83835 --simplify-ft 10`.
 
 **Other trails:** OpenStreetMap Waymarked Trails for the Long Trail; Colorado Trail Foundation GIS for the CT; Halfmile pctmap.net GPX for campsite waypoints (2020 legacy data, waypoints still useful).
 
