@@ -145,7 +145,69 @@ def load_gpx(path):
     return coords
 
 
-def extract_coords_from_geojson(data):
+def chain_by_endpoints(features, key_dp=5):
+    """
+    Chain LineString features into one path by matching endpoints, flipping
+    segments as needed. Use for trails whose route is not monotonic in
+    latitude (e.g. the AT through New England). Zero-length closed segments
+    (start == end) are dropped. The walk starts at the southernmost dead end.
+    Raises ValueError if the segments do not form a single simple path.
+    """
+    from collections import defaultdict
+    key = lambda p: (round(p[0], key_dp), round(p[1], key_dp))
+    segs = [f['geometry']['coordinates'] for f in features
+            if f['geometry']['type'] == 'LineString']
+    segs = [s for s in segs if len(s) > 1 and key(s[0]) != key(s[-1])]
+    adj = defaultdict(list)
+    for i, s in enumerate(segs):
+        adj[key(s[0])].append(i)
+        adj[key(s[-1])].append(i)
+    bad = [n for n, v in adj.items() if len(v) > 2]
+    ends = [n for n, v in adj.items() if len(v) == 1]
+    if bad or len(ends) != 2:
+        raise ValueError(f"Endpoint chaining: not a simple path "
+                         f"({len(ends)} dead ends, {len(bad)} branch nodes, e.g. {bad[:3]})")
+    node = min(ends, key=lambda n: n[1])
+    used, out = set(), []
+    while True:
+        nxt = [i for i in adj[node] if i not in used]
+        if not nxt:
+            break
+        i = nxt[0]; used.add(i); seg = segs[i]
+        if key(seg[0]) != node:
+            seg = seg[::-1]
+        out.extend(seg if not out else seg[1:])
+        node = key(seg[-1])
+    if len(used) != len(segs):
+        raise ValueError(f"Endpoint chaining used {len(used)} of {len(segs)} segments")
+    print(f"  Chained {len(segs)} features by endpoint matching "
+          f"({len(features) - len(segs)} degenerate dropped).")
+    return out
+
+
+def clip_start_lat(coords, lat):
+    """Drop points before the first crossing of `lat`, interpolating the cut point."""
+    for j in range(1, len(coords)):
+        a, b = coords[j - 1], coords[j]
+        if (a[1] < lat) != (b[1] < lat):
+            t = (lat - a[1]) / (b[1] - a[1])
+            cut = [a[0] + t * (b[0] - a[0]), lat]
+            print(f"  Clipped start at lat {lat}: removed {j} points.")
+            return [cut] + coords[j:]
+    raise ValueError(f"Track never crosses latitude {lat}")
+
+
+def clip_start_point(coords, lat, lon):
+    """Drop points before the track point nearest (lat, lon), e.g. a trail junction."""
+    j = min(range(len(coords)), key=lambda i: (coords[i][1]-lat)**2 + (coords[i][0]-lon)**2)
+    d = haversine([lon, lat], coords[j])
+    if d > 0.1:
+        raise ValueError(f"--start-point is {d:.2f} mi from the track (limit 0.1 mi)")
+    print(f"  Clipped start at track point {j} ({d*5280:.0f} ft from --start-point).")
+    return coords[j:]
+
+
+def extract_coords_from_geojson(data, chain='latitude'):
     """
     Accept a GeoJSON object in any of these forms and return a flat
     list of [lon, lat] coordinate pairs:
@@ -191,6 +253,9 @@ def extract_coords_from_geojson(data):
         if len(features) == 1:
             return geom_to_coords(features[0]['geometry'])
 
+        if chain == 'endpoints':
+            return chain_by_endpoints(features)
+
         # Multiple features: sort by min latitude (southernmost first = NOBO)
         def min_lat(feat):
             geom = feat['geometry']
@@ -224,7 +289,7 @@ def extract_coords_from_geojson(data):
         raise ValueError(f"Unrecognised GeoJSON type: '{obj_type}'")
 
 
-def load_trail(path, reverse=False):
+def load_trail(path, reverse=False, chain='latitude', start_lat=None, start_point=None):
     """
     Load a GPS track from a GeoJSON or GPX file.
     Returns a flat list of [lon, lat] coordinates in NOBO order.
@@ -241,12 +306,17 @@ def load_trail(path, reverse=False):
     else:
         with open(path) as f:
             data = json.load(f)
-        coords = extract_coords_from_geojson(data)
+        coords = extract_coords_from_geojson(data, chain)
         print(f"  GeoJSON: {len(coords):,} coordinate pairs extracted.")
 
     if reverse:
         coords = coords[::-1]
         print("  Reversed coordinate array (--reverse flag).")
+
+    if start_lat is not None:
+        coords = clip_start_lat(coords, start_lat)
+    if start_point is not None:
+        coords = clip_start_point(coords, *start_point)
 
     return coords
 
@@ -330,6 +400,10 @@ def load_campsites_csv(path):
             if camp['type'] not in valid_types:
                 print(f"  Warning: '{name}' has unrecognised type '{camp['type']}' "
                       f"(expected one of: {', '.join(sorted(valid_types))}).")
+
+            # Optional offTrail — True excludes the stop from DP overnight candidates (Bug 11)
+            if _parse_bool(row.get('offTrail', '') or 'false'):
+                camp['offTrail'] = True
 
             # Optional desc — omit if blank (do not set to null or empty string)
             desc = row.get('desc', '').strip()
@@ -533,10 +607,22 @@ def main():
                         help="Reverse coord array (use when source track is SOBO)")
     parser.add_argument('--skip-validate', action='store_true',
                         help="Skip the five validation checks (not recommended)")
+    parser.add_argument('--chain', choices=['latitude', 'endpoints'], default='latitude',
+                        help="How to order multi-feature GeoJSON: sort by min latitude "
+                             "(default, PCT) or match segment endpoints (non-monotonic trails, e.g. AT)")
+    parser.add_argument('--start-lat', type=float, default=None,
+                        help="Clip the track at its first crossing of this latitude "
+                             "(e.g. 42.745 for the MA/VT line)")
+    parser.add_argument('--start-point', default=None,
+                        help="Clip the track at the point nearest LAT,LON (e.g. a junction)")
     args = parser.parse_args()
+    if args.start_point:
+        args.start_point = tuple(float(v) for v in args.start_point.split(','))
 
     # ── 1. Load GPS track ────────────────────────────────────────────────────
-    coords = load_trail(args.trail, reverse=args.reverse)
+    coords = load_trail(args.trail, reverse=args.reverse,
+                        chain=args.chain, start_lat=args.start_lat,
+                        start_point=args.start_point)
 
     # ── 2. Build cumulative arc-length (full resolution) ─────────────────────
     print("\nComputing full-resolution arc-length...")

@@ -1626,7 +1626,7 @@ function editorStartNewAtTrailPoint(pt){
 
 function editorShowForm(c, isNew){
   const panel = document.getElementById('edit-panel');
-  const KNOWN_SOURCES = ['resupply','custom','halfmile','trailfinder','gmc','bcs','manual','doc','trailpass'];
+  const KNOWN_SOURCES = ['resupply','custom','halfmile','trailfinder','gmc','bcs','manual','doc','trailpass','atc'];
   const srcDisplay = srcLabel === 'null' ? '—' : srcLabel;
   panel.querySelector('#ef-panel').innerHTML = `
     <div class="eform">
@@ -1779,7 +1779,7 @@ function renderEditorList(q=''){
   filtered.forEach(c => {
     const i = ALL_STOPS.indexOf(c);
     const row = document.createElement('div');
-    const KNOWN_SOURCES = ['resupply','custom','halfmile','trailfinder','gmc','bcs','manual','doc','trailpass'];
+    const KNOWN_SOURCES = ['resupply','custom','halfmile','trailfinder','gmc','bcs','manual','doc','trailpass','atc'];
     const srcLabel   = KNOWN_SOURCES.includes(c.source) ? c.source : 'null';
     const srcDisplay = srcLabel === 'null' ? '—' : srcLabel;
     row.className = `ecamp-row${i===editorSel?' esel':''}${c.source==='custom'?' enew':''}`;

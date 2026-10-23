@@ -1,0 +1,37 @@
+{
+  "trailName":              "Appalachian Trail North (Killington VT to Katahdin)",
+  "trailAbbrev":            "AT",
+  "startMarkerLabel":       "Maine Junction, Killington VT (Mi 0.0)",
+  "soboStartMarkerLabel":   "Katahdin, SOBO Start",
+  "defaultDirection":       "SOBO",
+  "defaultStartDate":       "2026-07-01",
+  "defaultEmergeDate":      "2026-06-01",
+  "defaultAvgPace":         12,
+  "defaultFlexPace":        3,
+  "endTrailDist":           472.927,
+  "bugEmergeDoy":           152,
+  "terminus": {
+    "name": "Katahdin (Baxter Peak)",
+    "lat":  45.90447,
+    "lon":  -68.92149,
+    "elev": 5267,
+    "mile": 472.927
+  },
+  "bugBands": [
+    {
+      "name": "BlackFlies", "label": "Black Flies",
+      "peakDoy": 155, "sigma": 18, "weight": 2.5,
+      "elevDecay": 0.0003, "waterBonus": 0.50
+    },
+    {
+      "name": "Mosquitoes", "label": "Mosquitoes",
+      "peakDoy": 182, "sigma": 22, "weight": 2.0,
+      "elevDecay": 0.00025, "waterBonus": 0.35
+    },
+    {
+      "name": "DeerFlies", "label": "Deer/Horse Flies",
+      "peakDoy": 205, "sigma": 18, "weight": 1.2,
+      "elevDecay": 0.0002, "waterBonus": 0.20
+    }
+  ]
+}
